@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Vitruve runtime
+# Weights and norms are downloaded by `vitruve fetch-weights` into
+# ~/.cache/vitruve, but a local override lands here and must never be
+# committed: the checkpoints are large and several carry licenses that
+# forbid redistribution.
+weights/
+*.onnx
+*.task
+*.pt
+*.pth
+*.npz
+*.parquet
+
+# Anything a run produced. Reports contain a face.
+out/
+runs/
+*.report.html
+*.report.json
+
+# macOS
+.DS_Store

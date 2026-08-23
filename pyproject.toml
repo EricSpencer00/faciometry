@@ -1,0 +1,104 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vitruve"
+version = "0.1.0"
+description = "Local facial morphometrics with uncertainty intervals and an honest reportability gate"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { file = "LICENSE" }
+authors = [{ name = "Eric Spencer" }]
+keywords = ["anthropometry", "morphometrics", "photogrammetry", "face", "uncertainty"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+# The measurement layer -- core, measure, norms -- runs on numpy alone, and
+# Pillow is here only to decode an image and strip its EXIF. Everything that
+# needs a neural network lives in an extra, so a permissive install stays
+# permissive and a copyleft one is an explicit act.
+dependencies = [
+  "numpy>=1.26",
+  "pillow>=10.3",
+]
+
+[project.optional-dependencies]
+permissive = [
+  "opencv-python>=4.10",   # Apache-2.0, carries the YuNet ONNX runtime path
+  "mediapipe>=0.10.14",    # Apache-2.0, including the bundled .task models
+]
+copyleft = [
+  "ultralytics>=8.3",      # AGPL-3.0
+]
+api = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "python-multipart>=0.0.9",
+]
+dev = [
+  "pytest>=8.2",
+  "pytest-cov>=5.0",
+  "httpx>=0.27",
+  "ruff>=0.5",
+  "mypy>=1.10",
+]
+
+[project.scripts]
+vitruve = "vitruve.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/EricSpencer00/vitruve"
+Source = "https://github.com/EricSpencer00/vitruve"
+
+# Extras carry license consequences that PEP 621 has nowhere to record, so
+# they are recorded here and `vitruve licenses` reads them back out. An
+# obligation that only exists in a comment is an obligation nobody reads.
+[tool.vitruve.extras]
+permissive = "OpenCV (Apache-2.0) and MediaPipe (Apache-2.0), including MediaPipe's bundled .task models. No copyleft and no field-of-use restriction. This is the default stack."
+copyleft = "Ultralytics (AGPL-3.0). Installing this extra makes the deployment AGPL-3.0: Ultralytics asserts AGPL-3.0 over the models its training code produces as well as over the code, so serving Vitruve over a network with this extra installed obliges you to release your corresponding source under AGPL-3.0, or to buy an Ultralytics Enterprise License."
+api = "FastAPI and Uvicorn (both MIT), for `vitruve serve`. No effect on the license of the deployment."
+dev = "Test and lint tooling. Not installed at runtime."
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vitruve"]
+
+# The web UI is data, not code, and it has to travel with the wheel or
+# `vitruve serve` has nothing to serve.
+[tool.hatch.build.targets.wheel.force-include]
+"web" = "vitruve/web"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/vitruve", "web", "tests", "docs", "assets", "README.md", "LICENSE", "Makefile"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-markers"
+markers = [
+  "slow: takes more than a second",
+  "needs_weights: requires model weights fetched by `vitruve fetch-weights`",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/vitruve"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+no_implicit_optional = true
