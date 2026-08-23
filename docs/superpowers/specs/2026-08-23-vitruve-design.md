@@ -244,13 +244,123 @@ not silently dropped. A number without its control is not reported as a result.
 the part that produces the actual numbers — is testable in milliseconds without a
 GPU or a model. That is the point of the seam.
 
-## 6. Open questions resolved by research (pending)
+## 6. What the research changed
 
-- Ultralytics is AGPL-3.0; whether the project ships AGPL or keeps a permissive
-  core with an optional AGPL extra depends on whether a permissive YOLO-format
-  inference path is viable.
-- Whether a FLAME-based 3DMM (non-commercial licence) can be avoided in favour of
-  a permissively-licensed fitter.
-- Availability of open acne/skin detection data with boxes or masks.
-- Availability of published anthropometric norm tables to sanity-check the
-  empirically-built normative model against.
+The design above was drafted before the literature review. Six findings changed
+it, and they are recorded here because each one overturned something the draft
+took for granted.
+
+### 6.1 The primary gate is discriminability, not accuracy
+
+Kleinberg and Vanezis (2007) photographed subjects in ten-degree steps and
+measured how far each facial index moved. At **ten degrees of yaw their indices
+shifted by 8 to 19 percent, against a between-subject relative spread of 1.2
+percent** for the tightest index. The pose artifact was larger than the entire
+spread between different people. FISWG's 2026 guidance (V2.1, section 6.4.1)
+prohibits photo-anthropometry for identification, citing that work directly.
+
+So the question a measurement must answer is not "how accurate is it" but
+"does it vary more between people than between photographs of one person". That
+ratio is now computed for every measurement on every image, and it decides
+reportability before anything else. `core/sensitivity.py` implements it;
+`evals/` derives the sensitivity slopes empirically.
+
+Consequence: on a careful handheld photograph, roughly two of forty-five
+measurements report cleanly, most carry a caveat, and about nine are withheld.
+That is the honest answer, and printing forty-five numbers instead would be the
+bug.
+
+### 6.2 The pose estimate is itself uncertain
+
+Published head-pose estimators sit near 3.5 to 4 degrees mean absolute error on
+AFLW2000-3D, with a label-noise floor around 2.5 to 3 degrees. A five-degree
+gate is therefore at the edge of resolvability. Vitruve gates on
+`|pose| + k * pose_sd` rather than on the point estimate, and runs two
+independent pose sources so their disagreement is itself a quality signal.
+
+### 6.3 Derived sensitivity models must not override measured variance
+
+The first-order projection model only knows about rigid rotation. Kramer (2016)
+decomposed the variance of the facial width-to-height ratio and found **posed
+expression accounting for more of it than identity did** (eta-squared 0.58
+against 0.31), with the rank ordering of individuals changing depending on which
+photograph was used. Kramer et al. (2012) measured the same 66 men at 2.01 from
+photographs and 1.83 from 3D scans, a gap larger than any published sex
+difference in that measurement.
+
+`MeasurementSpec.measured_within_person_rsd` now overrides the derived model
+wherever a variance decomposition exists. fWHR is withheld as a result, which
+is the correct outcome and the opposite of what the draft would have produced.
+
+### 6.4 Scale: iris and interpupillary, fused, with the correlation stated
+
+No permissively licensed metric-scale face model exists. MICA is the only
+genuinely metric option and it is research-licence only, neutral-shape only,
+and depends on FLAME 2020 and InsightFace weights. So every millimetre descends
+from an assumption.
+
+The ladder is: a ruler in frame (what Qoves itself asks customers for), then
+iris diameter (11.84 mm, SD 0.79, adult-equivalent from age four), then
+interpupillary distance (63.36 mm, SD 3.83 over 3,976 ANSUR adults, with a
+further 4.7 percent downward correction at selfie distance for near fixation).
+Both image-derived cues are read by the same landmark model from the same
+image, so they are fused with an explicit correlation term rather than as
+independent observations. Assuming independence would understate the fused
+uncertainty by about 18 percent.
+
+### 6.5 The normative model is caliper data, not photogrammetry
+
+Farkas' international series is paywalled and not redistributable. The
+substitute is better: the **NIOSH 2003 head-and-face survey** measured 3,997 US
+respirator users with calipers across twenty facial dimensions and released
+per-subject data as a US Government work in the public domain. It covers
+bigonial and bizygomatic breadth, the two dimensions 2D photogrammetry cannot
+recover, which is exactly where an independent spread is most needed.
+
+Using a photogrammetric study as the discriminability numerator would have put
+the same errors on both sides of the ratio. `scripts/build_niosh_norms.py`
+derives the strata; ratios are computed per subject before aggregating, because
+the numerator and denominator covary strongly within a person.
+
+### 6.6 Licensing is a runtime constraint, not a README note
+
+Ultralytics asserts AGPL-3.0 over models produced by its training code, not
+only over the code. Every third-party "yolov8-face" checkpoint tagged MIT or
+Apache-2.0 is a relabel that does not launder the obligation. InsightFace ships
+MIT code with research-only weights that download automatically. FLAME and the
+Basel Face Model are non-commercial and forbid redistribution, which several
+popular repositories do anyway.
+
+`models/licensing.py` therefore declares a `Provenance` per backend with an
+ordered `Tier`, and refuses at load time to exceed the tier the user selected.
+The default is `PERMISSIVE`: YuNet (MIT), SPIGA (BSD-3), MediaPipe (Apache-2.0,
+including its bundled models), 6DRepNet (MIT). YOLO sits behind `COPYLEFT`,
+where it does the one job it is genuinely best at: multi-instance lesion
+detection on region crops.
+
+### 6.7 Dermatology: measure what you cannot detect
+
+Only acne has real box annotations, and only the Roboflow CC BY 4.0 sets are
+commercially clean. Wrinkle masks exist but are non-commercial. **Dark circles,
+erythema and pores have no usable public annotated data at all.**
+
+Rather than pretend otherwise, those are measured colorimetrically as paired
+within-face contrasts in CIELAB: erythema as a* elevation against a reference
+region, periorbital hyperpigmentation as the infraorbital-to-malar L* and b*
+difference. A paired contrast is robust to illumination and skin tone in a way
+an absolute threshold is not. Skin tone is reported on the Monk scale, not
+Fitzpatrick, which was designed to predict UV burn response in light skin and
+compresses all dark skin into two bins.
+
+### 6.8 What is faithful to Qoves, and what is not
+
+Qoves' own laboratory pages state they are "firmly against the idea of
+'scoring' beauty on a 1-10 scale". Their report identifies features, cites
+reference ranges from Farkas, Powell, Ricketts and Naini, compares against
+ancestry-matched norms, and prescribes interventions.
+
+Vitruve keeps the measurements, the reference ranges as context, and the
+user-declared ancestry stratum. It drops the interventions, the morph image,
+and any comparative language implying a goal state. It adds the intervals, the
+provenance, and the refusal to print numbers that cannot be distinguished from
+photographic noise.
