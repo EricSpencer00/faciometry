@@ -151,10 +151,22 @@ def spreads_for(measurement_id: str) -> tuple[Spread, ...]:
 def representative_spread(measurement_id: str, unit: str) -> float | None:
     """A single between-subject spread to use as the discriminability numerator.
 
-    Takes the largest-n open source, which is the least likely to be a
-    small-sample artifact. Angles return an absolute spread in degrees; lengths
-    and ratios return a relative one.
+    NIOSH wins wherever it reaches, because it measured living faces with
+    calipers on nearly four thousand people. Using a photogrammetric spread
+    here would put the same errors on both sides of the discriminability ratio
+    and quietly inflate it.
+
+    Otherwise, the largest-n openly licensed source, which is the least likely
+    to be a small-sample artifact. Angles return an absolute spread in degrees;
+    lengths and ratios return a relative one.
     """
+    from .niosh import spread as niosh_spread
+
+    if unit != "deg":
+        measured = niosh_spread(measurement_id)
+        if measured is not None:
+            return measured
+
     candidates = [s for s in spreads_for(measurement_id) if s.license.startswith("CC BY") or "public domain" in s.license]
     candidates = [s for s in candidates if not s.license.startswith("CC BY-NC")]
     if not candidates:

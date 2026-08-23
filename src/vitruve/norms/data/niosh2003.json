@@ -1,0 +1,525 @@
+{
+ "caveat": "US respirator users, deliberately oversampled for racial minorities and not reweighted here; strata are unbalanced, so pooled figures are not population estimates",
+ "citation": "Zhuang & Bradtmiller 2005; data released as CDC RD-10130-2020-0",
+ "license": "US Government work, public domain",
+ "method": "direct caliper anthropometry",
+ "n_subjects": 3997,
+ "source": "NIOSH head-and-face anthropometric survey of US respirator users, 2003",
+ "strata": {
+  "bigonial_width": {
+   "both|pooled": {
+    "mean": 117.4076,
+    "n": 3997,
+    "sd": 11.0956
+   },
+   "female|Black": {
+    "mean": 113.7572,
+    "n": 589,
+    "sd": 9.3498
+   },
+   "female|Hispanic": {
+    "mean": 113.6349,
+    "n": 126,
+    "sd": 10.697
+   },
+   "female|Other": {
+    "mean": 112.3591,
+    "n": 220,
+    "sd": 8.4601
+   },
+   "female|White": {
+    "mean": 108.4605,
+    "n": 519,
+    "sd": 8.2299
+   },
+   "female|pooled": {
+    "mean": 111.6444,
+    "n": 1454,
+    "sd": 9.274
+   },
+   "male|Black": {
+    "mean": 120.7634,
+    "n": 634,
+    "sd": 11.3546
+   },
+   "male|Hispanic": {
+    "mean": 123.5388,
+    "n": 412,
+    "sd": 11.6751
+   },
+   "male|Other": {
+    "mean": 119.9846,
+    "n": 130,
+    "sd": 9.7504
+   },
+   "male|White": {
+    "mean": 119.8881,
+    "n": 1367,
+    "sd": 10.0108
+   },
+   "male|pooled": {
+    "mean": 120.7027,
+    "n": 2543,
+    "sd": 10.7009
+   }
+  },
+  "bizygomatic_width": {
+   "both|pooled": {
+    "mean": 141.1124,
+    "n": 3995,
+    "sd": 7.6785
+   },
+   "female|Black": {
+    "mean": 137.5425,
+    "n": 588,
+    "sd": 6.2402
+   },
+   "female|Hispanic": {
+    "mean": 137.6825,
+    "n": 126,
+    "sd": 6.468
+   },
+   "female|Other": {
+    "mean": 137.8273,
+    "n": 220,
+    "sd": 6.4289
+   },
+   "female|White": {
+    "mean": 133.7534,
+    "n": 519,
+    "sd": 6.1717
+   },
+   "female|pooled": {
+    "mean": 136.2443,
+    "n": 1453,
+    "sd": 6.5288
+   },
+   "male|Black": {
+    "mean": 144.6341,
+    "n": 634,
+    "sd": 6.7671
+   },
+   "male|Hispanic": {
+    "mean": 145.733,
+    "n": 412,
+    "sd": 6.8843
+   },
+   "male|Other": {
+    "mean": 144.6923,
+    "n": 130,
+    "sd": 7.144
+   },
+   "male|White": {
+    "mean": 142.9217,
+    "n": 1366,
+    "sd": 6.702
+   },
+   "male|pooled": {
+    "mean": 143.895,
+    "n": 2542,
+    "sd": 6.857
+   }
+  },
+  "face_height_sellion_menton": {
+   "both|pooled": {
+    "mean": 119.9297,
+    "n": 3997,
+    "sd": 8.1512
+   },
+   "female|Black": {
+    "mean": 116.5382,
+    "n": 589,
+    "sd": 6.3699
+   },
+   "female|Hispanic": {
+    "mean": 114.4921,
+    "n": 126,
+    "sd": 6.3381
+   },
+   "female|Other": {
+    "mean": 110.8227,
+    "n": 220,
+    "sd": 6.1221
+   },
+   "female|White": {
+    "mean": 112.9827,
+    "n": 519,
+    "sd": 5.7822
+   },
+   "female|pooled": {
+    "mean": 114.227,
+    "n": 1454,
+    "sd": 6.4748
+   },
+   "male|Black": {
+    "mean": 125.3991,
+    "n": 634,
+    "sd": 7.3377
+   },
+   "male|Hispanic": {
+    "mean": 122.6044,
+    "n": 412,
+    "sd": 6.8502
+   },
+   "male|Other": {
+    "mean": 120.7615,
+    "n": 130,
+    "sd": 7.2964
+   },
+   "male|White": {
+    "mean": 122.5735,
+    "n": 1367,
+    "sd": 6.9249
+   },
+   "male|pooled": {
+    "mean": 123.1903,
+    "n": 2543,
+    "sd": 7.1585
+   }
+  },
+  "interpupillary_distance": {
+   "both|pooled": {
+    "mean": 64.3704,
+    "n": 3996,
+    "sd": 3.9731
+   },
+   "female|Black": {
+    "mean": 65.5136,
+    "n": 589,
+    "sd": 3.7721
+   },
+   "female|Hispanic": {
+    "mean": 62.1698,
+    "n": 126,
+    "sd": 3.1386
+   },
+   "female|Other": {
+    "mean": 61.9886,
+    "n": 220,
+    "sd": 3.3997
+   },
+   "female|White": {
+    "mean": 61.1651,
+    "n": 518,
+    "sd": 3.1408
+   },
+   "female|pooled": {
+    "mean": 63.1396,
+    "n": 1453,
+    "sd": 3.9781
+   },
+   "male|Black": {
+    "mean": 67.7033,
+    "n": 634,
+    "sd": 3.6351
+   },
+   "male|Hispanic": {
+    "mean": 64.6626,
+    "n": 412,
+    "sd": 3.3157
+   },
+   "male|Other": {
+    "mean": 64.8923,
+    "n": 130,
+    "sd": 3.8534
+   },
+   "male|White": {
+    "mean": 63.995,
+    "n": 1367,
+    "sd": 3.3989
+   },
+   "male|pooled": {
+    "mean": 65.0736,
+    "n": 2543,
+    "sd": 3.7959
+   }
+  },
+  "jaw_cheekbone_ratio": {
+   "both|pooled": {
+    "mean": 0.8314,
+    "n": 3995,
+    "sd": 0.0555
+   },
+   "female|Black": {
+    "mean": 0.827,
+    "n": 588,
+    "sd": 0.055
+   },
+   "female|Hispanic": {
+    "mean": 0.8246,
+    "n": 126,
+    "sd": 0.0565
+   },
+   "female|Other": {
+    "mean": 0.815,
+    "n": 220,
+    "sd": 0.045
+   },
+   "female|White": {
+    "mean": 0.8108,
+    "n": 519,
+    "sd": 0.0463
+   },
+   "female|pooled": {
+    "mean": 0.8192,
+    "n": 1453,
+    "sd": 0.0513
+   },
+   "male|Black": {
+    "mean": 0.8346,
+    "n": 634,
+    "sd": 0.0628
+   },
+   "male|Hispanic": {
+    "mean": 0.8469,
+    "n": 412,
+    "sd": 0.0579
+   },
+   "male|Other": {
+    "mean": 0.829,
+    "n": 130,
+    "sd": 0.0488
+   },
+   "male|White": {
+    "mean": 0.8385,
+    "n": 1366,
+    "sd": 0.0537
+   },
+   "male|pooled": {
+    "mean": 0.8384,
+    "n": 2542,
+    "sd": 0.0567
+   }
+  },
+  "mouth_width": {
+   "both|pooled": {
+    "mean": 50.7438,
+    "n": 3997,
+    "sd": 4.5038
+   },
+   "female|Black": {
+    "mean": 51.8981,
+    "n": 589,
+    "sd": 3.8817
+   },
+   "female|Hispanic": {
+    "mean": 49.0794,
+    "n": 126,
+    "sd": 3.8979
+   },
+   "female|Other": {
+    "mean": 46.7909,
+    "n": 220,
+    "sd": 4.1996
+   },
+   "female|White": {
+    "mean": 47.0617,
+    "n": 519,
+    "sd": 3.5287
+   },
+   "female|pooled": {
+    "mean": 49.1547,
+    "n": 1454,
+    "sd": 4.4681
+   },
+   "male|Black": {
+    "mean": 54.3533,
+    "n": 634,
+    "sd": 3.9083
+   },
+   "male|Hispanic": {
+    "mean": 51.1214,
+    "n": 412,
+    "sd": 3.8195
+   },
+   "male|Other": {
+    "mean": 50.5615,
+    "n": 130,
+    "sd": 4.4843
+   },
+   "male|White": {
+    "mean": 50.6635,
+    "n": 1367,
+    "sd": 3.9935
+   },
+   "male|pooled": {
+    "mean": 51.6524,
+    "n": 2543,
+    "sd": 4.2667
+   }
+  },
+  "nose_breadth": {
+   "both|pooled": {
+    "mean": 37.0873,
+    "n": 3997,
+    "sd": 4.9409
+   },
+   "female|Black": {
+    "mean": 40.1002,
+    "n": 589,
+    "sd": 3.482
+   },
+   "female|Hispanic": {
+    "mean": 34.7619,
+    "n": 126,
+    "sd": 3.2507
+   },
+   "female|Other": {
+    "mean": 34.9864,
+    "n": 220,
+    "sd": 3.5326
+   },
+   "female|White": {
+    "mean": 31.5588,
+    "n": 519,
+    "sd": 2.6023
+   },
+   "female|pooled": {
+    "mean": 35.815,
+    "n": 1454,
+    "sd": 4.9219
+   },
+   "male|Black": {
+    "mean": 43.4069,
+    "n": 634,
+    "sd": 3.8656
+   },
+   "male|Hispanic": {
+    "mean": 37.3908,
+    "n": 412,
+    "sd": 3.3477
+   },
+   "male|Other": {
+    "mean": 38.2769,
+    "n": 130,
+    "sd": 4.1447
+   },
+   "male|White": {
+    "mean": 35.305,
+    "n": 1367,
+    "sd": 3.1821
+   },
+   "male|pooled": {
+    "mean": 37.8148,
+    "n": 2543,
+    "sd": 4.8034
+   }
+  },
+  "nose_height": {
+   "both|pooled": {
+    "mean": 50.3515,
+    "n": 3997,
+    "sd": 4.4881
+   },
+   "female|Black": {
+    "mean": 47.3718,
+    "n": 589,
+    "sd": 3.6903
+   },
+   "female|Hispanic": {
+    "mean": 48.1508,
+    "n": 126,
+    "sd": 4.0852
+   },
+   "female|Other": {
+    "mean": 46.1818,
+    "n": 220,
+    "sd": 3.6917
+   },
+   "female|White": {
+    "mean": 48.5568,
+    "n": 519,
+    "sd": 3.675
+   },
+   "female|pooled": {
+    "mean": 47.6823,
+    "n": 1454,
+    "sd": 3.8063
+   },
+   "male|Black": {
+    "mean": 50.7808,
+    "n": 634,
+    "sd": 4.1349
+   },
+   "male|Hispanic": {
+    "mean": 52.3107,
+    "n": 412,
+    "sd": 3.9382
+   },
+   "male|Other": {
+    "mean": 51.2769,
+    "n": 130,
+    "sd": 4.358
+   },
+   "male|White": {
+    "mean": 52.3131,
+    "n": 1367,
+    "sd": 4.0464
+   },
+   "male|pooled": {
+    "mean": 51.8777,
+    "n": 2543,
+    "sd": 4.1205
+   }
+  },
+  "nose_mouth_width_ratio": {
+   "both|pooled": {
+    "mean": 0.7318,
+    "n": 3997,
+    "sd": 0.081
+   },
+   "female|Black": {
+    "mean": 0.7752,
+    "n": 589,
+    "sd": 0.0718
+   },
+   "female|Hispanic": {
+    "mean": 0.7104,
+    "n": 126,
+    "sd": 0.0654
+   },
+   "female|Other": {
+    "mean": 0.7504,
+    "n": 220,
+    "sd": 0.0719
+   },
+   "female|White": {
+    "mean": 0.6731,
+    "n": 519,
+    "sd": 0.062
+   },
+   "female|pooled": {
+    "mean": 0.7294,
+    "n": 1454,
+    "sd": 0.0818
+   },
+   "male|Black": {
+    "mean": 0.8008,
+    "n": 634,
+    "sd": 0.0729
+   },
+   "male|Hispanic": {
+    "mean": 0.7338,
+    "n": 412,
+    "sd": 0.0689
+   },
+   "male|Other": {
+    "mean": 0.7599,
+    "n": 130,
+    "sd": 0.0819
+   },
+   "male|White": {
+    "mean": 0.6992,
+    "n": 1367,
+    "sd": 0.0648
+   },
+   "male|pooled": {
+    "mean": 0.7332,
+    "n": 2543,
+    "sd": 0.0805
+   }
+  }
+ },
+ "units": "mm, except ratios which are dimensionless",
+ "url": "https://www.cdc.gov/niosh/data/datasets/rd-10130-2020-0/default.html"
+}
