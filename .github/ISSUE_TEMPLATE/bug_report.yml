@@ -9,7 +9,7 @@ body:
         should not go in a public issue. Describe the input instead, or use a
         synthetic face. If the bug only reproduces on a specific photograph,
         say so and send it through a
-        [private advisory](https://github.com/EricSpencer00/vitruve/security/advisories/new).
+        [private advisory](https://github.com/EricSpencer00/faciometry/security/advisories/new).
 
   - type: textarea
     id: what
@@ -17,7 +17,7 @@ body:
       label: What happened
       description: What you ran, and what came back.
       placeholder: |
-        $ vitruve analyze portrait.jpg --out report/
+        $ faciometry analyze portrait.jpg --out report/
         ...
     validations:
       required: true
@@ -32,7 +32,7 @@ body:
   - type: textarea
     id: doctor
     attributes:
-      label: vitruve doctor
+      label: faciometry doctor
       description: Paste the whole output. It carries the device, the weights and the versions.
       render: shell
     validations:

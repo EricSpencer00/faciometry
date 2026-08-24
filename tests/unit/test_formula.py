@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core.formula import (
+from faciometry.core.formula import (
     Abs,
     AngleAt,
     Axis,
@@ -19,9 +19,9 @@ from vitruve.core.formula import (
     SignedTilt,
     registered_ops,
 )
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.measure.registry import CATALOGUE
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.measure.registry import CATALOGUE
 
 
 def test_round_trip_preserves_every_catalogue_formula():
@@ -91,7 +91,7 @@ def test_canthal_tilt_matches_closed_form(face):
 def test_symmetric_face_has_zero_asymmetry(face):
     """A synthetic face that is exactly symmetric must measure as exactly
     symmetric, or the asymmetry formulas carry a constant bias."""
-    from vitruve.measure.registry import BY_ID
+    from faciometry.measure.registry import BY_ID
 
     for mid in ("canthal_tilt_asymmetry", "ocular_height_asymmetry", "mouth_corner_asymmetry"):
         assert float(BY_ID[mid].formula.eval(face)) == pytest.approx(0.0, abs=1e-9), mid

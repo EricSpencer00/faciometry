@@ -47,7 +47,7 @@ around 2.8 and extreme pose around 13.3. Nor does 11a bound yaw or pitch: there
 is no image-space operation that induces a known out-of-plane rotation. What
 comes out is a bound on the roll axis in the frontal regime, a floor on yaw and
 pitch from the mirror, and a statement about whether 4.977 degrees of inflation
-is the right order for the photographs Vitruve actually gates.
+is the right order for the photographs Faciometry actually gates.
 
 The sign of 6DRepNet's yaw and roll is recorded as unverified in
 ``models/pose_sixdrepnet.py``. Nothing here assumes it: every comparison is a
@@ -66,7 +66,7 @@ import numpy as np
 from evals._bootstrap import RESULTS, write_csv, write_json
 from evals import frll
 
-from vitruve.core.sensitivity import POSE_ESTIMATOR_MAE_DEG, POSE_ESTIMATOR_SD_DEG
+from faciometry.core.sensitivity import POSE_ESTIMATOR_MAE_DEG, POSE_ESTIMATOR_SD_DEG
 
 #: Applied in-plane rotations, degrees. Chosen to bracket the +/-3.9 degree
 #: 95th percentile roll arm 8 measured on these same captures, and to reach
@@ -118,8 +118,8 @@ def _collect(force: bool = False) -> dict:
     if CACHE.exists() and not force:
         return np.load(CACHE, allow_pickle=True)["data"].item()
 
-    from vitruve.models import detect_yunet, pose_sixdrepnet
-    from vitruve.models.weights import WeightsUnavailable
+    from faciometry.models import detect_yunet, pose_sixdrepnet
+    from faciometry.models.weights import WeightsUnavailable
 
     try:
         det = detect_yunet.build()

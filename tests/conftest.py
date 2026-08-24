@@ -10,8 +10,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
 
 #: A bilaterally symmetric synthetic face in canonical millimetres:
 #: +x is the subject's right, +y is up, +z is toward the viewer, and the

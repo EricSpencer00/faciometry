@@ -21,12 +21,12 @@ import re
 
 import pytest
 
-from vitruve.core.sensitivity import discriminability
-from vitruve.core.spec import Reportability, Unit, Verdict
-from vitruve.measure.evaluate import Measured, Unavailable
-from vitruve.measure.registry import BY_ID
-from vitruve.models.licensing import SIXDREPNET, YOLO_FACE, YUNET, Tier, obligations_at
-from vitruve.pipeline.manifest import (
+from faciometry.core.sensitivity import discriminability
+from faciometry.core.spec import Reportability, Unit, Verdict
+from faciometry.measure.evaluate import Measured, Unavailable
+from faciometry.measure.registry import BY_ID
+from faciometry.models.licensing import SIXDREPNET, YOLO_FACE, YUNET, Tier, obligations_at
+from faciometry.pipeline.manifest import (
     SCHEMA_VERSION,
     ImageRecord,
     MeasurementRecord,

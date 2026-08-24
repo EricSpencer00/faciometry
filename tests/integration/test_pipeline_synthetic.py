@@ -41,22 +41,22 @@ import pytest
 from PIL import ExifTags
 from PIL import Image as PILImage
 
-from vitruve.core.geometry import rotation_matrix
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.scale import ScaleSource
-from vitruve.core.sensitivity import POSE_ESTIMATOR_SD_DEG
-from vitruve.core.spec import Reportability, Unit, View
-from vitruve.measure.evaluate import Unavailable
-from vitruve.measure.multishot import DEFAULT_SHARED_FRACTION
-from vitruve.measure.registry import BY_ID, for_view
-from vitruve.models import licensing
-from vitruve.models.licensing import Tier
-from vitruve.pipeline.ingest import Ruler, pixel_sha256, save_stripped
-from vitruve.pipeline.manifest import RunManifest
-from vitruve.pipeline.ports import Backends
-from vitruve.pipeline.quality import Severity
-from vitruve.pipeline.run import analyze
+from faciometry.core.geometry import rotation_matrix
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.scale import ScaleSource
+from faciometry.core.sensitivity import POSE_ESTIMATOR_SD_DEG
+from faciometry.core.spec import Reportability, Unit, View
+from faciometry.measure.evaluate import Unavailable
+from faciometry.measure.multishot import DEFAULT_SHARED_FRACTION
+from faciometry.measure.registry import BY_ID, for_view
+from faciometry.models import licensing
+from faciometry.models.licensing import Tier
+from faciometry.pipeline.ingest import Ruler, pixel_sha256, save_stripped
+from faciometry.pipeline.manifest import RunManifest
+from faciometry.pipeline.ports import Backends
+from faciometry.pipeline.quality import Severity
+from faciometry.pipeline.run import analyze
 
 # ---------------------------------------------------------------------------
 # The subject: a face, in millimetres, in the canonical frame.
@@ -345,7 +345,7 @@ def make_view(
     image = PILImage.fromarray(pixels)
     if exif:
         tags = image.getexif()
-        tags[ExifTags.Base.Make.value] = "Vitruve"
+        tags[ExifTags.Base.Make.value] = "Faciometry"
         tags[ExifTags.Base.Model.value] = "Synthetic"
         sub = tags.get_ifd(ExifTags.IFD.Exif.value)
         sub[ExifTags.Base.FocalLengthIn35mmFilm.value] = int(FOCAL_35MM)
@@ -1051,8 +1051,8 @@ def test_one_unusable_capture_costs_that_capture_and_not_the_run(tmp_path):
 
 
 def test_the_capture_note_reaches_the_rendered_report(tmp_path):
-    from vitruve.cli.runner import AnalysisOutcome, Status, build_report_input
-    from vitruve.report import prose
+    from faciometry.cli.runner import AnalysisOutcome, Status, build_report_input
+    from faciometry.report import prose
 
     result = _run_captures(_captures(tmp_path, 3, sd=LANDMARK_SD_PX))
     report = build_report_input(AnalysisOutcome(Status.OK, report=result))

@@ -5,17 +5,17 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core.landmarks import Landmark, PointSet
-from vitruve.core.scale import from_interpupillary, from_ruler
-from vitruve.core.spec import Reportability
-from vitruve.measure.evaluate import (
+from faciometry.core.landmarks import Landmark, PointSet
+from faciometry.core.scale import from_interpupillary, from_ruler
+from faciometry.core.spec import Reportability
+from faciometry.measure.evaluate import (
     LandmarkUncertainty,
     Measured,
     Unavailability,
     Unavailable,
     evaluate,
 )
-from vitruve.measure.registry import BY_ID, CATALOGUE
+from faciometry.measure.registry import BY_ID, CATALOGUE
 
 
 def _run(face, mid, sd=0.5, **kw):

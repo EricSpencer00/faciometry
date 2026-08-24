@@ -22,14 +22,14 @@ from itertools import pairwise
 import numpy as np
 import pytest
 
-from vitruve.core.formula import Axis, Pt, SignedTilt
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.sensitivity import POSE_ESTIMATOR_SD_DEG
-from vitruve.core.spec import View
-from vitruve.measure.evaluate import evaluate
-from vitruve.measure.registry import BY_ID
-from vitruve.pipeline.canonical import (
+from faciometry.core.formula import Axis, Pt, SignedTilt
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.sensitivity import POSE_ESTIMATOR_SD_DEG
+from faciometry.core.spec import View
+from faciometry.measure.evaluate import evaluate
+from faciometry.measure.registry import BY_ID
+from faciometry.pipeline.canonical import (
     eye_pair,
     interocular_distance_px,
     residual_roll_deg,
@@ -38,7 +38,7 @@ from vitruve.pipeline.canonical import (
     to_canonical_frontal,
     to_canonical_profile,
 )
-from vitruve.pipeline.quality import PoseEstimate
+from faciometry.pipeline.quality import PoseEstimate
 
 #: A handful of landmarks in the canonical frame, in millimetres: ``+x`` the
 #: subject's right, ``+y`` up, ``+z`` anterior. Every expected value below is
@@ -321,7 +321,7 @@ def test_profile_preserves_sagittal_angles_exactly():
     the photograph is the angle in the subject's midline."""
     points = profile_image_points()
     frame = to_canonical_profile(points, isotropic(points), level_pose())
-    from vitruve.core.geometry import angle_at
+    from faciometry.core.geometry import angle_at
 
     world = np.array([TRUTH_MM[n] for n in (L.GLABELLA, L.SUBNASALE, L.POGONION)])
     measured = angle_at(

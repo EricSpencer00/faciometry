@@ -1,6 +1,6 @@
 """Arm 5 -- discriminability. The project's headline number.
 
-The question Vitruve is built around: does a measurement vary more between
+The question Faciometry is built around: does a measurement vary more between
 people than it does between photographs of one person? The ratio is
 between-subject spread over total measurement error, and below 1.0 the number
 is withheld.
@@ -8,10 +8,10 @@ is withheld.
 5a  Reproduce Kleinberg and Vanezis (2007) numerically. An index whose
     between-subject relative spread is 1.2 percent, moving 8 to 19 percent at
     ten degrees of yaw, must come out below 1. Computed three ways: from
-    Kleinberg's own reported movement, from Vitruve's a-priori sensitivities,
+    Kleinberg's own reported movement, from Faciometry's a-priori sensitivities,
     and from the slopes measured in arm 2.
 
-5b  Can Vitruve's own geometry produce an 8 to 19 percent movement at ten
+5b  Can Faciometry's own geometry produce an 8 to 19 percent movement at ten
     degrees of yaw at all? If it cannot, the a-priori model is not merely
     imprecise, it is describing a different phenomenon.
 
@@ -33,12 +33,12 @@ import numpy as np
 from evals._bootstrap import RESULTS, write_csv, write_json
 from evals.synth import face as F
 
-from vitruve.core.landmarks import PointSet
-from vitruve.core.sensitivity import (
+from faciometry.core.landmarks import PointSet
+from faciometry.core.sensitivity import (
     POSE_ESTIMATOR_SD_DEG, PoseSensitivity, discriminability, gated_pose,
 )
-from vitruve.core.spec import Unit, View, assess_discriminability
-from vitruve.measure.registry import CATALOGUE, BY_ID
+from faciometry.core.spec import Unit, View, assess_discriminability
+from faciometry.measure.registry import CATALOGUE, BY_ID
 
 POSES_DEG = (0.5, 3.0, 8.0)
 KLEINBERG_RSD = 0.012
@@ -77,14 +77,14 @@ def kleinberg_reproduction(slopes: dict) -> list[dict]:
     for m in KLEINBERG_MOVEMENT:
         add(f"Kleinberg & Vanezis 2007 measured index movement ({m:.0%})", m,
             "the published number, used directly")
-    from vitruve.core.sensitivity import KLEINBERG_WORST, TRANSVERSE_WIDTH
-    add("vitruve a-priori KLEINBERG_WORST", KLEINBERG_WORST.error_at(10, 0, 0),
+    from faciometry.core.sensitivity import KLEINBERG_WORST, TRANSVERSE_WIDTH
+    add("faciometry a-priori KLEINBERG_WORST", KLEINBERG_WORST.error_at(10, 0, 0),
         "sensitivity.KLEINBERG_WORST.error_at(10,0,0)")
-    add("vitruve a-priori KLEINBERG_WORST, pose-gated",
+    add("faciometry a-priori KLEINBERG_WORST, pose-gated",
         KLEINBERG_WORST.error_at(gated_pose(10.0), 0, 0),
         f"as assess_discriminability applies it, inflating 10 deg to "
         f"{gated_pose(10.0):.2f} deg")
-    add("vitruve a-priori TRANSVERSE_WIDTH", TRANSVERSE_WIDTH.error_at(10, 0, 0),
+    add("faciometry a-priori TRANSVERSE_WIDTH", TRANSVERSE_WIDTH.error_at(10, 0, 0),
         "a depth-matched transverse width, cos(yaw) only")
 
     # Five measurements have a near-zero value by construction -- the three

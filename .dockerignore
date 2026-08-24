@@ -1,0 +1,47 @@
+# The build stage copies pyproject.toml, README.md, LICENSE, src/, web/ and
+# assets/ explicitly, so everything else is dead weight in the build context.
+# The entries below still matter, because a large or secret-bearing path in the
+# context is sent to the daemon whether or not a COPY names it.
+
+.git
+.github
+.venv
+venv
+dist
+build
+*.egg-info
+
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Weights are fetched at runtime into the /weights volume. A local override
+# directory here would otherwise be shipped into the image, and several of
+# these checkpoints carry licenses that forbid redistribution.
+weights
+*.onnx
+*.task
+*.pt
+*.pth
+*.npz
+*.parquet
+
+# Anything a run produced. A report contains a face.
+out
+runs
+*.report.html
+*.report.json
+vitruve-store
+
+evals/results
+evals/data
+docs/images
+
+.DS_Store
+Dockerfile
+docker-compose.yml
+.dockerignore

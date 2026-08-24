@@ -47,7 +47,7 @@ from scipy import stats
 
 from evals._bootstrap import rng, write_csv, write_json
 
-from vitruve.norms import niosh
+from faciometry.norms import niosh
 
 from .arm06_niosh import COLUMN_TO_MEASUREMENT, RACE, RATIOS, SEX, _num, _rows
 

@@ -1,6 +1,6 @@
 # Core API contract
 
-Read this before touching anything outside `src/vitruve/core/`, `measure/`, or
+Read this before touching anything outside `src/faciometry/core/`, `measure/`, or
 `norms/`. Those packages are complete and stable; everything else builds on
 them. They carry **no torch dependency** and must keep it that way.
 
@@ -13,19 +13,19 @@ vary more between people than it does between photographs of the same person?*
 If not, it is withheld. Kleinberg and Vanezis (2007) found facial indices moving
 8 to 19 percent at ten degrees of yaw against a between-subject spread of 1.2
 percent, and FISWG's 2026 guidance prohibits photo-anthropometry on that basis.
-Vitruve's answer is to keep the measurements and gate them honestly.
+Faciometry's answer is to keep the measurements and gate them honestly.
 
 ## Types you will use
 
 ```python
-from vitruve.core.landmarks import Landmark, PointSet          # named points, batched
-from vitruve.core.spec      import MeasurementSpec, View, Unit, Evidence, Reportability
-from vitruve.core.scale     import ScaleEstimate, from_iris, from_interpupillary, from_ruler, fuse
-from vitruve.core.sensitivity import PoseSensitivity, Discriminability, gated_pose
-from vitruve.measure.registry import CATALOGUE, BY_ID, for_view, satisfiable
-from vitruve.measure.evaluate import LandmarkUncertainty, Measured, Unavailable, evaluate
-from vitruve.models.licensing import Tier, Provenance, require, LicenseViolation
-from vitruve.norms import niosh, published
+from faciometry.core.landmarks import Landmark, PointSet          # named points, batched
+from faciometry.core.spec      import MeasurementSpec, View, Unit, Evidence, Reportability
+from faciometry.core.scale     import ScaleEstimate, from_iris, from_interpupillary, from_ruler, fuse
+from faciometry.core.sensitivity import PoseSensitivity, Discriminability, gated_pose
+from faciometry.measure.registry import CATALOGUE, BY_ID, for_view, satisfiable
+from faciometry.measure.evaluate import LandmarkUncertainty, Measured, Unavailable, evaluate
+from faciometry.models.licensing import Tier, Provenance, require, LicenseViolation
+from faciometry.norms import niosh, published
 ```
 
 ### `PointSet`

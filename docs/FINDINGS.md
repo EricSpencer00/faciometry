@@ -64,7 +64,7 @@ by the model's own noise, a ratio of 0.17 against a limit of 2.0.
 **The difference between two people is smaller than the model's uncertainty
 about one.** A guard tight enough to reject three different faces would reject
 honest repeat captures of the same face, because in this feature space they are
-not distinguishable. Vitruve does not do face recognition and the scatter guard
+not distinguishable. Faciometry does not do face recognition and the scatter guard
 is not one; the CLI help states the precondition instead of pretending to
 enforce it.
 
@@ -191,7 +191,7 @@ importing `core.geometry`, `core.formula` or `measure.registry`: worst absolute
 error 2.8e-14, worst relative error 3.7e-15, **no failures**. Nothing is
 outside its published reference range, and the Monte-Carlo wrapper reproduces
 the deterministic value to 6e-6 at a landmark spread of 1e-4 mm. Whatever is
-wrong with a Vitruve number, the arithmetic is not it.
+wrong with a Faciometry number, the arithmetic is not it.
 
 The primitive suite grew from 20 cases to 31, because the second batch of
 measurements uses nodes the first did not: a signed tilt read against a
@@ -235,7 +235,7 @@ so the answer is 0.126. Both derivations have the right mechanism and the wrong
 arithmetic, which is the argument for measuring rather than deriving — and both
 docstrings said so in advance.
 
-**Vitruve's own geometry now exceeds the top of Kleinberg's band, which the
+**Faciometry's own geometry now exceeds the top of Kleinberg's band, which the
 previous run said it never reached.** At 45 measurements the largest movement
 at ten degrees of yaw was 9.9%, below Kleinberg and Vanezis's measured 8-19%
 range. `ramus_body_ratio` runs from tragion to gnathion across 77 mm of depth
@@ -247,7 +247,7 @@ measurements happened to be in the catalogue.
 ## 5. The permissive stack cannot measure a true profile
 
 A full facial-analysis report is taken from a frontal and a profile photograph.
-Vitruve's catalogue carries **20** profile measurements — 29% of it, up from 13
+Faciometry's catalogue carries **20** profile measurements — 29% of it, up from 13
 of 45, because six of the twenty-three most recent additions landed there — the
 formulas are correct against synthetic geometry, and the pipeline accepts a
 `--profile` argument. The models are what stop it.

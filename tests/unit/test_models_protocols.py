@@ -31,13 +31,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from vitruve.core.landmarks import BILATERAL_PAIRS, Landmark, PointSet
-from vitruve.measure.evaluate import LandmarkUncertainty
-from vitruve.models import dense_mediapipe as MP
-from vitruve.models import landmark_spiga as SP
-from vitruve.models import registry, weights
-from vitruve.models.licensing import LicenseViolation, Provenance, Tier
-from vitruve.models.protocols import (
+from faciometry.core.landmarks import BILATERAL_PAIRS, Landmark, PointSet
+from faciometry.measure.evaluate import LandmarkUncertainty
+from faciometry.models import dense_mediapipe as MP
+from faciometry.models import landmark_spiga as SP
+from faciometry.models import registry, weights
+from faciometry.models.licensing import LicenseViolation, Provenance, Tier
+from faciometry.models.protocols import (
     KEYPOINT_ORDER,
     DenseResult,
     FaceBox,
@@ -117,7 +117,7 @@ def weights_available() -> bool:
 
 
 needs_weights = pytest.mark.skipif(
-    not weights_available(), reason="run `vitruve weights fetch` first"
+    not weights_available(), reason="run `faciometry weights fetch` first"
 )
 
 
@@ -575,7 +575,7 @@ def test_head_pose_reports_the_largest_per_axis_disagreement():
 
 
 def test_the_documented_import_works():
-    from vitruve.models.registry import build_detector  # noqa: F401
+    from faciometry.models.registry import build_detector  # noqa: F401
 
 
 def test_a_copyleft_backend_is_refused_at_the_permissive_tier():
@@ -755,7 +755,7 @@ def test_the_dense_backend_measures_both_irides():
     estimate = MP.scale_from_dense(meshed)
     assert estimate.mm_per_px > 0
     # Fusing two correlated cues must not claim the independence gain.
-    from vitruve.core.scale import IRIS_DIAMETER_MM, IRIS_DIAMETER_SD
+    from faciometry.core.scale import IRIS_DIAMETER_MM, IRIS_DIAMETER_SD
 
     single = IRIS_DIAMETER_SD / IRIS_DIAMETER_MM
     assert single / np.sqrt(2) < estimate.relative_sd < single

@@ -12,7 +12,7 @@ weights produced is a different measurement.
 read path. A comment saying "this does not download" is not evidence.
 
 Every test here runs against a temporary cache and a fixture lock file, so
-nothing depends on what happens to be in `~/.cache/vitruve` on the machine
+nothing depends on what happens to be in `~/.cache/faciometry` on the machine
 running it.
 """
 
@@ -25,7 +25,7 @@ import urllib.request
 
 import pytest
 
-from vitruve.models import weights as W
+from faciometry.models import weights as W
 
 PAYLOAD = b"a small artefact standing in for a checkpoint\n" * 8
 DIGEST = hashlib.sha256(PAYLOAD).hexdigest()
@@ -104,7 +104,7 @@ def test_the_shipped_lock_file_parses_and_every_pin_is_well_formed():
 def test_every_pinned_artefact_names_a_backend_in_the_licensing_catalogue():
     """A weight file whose obligations are not recorded is a weight file that
     can be loaded past the tier check."""
-    from vitruve.models.licensing import BY_NAME
+    from faciometry.models.licensing import BY_NAME
 
     for spec in W.load_lock().values():
         assert spec.provenance in BY_NAME, spec.provenance
@@ -265,8 +265,8 @@ def test_download_refuses_to_overwrite_a_mismatched_cache_entry_by_default(cache
 
 @pytest.mark.network
 @pytest.mark.skipif(
-    os.environ.get("VITRUVE_TEST_NETWORK") != "1",
-    reason="opt in with VITRUVE_TEST_NETWORK=1",
+    os.environ.get("FACIOMETRY_TEST_NETWORK") != "1",
+    reason="opt in with FACIOMETRY_TEST_NETWORK=1",
 )
 def test_the_real_pins_still_match_upstream(tmp_path, monkeypatch):
     """The one test that reaches the internet, and the only one that can catch

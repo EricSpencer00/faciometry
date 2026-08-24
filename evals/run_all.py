@@ -7,7 +7,7 @@
 Arm 5 reads arms 2 and 3 from ``evals/results/``, so the order here is a
 dependency order and not a preference. Arms 8, 9 and 10 need the FRLL images
 and the MediaPipe weights under ``evals/data/``, and arm 11 additionally needs
-the YuNet and 6DRepNet weights, which ``vitruve.models.weights`` fetches into
+the YuNet and 6DRepNet weights, which ``faciometry.models.weights`` fetches into
 its own cache; ``make -C evals data`` fetches the rest. If they are absent those arms report themselves as not run, with the
 reason, rather than being skipped silently.
 """

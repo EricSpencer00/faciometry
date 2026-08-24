@@ -6,8 +6,8 @@ import math
 
 import pytest
 
-from vitruve.measure.budget import Lever, budget_for, ranked_levers, repeat_factor
-from vitruve.measure.multishot import DEFAULT_SHARED_FRACTION
+from faciometry.measure.budget import Lever, budget_for, ranked_levers, repeat_factor
+from faciometry.measure.multishot import DEFAULT_SHARED_FRACTION
 
 
 def _real_case():
@@ -119,7 +119,7 @@ def test_the_budget_total_is_the_gate_total():
     quadrature it does has to land back on the number the gate divided by. If
     it does not, the report is explaining a refusal that never happened.
     """
-    from vitruve.core.sensitivity import discriminability
+    from faciometry.core.sensitivity import discriminability
 
     terms = dict(pose_error=0.0076, landmark_error=0.0465, scale_error=0.053)
     d = discriminability(between_subject_sd=0.0423, **terms)

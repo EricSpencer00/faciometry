@@ -2,9 +2,9 @@
   "_comment": [
     "Pinned model artefacts. Every hash here was produced by fetching the URL",
     "and running sha256 over the bytes, on 2026-08-23. A mismatch at load time",
-    "is a hard failure: see src/vitruve/models/weights.py for why it is never",
+    "is a hard failure: see src/faciometry/models/weights.py for why it is never",
     "downgraded to a warning and never resolved by editing this file.",
-    "Fetch with: python -m vitruve.models.weights fetch"
+    "Fetch with: python -m faciometry.models.weights fetch"
   ],
   "weights": {
     "yunet": {

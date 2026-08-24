@@ -1,6 +1,6 @@
 # The dermatological findings layer
 
-Read this before adding anything to `src/vitruve/derm/`. The design of this
+Read this before adding anything to `src/faciometry/derm/`. The design of this
 package is almost entirely determined by one fact, so it is stated first.
 
 ## The data situation
@@ -8,7 +8,7 @@ package is almost entirely determined by one fact, so it is stated first.
 Consumer skin reports claim four or five findings. Public annotated data exists
 for one and a half of them.
 
-| Finding | Public annotated data | Licence | What Vitruve does |
+| Finding | Public annotated data | Licence | What Faciometry does |
 |---|---|---|---|
 | Acne lesions | **Yes.** ACNE04 (~1,457 images, ~18,983 boxes, Hayashi grade 0-3); several Roboflow Universe detection sets | ACNE04 is "free for academic usage", not an OSI licence. Roboflow sets vary; some are **CC BY 4.0** | Detected with YOLO instance segmentation over region crops, behind `Tier.COPYLEFT` |
 | Wrinkles / folds | **Yes.** FFHQ-Wrinkle: 1,000 human-labelled pixel masks plus 50,000 weak masks | CC BY-NC-SA 4.0 | Not implemented. The only real masks are non-commercial, so this cannot sit on the default path |
@@ -168,7 +168,7 @@ finding's notes rather than corrected away.
 
 Acne is genuinely multi-instance -- zero to a hundred separate lesions, each a
 few pixels across, each needing its own box and confidence. That is the problem
-class one-stage detectors were designed for, and it is the only place in Vitruve
+class one-stage detectors were designed for, and it is the only place in Faciometry
 where YOLO is the right tool rather than the familiar one. Dense landmarking is
 not detection and is served better by heatmaps, which is why YOLO does not
 appear there.
@@ -227,7 +227,7 @@ checkpoint has not prevented anything.
 
 ## Training the acne detector
 
-`python -m vitruve.derm.train` fine-tunes against a CC BY 4.0 export and writes
+`python -m faciometry.derm.train` fine-tunes against a CC BY 4.0 export and writes
 `model_card.json` and `MODEL_CARD.md` next to the weights.
 
 1. Pick a Roboflow Universe set whose licence line reads exactly `CC BY 4.0`.
@@ -239,7 +239,7 @@ checkpoint has not prevented anything.
 4. Run:
 
 ```bash
-python -m vitruve.derm.train \
+python -m faciometry.derm.train \
   --data /path/to/export/data.yaml \
   --dataset-name "pimples-detection v14" \
   --dataset-license CC-BY-4.0 \

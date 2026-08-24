@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draw Vitruve's icon and compile it to an .icns.
+"""Draw Faciometry's icon and compile it to an .icns.
 
 The mark is the two figures Leonardo drew around the man: a circle and a
 square, sharing a base line, with the median that every craniofacial
@@ -85,7 +85,7 @@ def build(icns: Path, png: Path | None) -> None:
         draw(1024).save(png)
 
     with tempfile.TemporaryDirectory() as tmp:
-        iconset = Path(tmp) / "Vitruve.iconset"
+        iconset = Path(tmp) / "Faciometry.iconset"
         iconset.mkdir()
         # iconutil insists on exactly these names.
         for base in (16, 32, 128, 256, 512):

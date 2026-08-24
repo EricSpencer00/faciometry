@@ -4,7 +4,7 @@
 
 You do not need git to help. The two most useful things anyone can do:
 
-- **Report what went wrong.** [Open an issue](https://github.com/EricSpencer00/vitruve/issues/new/choose).
+- **Report what went wrong.** [Open an issue](https://github.com/EricSpencer00/faciometry/issues/new/choose).
   Say what you did, what happened, and what you expected. A photo is not needed
   and please do not attach one of a real person.
 - **Fix a typo or a confusing sentence.** Click the pencil icon on any page in
@@ -17,8 +17,8 @@ You need [git](https://git-scm.com/downloads), Python 3.11 or 3.12, and
 [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```
-git clone https://github.com/EricSpencer00/vitruve
-cd vitruve
+git clone https://github.com/EricSpencer00/faciometry
+cd faciometry
 make install
 make test
 ```
@@ -44,7 +44,7 @@ tell anyone what to do about their face. Words like "ideal", "should be" and
 
 ## Adding a measurement
 
-Add a `MeasurementSpec` to `src/vitruve/measure/registry.py` and nowhere else.
+Add a `MeasurementSpec` to `src/faciometry/measure/registry.py` and nowhere else.
 It needs a formula over named anatomical landmarks, a citation, and an honest
 evidence tier.
 

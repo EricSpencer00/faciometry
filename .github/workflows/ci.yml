@@ -46,8 +46,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y libgl1 libglib2.0-0
 
+      # pdf is in here because tests/unit/test_pdf.py exercises the real
+      # reportlab output, not a stub.
       - name: Install
-        run: uv pip install --system -e '.[permissive,api,dev]'
+        run: uv pip install --system -e '.[permissive,api,pdf,dev]'
 
       # No weights are fetched. The suite has no network access by design, and
       # tests/integration/test_offline.py proves the block before asserting
@@ -88,21 +90,21 @@ jobs:
         run: python -m twine check dist/*
 
       # The web UI has to travel with the wheel through force-include, or
-      # `vitruve serve` has nothing to serve. That is easy to break silently.
+      # `faciometry serve` has nothing to serve. That is easy to break silently.
       - name: The wheel carries the web UI, and the CLI runs from it
         run: |
           wheel="$(ls dist/*.whl)"
           python - "$wheel" <<'PY'
           import sys, zipfile
           names = zipfile.ZipFile(sys.argv[1]).namelist()
-          web = [n for n in names if n.startswith("vitruve/web/")]
-          assert web, "the wheel has no vitruve/web/, so serve would 404"
+          web = [n for n in names if n.startswith("faciometry/web/")]
+          assert web, "the wheel has no faciometry/web/, so serve would 404"
           print(len(web), "web assets in the wheel")
           PY
           python -m pip install "$wheel"
-          vitruve --version
-          vitruve catalogue --json > /dev/null
-          vitruve licenses --tier copyleft | grep -q "becomes AGPL-3.0"
+          faciometry --version
+          faciometry catalogue --json > /dev/null
+          faciometry licenses --tier copyleft | grep -q "becomes AGPL-3.0"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -122,24 +124,24 @@ jobs:
         with:
           context: .
           load: true
-          tags: vitruve:ci
+          tags: faciometry:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: The image runs as a non-root user
         run: |
-          uid="$(docker run --rm --entrypoint id vitruve:ci -u)"
+          uid="$(docker run --rm --entrypoint id faciometry:ci -u)"
           if [ "$uid" = "0" ]; then echo "container is running as root"; exit 1; fi
           echo "uid $uid"
 
       - name: torch inside the image is the CPU build
         run: |
-          docker run --rm --entrypoint python vitruve:ci -c \
+          docker run --rm --entrypoint python faciometry:ci -c \
             "import torch; assert '+cpu' in torch.__version__, torch.__version__; print(torch.__version__)"
 
       - name: /health returns ok
         run: |
-          docker run -d --name vitruve-ci -p 127.0.0.1:8731:8731 vitruve:ci
+          docker run -d --name faciometry-ci -p 127.0.0.1:8731:8731 faciometry:ci
           for _ in $(seq 1 45); do
             if curl -fsS http://127.0.0.1:8731/health > health.json; then break; fi
             sleep 2
@@ -156,8 +158,8 @@ jobs:
           PY
 
       - name: The bind warning was printed
-        run: docker logs vitruve-ci 2>&1 | grep -q "reachable from the network"
+        run: docker logs faciometry-ci 2>&1 | grep -q "reachable from the network"
 
       - name: Stop
         if: always()
-        run: docker rm -f vitruve-ci || true
+        run: docker rm -f faciometry-ci || true

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from vitruve.core.landmarks import Landmark
-from vitruve.core.spec import Evidence, Unit, View
-from vitruve.measure.registry import BY_ID, CATALOGUE, for_view, satisfiable
-from vitruve.norms import niosh
+from faciometry.core.landmarks import Landmark
+from faciometry.core.spec import Evidence, Unit, View
+from faciometry.measure.registry import BY_ID, CATALOGUE, for_view, satisfiable
+from faciometry.norms import niosh
 
 
 def test_ids_and_fingerprints_are_unique():
@@ -105,7 +105,7 @@ def test_measured_slopes_override_the_first_order_model():
     1.189, a factor of 119. A measurement that moves that much under pitch was
     being gated as though pitch barely touched it.
     """
-    from vitruve.measure.registry import _measured_slopes
+    from faciometry.measure.registry import _measured_slopes
 
     slopes = _measured_slopes()
     assert slopes, "the generated slope table is missing"
@@ -116,7 +116,7 @@ def test_the_override_can_only_widen():
     """The sweep runs on one synthetic face, so a slope it happens to find
     small is not thereby small on every face. Taking the larger of the two can
     withhold a number or widen an interval and never the reverse."""
-    from vitruve.measure.registry import _measured_slopes, _sensitivity_for
+    from faciometry.measure.registry import _measured_slopes, _sensitivity_for
 
     slopes = _measured_slopes()
     for spec in CATALOGUE:

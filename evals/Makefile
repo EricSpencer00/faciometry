@@ -13,11 +13,11 @@ data: data/frll/london_faces_info.csv data/models/face_landmarker.task pipeline-
 	@echo "data present"
 
 # Arm 11 runs the pipeline's own detector and pose estimator, so it needs the
-# weights `vitruve.models.weights` pins. They live in that module's cache, not
+# weights `faciometry.models.weights` pins. They live in that module's cache, not
 # here, and `analyze` never downloads.
 .PHONY: pipeline-weights
 pipeline-weights:
-	-$(PY) -m vitruve.models.weights fetch yunet sixdrepnet_300wlp
+	-$(PY) -m faciometry.models.weights fetch yunet sixdrepnet_300wlp
 
 data/frll/london_faces_info.csv:
 	mkdir -p data/frll

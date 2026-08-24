@@ -31,16 +31,16 @@ from evals._bootstrap import rng, write_csv, write_json
 from evals.synth import face as F
 from evals.synth import truth as T
 
-from vitruve.core.formula import (
+from faciometry.core.formula import (
     Abs, AngleAt, AngleBetween, Axis, Const, Diff, Dist, LineOffset, Mean, Mid,
     ProjLength, Pt, Ratio, Sum, Product, SignedTilt, Vec, registered_ops,
 )
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.scale import ScaleEstimate, ScaleSource
-from vitruve.core.spec import Unit
-from vitruve.measure.evaluate import LandmarkUncertainty, Measured, evaluate
-from vitruve.measure.registry import CATALOGUE, BY_ID
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.scale import ScaleEstimate, ScaleSource
+from faciometry.core.spec import Unit
+from faciometry.measure.evaluate import LandmarkUncertainty, Measured, evaluate
+from faciometry.measure.registry import CATALOGUE, BY_ID
 
 TOL_EXACT = 1e-12
 

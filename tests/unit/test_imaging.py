@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core.imaging import rasterize_y_up, to_canonical, to_image
+from faciometry.core.imaging import rasterize_y_up, to_canonical, to_image
 
 
 def test_round_trip_is_exact():
@@ -41,9 +41,9 @@ def test_the_horizontal_axis_is_untouched():
 def test_canthal_tilt_keeps_its_sign_through_the_conversion():
     """A mirrored face still looks like a face, so this bug does not crash. It
     reports the right magnitude with the wrong sign on every subject."""
-    from vitruve.core.formula import Axis, Pt, SignedTilt
-    from vitruve.core.landmarks import Landmark as L
-    from vitruve.core.landmarks import PointSet
+    from faciometry.core.formula import Axis, Pt, SignedTilt
+    from faciometry.core.landmarks import Landmark as L
+    from faciometry.core.landmarks import PointSet
 
     # In image coordinates the outer canthus sits at a smaller row index,
     # meaning it is higher up the photograph: a positive tilt.

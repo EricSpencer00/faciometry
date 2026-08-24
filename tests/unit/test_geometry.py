@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core import geometry as geo
+from faciometry.core import geometry as geo
 
 
 def test_distance_is_pythagorean():

@@ -1,6 +1,6 @@
 """Arm 6 -- NIOSH 2003 external check.
 
-Vitruve's discriminability gate divides by a between-subject spread taken from
+Faciometry's discriminability gate divides by a between-subject spread taken from
 ``norms/data/niosh2003.json``. That file is a derived artifact: a build script
 read a CSV and wrote summary statistics. This arm reads the same CSV
 independently and checks four things.
@@ -38,8 +38,8 @@ from scipy import stats
 
 from evals._bootstrap import write_csv, write_json
 
-from vitruve.norms import niosh
-from vitruve.core.scale import IPD_PRIORS
+from faciometry.norms import niosh
+from faciometry.core.scale import IPD_PRIORS
 
 CSV_PATHS = (
     Path("/tmp/niosh/rd-10130-2020-0/datasets/RespiratorUsersData-all-subjects.csv"),
@@ -158,9 +158,9 @@ def units(rows) -> dict:
         "niosh_INTPUPBR_max": float(np.max(ipd)),
         "niosh_INTPUPBR_male_mean": float(np.mean(male)),
         "niosh_INTPUPBR_female_mean": float(np.mean(female)),
-        "vitruve_IPD_PRIORS_pooled": [prior_mean, prior_sd],
-        "vitruve_IPD_PRIORS_male": list(IPD_PRIORS["male"]),
-        "vitruve_IPD_PRIORS_female": list(IPD_PRIORS["female"]),
+        "faciometry_IPD_PRIORS_pooled": [prior_mean, prior_sd],
+        "faciometry_IPD_PRIORS_male": list(IPD_PRIORS["male"]),
+        "faciometry_IPD_PRIORS_female": list(IPD_PRIORS["female"]),
         "difference_pooled_mm": float(np.mean(ipd)) - prior_mean,
         "difference_pooled_pct": (float(np.mean(ipd)) - prior_mean) / prior_mean,
         "fraction_of_values_that_are_integers": integral,
@@ -172,7 +172,7 @@ def units(rows) -> dict:
             f"{np.min(ipd):.1f} to {np.max(ipd):.1f}. ANSUR II's "
             "interpupillarybreadth column is tenths of a millimetre, so the same "
             "quantity there reads about 633; reading it as millimetres would give "
-            "a face ten times too large and, because Vitruve recovers scale from "
+            "a face ten times too large and, because Faciometry recovers scale from "
             "interpupillary distance, a mm-per-pixel ten times too small."
         ),
         "ansur_ii_cross_check": "NOT RUN -- see docs/EVALUATION.md, arm 6",
@@ -238,9 +238,9 @@ def pooling(rows) -> list[dict]:
             "within_sex_rsd": within_sd / float(p.mean()),
             "pooled_over_within_sex": float(p.std(ddof=1)) / within_sd,
             "eta_squared_sex": ss_between / ss_total,
-            "vitruve_spread_default": niosh.spread(mid),
-            "vitruve_spread_male": niosh.spread(mid, sex="male"),
-            "vitruve_spread_female": niosh.spread(mid, sex="female"),
+            "faciometry_spread_default": niosh.spread(mid),
+            "faciometry_spread_male": niosh.spread(mid, sex="male"),
+            "faciometry_spread_female": niosh.spread(mid, sex="female"),
             "default_over_within_sex": (niosh.spread(mid) or float("nan")) / (within_sd / float(p.mean())),
         })
     return out
@@ -258,7 +258,7 @@ def run() -> dict:
 
     payload = {
         "arm": "6 -- NIOSH 2003 external check",
-        "question": "are the between-subject spreads Vitruve divides by reproducible "
+        "question": "are the between-subject spreads Faciometry divides by reproducible "
                     "from the raw survey, in the units claimed, and normal in shape",
         "reproduction": rep,
         "reproduction_meta": meta,

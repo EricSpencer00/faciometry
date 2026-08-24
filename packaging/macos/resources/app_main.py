@@ -4,16 +4,16 @@ The Swift launcher does not know anything about Python. It spawns this file
 once, reads a line-oriented event stream from its stdout, and sends it SIGTERM
 when the user quits. Everything Python-shaped happens here.
 
-Three things this file exists to do, none of which belong in `vitruve serve`:
+Three things this file exists to do, none of which belong in `faciometry serve`:
 
 1. **Point the library at the bundled lock file.** A wheel-installed
-   `vitruve.models.weights` looks for `assets/weights.lock.json` four
+   `faciometry.models.weights` looks for `assets/weights.lock.json` four
    directories above its own source file, which is a repository checkout
    layout and is not where anything lives inside an .app. The lock is copied
    into `Contents/Resources/assets/` at build time and pointed at with
-   `VITRUVE_WEIGHTS_LOCK` here.
+   `FACIOMETRY_WEIGHTS_LOCK` here.
 
-2. **Fetch weights on first run, visibly.** `vitruve fetch-weights` prints one
+2. **Fetch weights on first run, visibly.** `faciometry fetch-weights` prints one
    line per artifact and nothing in between, which for 415 MB over a domestic
    connection is several minutes of an app that looks hung. This calls the
    same pinned, sha256-verified `weights.download` underneath and emits byte
@@ -42,7 +42,7 @@ import threading
 import time
 from pathlib import Path
 
-SENTINEL = "@@VITRUVE@@ "
+SENTINEL = "@@FACIOMETRY@@ "
 
 #: Progress events are throttled to this interval. A 254 MB file in 1 MB
 #: chunks is 254 events per artifact if unthrottled, which is fine, but the
@@ -78,7 +78,7 @@ def watchdog(interval: float = 1.0) -> None:
             pass
         os._exit(0)
 
-    threading.Thread(target=on_eof, daemon=True, name="vitruve-stdin-watchdog").start()
+    threading.Thread(target=on_eof, daemon=True, name="faciometry-stdin-watchdog").start()
 
     def on_reparent() -> None:
         while True:
@@ -86,7 +86,7 @@ def watchdog(interval: float = 1.0) -> None:
             if os.getppid() == 1:
                 os._exit(0)
 
-    threading.Thread(target=on_reparent, daemon=True, name="vitruve-ppid-watchdog").start()
+    threading.Thread(target=on_reparent, daemon=True, name="faciometry-ppid-watchdog").start()
 
 
 def configure_paths(resources: Path) -> None:
@@ -97,7 +97,7 @@ def configure_paths(resources: Path) -> None:
     """
     lock = resources / "assets" / "weights.lock.json"
     if lock.exists():
-        os.environ.setdefault("VITRUVE_WEIGHTS_LOCK", str(lock))
+        os.environ.setdefault("FACIOMETRY_WEIGHTS_LOCK", str(lock))
 
     # The bundle is read-only once it is in /Applications and, more to the
     # point, writing .pyc files into it after signing would break the sealed
@@ -117,9 +117,9 @@ def ensure_weights(timeout: float = 60.0) -> bool:
     refuses to open because a mirror is down is worse than one that opens and
     says what is missing.
     """
-    from vitruve.cli.weights import split_by_tier
-    from vitruve.models import weights as W
-    from vitruve.models.licensing import Tier
+    from faciometry.cli.weights import split_by_tier
+    from faciometry.models import weights as W
+    from faciometry.models.licensing import Tier
 
     permitted, _refused = split_by_tier(Tier.PERMISSIVE)
     missing = [p for p in permitted if not W.verify_only(p.key).ok]
@@ -164,20 +164,20 @@ def ensure_weights(timeout: float = 60.0) -> bool:
 
 
 def run_server(port: int) -> int:
-    """Hand off to the real `vitruve serve`.
+    """Hand off to the real `faciometry serve`.
 
     Deliberately the library function and not a reimplementation with uvicorn:
     `serve()` is where the loopback refusal lives, and a second code path that
     binds a socket is a second code path that can bind the wrong one.
     """
-    from vitruve.api.serve import serve
+    from faciometry.api.serve import serve
 
     emit("serving", port=port, url=f"http://127.0.0.1:{port}/")
     return serve(host="127.0.0.1", port=port, allow_remote=False, store=False)
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="vitruve-app")
+    ap = argparse.ArgumentParser(prog="faciometry-app")
     ap.add_argument("--port", type=int, required=True)
     ap.add_argument(
         "--resources",

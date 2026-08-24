@@ -6,7 +6,7 @@ import math
 
 import pytest
 
-from vitruve.core.scale import (
+from faciometry.core.scale import (
     CUE_CORRELATION,
     IPD_PRIORS,
     IRIS_DIAMETER_MM,
@@ -51,7 +51,7 @@ def test_declaring_sex_narrows_the_interval():
 
 
 def test_undeclared_sex_widens_rather_than_inferring():
-    """Vitruve never infers demographics. An undeclared subject gets the pooled
+    """Faciometry never infers demographics. An undeclared subject gets the pooled
     prior and a wider interval, which is the correct trade."""
     pooled = from_interpupillary(250.0)
     assert pooled.mm_per_px == pytest.approx(IPD_PRIORS[None][0] / 250.0)
@@ -101,8 +101,8 @@ def test_a_ruler_removes_the_scale_caveat_rather_than_reciting_the_prior():
     """Blaming an interpupillary prior when a ruler was photographed would be
     simply false, and it made every millimetre value in a clinical capture
     carry a caveat it had not earned."""
-    from vitruve.core.spec import Reportability, decide_reportability
-    from vitruve.measure.registry import BY_ID
+    from faciometry.core.spec import Reportability, decide_reportability
+    from faciometry.measure.registry import BY_ID
 
     spec = BY_ID["nose_breadth"]
     common = dict(

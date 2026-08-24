@@ -1,14 +1,14 @@
 """No scalar aggregate over measurements, anywhere, in any output.
 
 This is the load-bearing test of the project. Deleting it is a decision about
-what Vitruve is, so the reasoning lives here next to the assertions rather than
+what Faciometry is, so the reasoning lives here next to the assertions rather than
 only in the design document.
 
 **A single number has no construct validity.** There is no ground truth for
 facial attractiveness to validate a predictor against. There is only a panel of
 raters, and a model trained on panel ratings learns that panel: its
 demographics, its era, and its instructions. Calling the output a measurement
-does not make a measurement of it. Every quantity Vitruve does print can be
+does not make a measurement of it. Every quantity Faciometry does print can be
 checked against a caliper on the same face, and a rating cannot.
 
 **Roughly half of the stable variance in those panels is private taste.**
@@ -18,7 +18,7 @@ An aggregate built from such ratings averages away the half that belongs to the
 individual rater and then presents the remainder as a property of the face.
 
 **It is also the documented harm vector.** The measurements are what people
-come for; the ranking is what hurts them. Vitruve reports the measurements and
+come for; the ranking is what hurts them. Faciometry reports the measurements and
 does not compute the ranking. A withheld measurement is a result, a
 discriminability ratio is a result, and neither of them is a verdict on a face.
 
@@ -52,10 +52,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent))
 from test_report_prose import synthetic_report
 
-from vitruve.report import html, model, overlay, prose
-from vitruve.report.model import MeasurementGroup, ReportInput
+from faciometry.report import html, model, overlay, prose
+from faciometry.report.model import MeasurementGroup, ReportInput
 
-#: Phrases that would mean Vitruve had started rating faces. Matched against
+#: Phrases that would mean Faciometry had started rating faces. Matched against
 #: the rendered document with the stylesheet and the base64 images removed.
 FORBIDDEN_TEXT: tuple[str, ...] = (
     "overall score",
@@ -139,8 +139,8 @@ def _public_names(module) -> set[str]:
     for name, value in vars(module).items():
         if name.startswith("_") or isinstance(value, types.ModuleType):
             continue
-        origin = getattr(value, "__module__", "vitruve.report")
-        if origin is not None and not str(origin).startswith("vitruve.report"):
+        origin = getattr(value, "__module__", "faciometry.report")
+        if origin is not None and not str(origin).startswith("faciometry.report"):
             continue
         out.add(name)
         if dataclasses.is_dataclass(value):

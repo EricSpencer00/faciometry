@@ -1,4 +1,4 @@
-"""Face Research Lab London Set (CC BY 4.0) as Vitruve point sets.
+"""Face Research Lab London Set (CC BY 4.0) as Faciometry point sets.
 
 FRLL is the only permissively licensed face set with dense human-delineated
 landmarks *and* self-reported demographics: 102 individuals, ten captures each,
@@ -10,7 +10,7 @@ Two things this module has to get right, and both are easy to get silently
 wrong:
 
 **Left and right.** The FRL template calls a point "left" when it is on the
-*viewer's* left, which is the subject's right. Vitruve's canonical frame puts
+*viewer's* left, which is the subject's right. Faciometry's canonical frame puts
 the subject's right at +x. So the image u axis maps to -x and the image v axis
 (which grows downward) maps to -y.
 
@@ -30,9 +30,9 @@ from pathlib import Path
 
 import numpy as np
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.scale import from_iris
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.scale import from_iris
 
 DATA = Path(__file__).resolve().parent / "data" / "frll"
 MODEL = Path(__file__).resolve().parent / "data" / "models" / "face_landmarker.task"
@@ -48,7 +48,7 @@ VIEWS = {
 }
 
 # --------------------------------------------------------------------------
-# FRL 189-point template -> Vitruve landmarks.
+# FRL 189-point template -> Faciometry landmarks.
 # "left" in the FRL names is the viewer's left, i.e. the subject's RIGHT.
 # A tuple means the midpoint of those points; a callable picks a point per face.
 # --------------------------------------------------------------------------
@@ -115,7 +115,7 @@ TEM_UNAVAILABLE = (L.POGONION, L.SUBLABIALE, L.CERVICALE, L.PORION_L, L.PORION_R
 
 
 # --------------------------------------------------------------------------
-# MediaPipe FaceMesh (478 points, Apache-2.0 weights) -> Vitruve landmarks.
+# MediaPipe FaceMesh (478 points, Apache-2.0 weights) -> Faciometry landmarks.
 # Validated against the human template in arm 8; anything that disagrees badly
 # is reported there rather than silently used.
 # --------------------------------------------------------------------------
@@ -234,7 +234,7 @@ def iris_diameter_px(pts: np.ndarray, group: tuple[int, ...]) -> float:
 
 
 def to_canonical(points: dict[L, np.ndarray], mm_per_px: float | None = None) -> PointSet:
-    """Image pixels to Vitruve's canonical frame.
+    """Image pixels to Faciometry's canonical frame.
 
     Image u grows to the viewer's right, which is the subject's left, so
     ``x = -u``. Image v grows downward, so ``y = -v``. The origin is the

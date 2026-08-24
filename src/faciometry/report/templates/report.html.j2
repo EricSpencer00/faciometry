@@ -1,0 +1,244 @@
+{#- One self-contained document. No external stylesheet, no script, no font
+    request, no image URL: every asset is inlined, so the report opens on a
+    machine with the network switched off, which is the machine the analysis
+    was supposed to run on. -#}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Faciometry morphometric report, {{ subject }}</title>
+<style>{{ css|safe }}</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <h1 class="wordmark">Faciometry</h1>
+    <span class="masthead__kind">morphometric report</span>
+    <span class="masthead__run">{{ subject }}<br>{{ generated_at }}</span>
+  </header>
+
+  <section>
+    <span class="num">01</span>
+    <h2>What this photograph supports</h2>
+
+    <div class="tally">
+      <div class="tally__ratio">{{ counts.shown }}<span>/{{ counts.attempted }}</span></div>
+      <p class="tally__caption">measurements reportable, of those attempted</p>
+    </div>
+
+    <ul class="ledger">
+      <li><span>reported without reservation</span><b>{{ counts.reported }}</b></li>
+      <li><span>reported with a caveat</span><b>{{ counts.caveated }}</b></li>
+      <li><span>computed, then withheld</span><b>{{ counts.withheld }}</b></li>
+      <li><span>not attempted, landmark missing</span><b>{{ counts.unavailable }}</b></li>
+    </ul>
+
+    {% if cause_counts %}
+    <ul class="causes">
+      {% for cause, n in cause_counts %}
+      <li>
+        {{ n }} &times; {{ cause.name }}
+        <span class="causes__bar" style="width: {{ (n / cause_counts[0][1] * 100)|round(1) }}%"></span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% for para in summary %}
+    <p>{{ para }}</p>
+    {% endfor %}
+  </section>
+
+  {% if budget.paragraphs %}
+  <section>
+    <span class="num">02</span>
+    <h2>{{ budget.title }}</h2>
+
+    {% for para in budget.paragraphs %}
+    <p>{{ para }}</p>
+    {% endfor %}
+
+    {% if budget.levers %}
+    <p class="region__blurb">Ranked by how many of the withheld measurements
+      each change would carry over.</p>
+    <ul class="levers">
+      {% for lever in budget.levers %}
+      <li>
+        <b>{{ lever.n_recovered }}</b> {{ lever.action }}
+        <span class="levers__why">{{ lever.detail }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No single change priced here would carry a withheld measurement over on
+      this photograph. The list is empty rather than padded with changes that
+      would not reach.</p>
+    {% endif %}
+
+    <ul class="plain">
+      {% for line in budget.lines %}
+      <li>{{ line.shares }}{% if line.counterfactual %} <span class="levers__why">{{ line.counterfactual }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% for view in groups %}
+  <section>
+    <span class="num">03.{{ loop.index }}</span>
+    <h2>{{ view.region.title }}</h2>
+    <p class="region__blurb">{{ view.region.blurb }} <b>{{ view.counted }}</b> reportable.</p>
+
+    {% if view.group.overlay %}
+    <figure>
+      <img src="{{ view.group.overlay.data_uri }}" alt="{{ view.group.overlay.title }}, landmarks with their 95% uncertainty ellipses">
+      <figcaption>{{ view.group.overlay.caption }}</figcaption>
+    </figure>
+    {% endif %}
+
+    {% for row in view.rows %}
+    <article class="m{% if not row.shown %} m--withheld{% endif %}">
+      <div class="m__mark">
+        <span class="m__tier" title="{{ row.tier_gloss }}">{{ row.tier_code }}</span>
+        <span class="m__status">{{ row.status }}</span>
+      </div>
+      <div>
+        <h3 class="m__label">{{ row.label }}</h3>
+        <div class="m__value">{{ row.value_text }}{% if row.unit_text %}<span class="m__unit">{{ row.unit_text }}</span>{% endif %}{% if row.shown %}<span class="m__interval">95% interval {{ row.interval_text }}</span>{% endif %}</div>
+
+        {% if row.bar %}
+        <div class="bar">
+          {% if row.bar.has_band %}
+          <div class="bar__band" style="left: {{ row.bar.band_lo_pct }}%; width: {{ row.bar.band_width_pct }}%" title="{{ row.bar.band_label }}"></div>
+          {% endif %}
+          <div class="bar__ci" style="left: {{ row.bar.lo_pct }}%; width: {{ row.bar.width_pct }}%"></div>
+          <div class="bar__mid" style="left: {{ row.bar.mid_pct }}%"></div>
+        </div>
+        <div class="bar__axis"><span>{{ row.bar.axis_lo }}</span><span>{{ row.bar.axis_hi }}</span></div>
+        <div class="bar__key">solid bar, 95% interval; rule, the value{% if row.bar.has_band %}; hatched, {{ row.bar.band_label }}{% endif %}</div>
+        {% endif %}
+
+        {% if not row.shown %}
+        <p class="m__note m__note--hold">{{ row.prose.headline }}</p>
+        {% endif %}
+        {% if row.prose.caveat %}
+        <p class="m__note">{{ row.prose.caveat }}</p>
+        {% endif %}
+        <p class="m__note">{{ row.prose.evidence }}</p>
+        {% if row.prose.reference_range %}
+        <p class="m__note">{{ row.prose.reference_range }}</p>
+        {% endif %}
+        {% if row.prose.stratum %}
+        <p class="m__note">{{ row.prose.stratum }}</p>
+        {% endif %}
+        {% if row.prose.stratum_caveat %}
+        <p class="m__note">{{ row.prose.stratum_caveat }}</p>
+        {% endif %}
+        {% if row.prose.scale %}
+        <p class="m__note">{{ row.prose.scale }}</p>
+        {% endif %}
+
+        <div class="m__meta">
+          <b>discriminability</b> {{ row.discriminability }} &middot; {{ row.discriminability_title }}<br>
+          <b>provenance</b> {{ row.prose.provenance }}
+          {% if row.reasons %}
+          <br><b>recorded reasons</b> {{ row.reasons|join(" | ") }}
+          {% endif %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+
+    {% if view.unavailable %}
+    <ul class="plain">
+      {% for sentence in view.unavailable %}
+      <li>{{ sentence }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+  {% endfor %}
+
+  <section>
+    <span class="num">04</span>
+    <h2>The photograph itself</h2>
+    {% if quality %}
+    <ul class="plain">
+      {% for issue in quality %}
+      <li><span class="severity">{{ issue.severity }}</span>{{ issue.detail }}{% if issue.reading %} <span class="m__interval">{{ issue.reading }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No quality issues were recorded for this photograph. That is the gate
+      reporting silence, not a guarantee: the gate checks pose, blur, exposure,
+      occlusion and camera distance, and says nothing about anything else.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <span class="num">05</span>
+    <h2>Licence obligations incurred by this run</h2>
+    {% if obligations %}
+    <p>These are the obligations of the backends that actually loaded, printed
+      in full. A weight file's licence is a property of the run, not a footnote
+      to the project.</p>
+    <ul class="plain plain--mono">
+      {% for line in obligations %}
+      <li>{{ line }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No backend obligations were recorded for this run. Either every model
+      that ran was permissively licensed with nothing inherited from its
+      training data, or the run did not record them, and those two are not the
+      same thing.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <span class="num">06</span>
+    <h2>References</h2>
+    {% if references %}
+    <ul class="plain plain--mono">
+      {% for ref in references %}
+      <li>{{ ref }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No references were supplied with this run.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <span class="num">07</span>
+    <h2>Run manifest</h2>
+    {% if manifest %}
+    <dl class="manifest">
+      {% for key, value in manifest %}
+      <dt>{{ key }}</dt><dd>{{ value }}</dd>
+      {% endfor %}
+    </dl>
+    {% else %}
+    <p>No manifest was supplied with this run, so nothing here can be reproduced
+      from the report alone.</p>
+    {% endif %}
+
+    <div class="legend">
+      {% for code, gloss in tier_legend %}
+      <span>{{ code }}: {{ gloss }}</span>
+      {% endfor %}
+    </div>
+  </section>
+
+  <p class="colophon">
+    Faciometry reports measurements. It does not combine them, rank them, or
+    compare this face to another. Every value above is a median over draws from
+    the landmark covariances, shown with the interval those draws produced, and
+    every refusal above is a result.
+  </p>
+
+</div>
+</body>
+</html>

@@ -8,7 +8,7 @@ shown, and they run in milliseconds without a GPU or a weight file. Everything
 else orchestrates them.
 
 Adding a measurement is a data change. Write a `MeasurementSpec` in
-`vitruve/measure/registry.py` and nothing else moves: not the pipeline, not the
+`faciometry/measure/registry.py` and nothing else moves: not the pipeline, not the
 report, not the uncertainty machinery. If adding a measurement makes you edit a
 second file, the seam is in the wrong place and that is worth raising before
 the change.
@@ -35,7 +35,7 @@ down where it is enforced.
 3. **A withheld measurement is a result.** Print the reason, never the number.
 4. **Every number carries its interval.** No bare point estimates in any
    renderer.
-5. **No network egress during analysis.** `vitruve fetch-weights` is the only
+5. **No network egress during analysis.** `faciometry fetch-weights` is the only
    command that opens a socket.
 6. `core`, `measure` and `norms` import numpy and nothing heavier.
 
@@ -75,7 +75,7 @@ on a line somebody else is mid-way through rewriting.
 
 ## A new model backend
 
-Declare a `Provenance` in `vitruve/models/licensing.py` with its tier, its
+Declare a `Provenance` in `faciometry/models/licensing.py` with its tier, its
 license id, its source, and its `inherited_from`. That last field is where the
 surprises live: a checkpoint's own tag frequently says nothing about the
 obligations its training data or its morphable-model basis carry. Ultralytics

@@ -1,7 +1,7 @@
 """A synthetic 3D face whose measurements are known before anything runs.
 
 Everything in arms 1 through 5 stands on this file. The face is a fixed set of
-45 landmark coordinates in millimetres in Vitruve's canonical frame (+x the
+45 landmark coordinates in millimetres in Faciometry's canonical frame (+x the
 subject's right, +y up, +z toward the viewer), laid out so that a useful
 subset of the catalogue is **exact by construction**:
 
@@ -39,9 +39,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from vitruve.core.geometry import rotation_matrix
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
+from faciometry.core.geometry import rotation_matrix
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
 
 # --- construction parameters, the numbers the "exact by construction" claims
 # --- above are made of.

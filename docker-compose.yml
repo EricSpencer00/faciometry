@@ -1,0 +1,60 @@
+# docker compose up            build the image and serve on http://127.0.0.1:8731
+# docker compose run --rm fetch-weights
+# docker compose run --rm cli catalogue
+#
+# The published port is 127.0.0.1:8731, not 8731. Written the short way, Docker
+# publishes to every interface the host has and the container's own loopback
+# check cannot see that it happened.
+
+services:
+  vitruve:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vitruve:local
+    ports:
+      - "127.0.0.1:8731:8731"
+    volumes:
+      - weights:/weights
+      # Reports written by `vitruve analyze --out` land in ./reports on the
+      # host. A report embeds the annotated overlays, so this directory holds
+      # pictures of the subject.
+      - ./reports:/reports
+    environment:
+      VITRUVE_CACHE_DIR: /weights
+    # Uploads stay in memory. `--store` would write each one to disk as a
+    # metadata-free PNG, and it is left off here on purpose.
+    command: ["serve", "--host", "0.0.0.0", "--allow-remote"]
+    restart: unless-stopped
+
+  # One-shot: populate the weights volume. This is the only command that opens
+  # a socket, and it hash-checks every artifact against assets/weights.lock.json.
+  fetch-weights:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vitruve:local
+    volumes:
+      - weights:/weights
+    environment:
+      VITRUVE_CACHE_DIR: /weights
+    command: ["fetch-weights"]
+    profiles: ["tools"]
+
+  # One-shot: any other verb. `docker compose run --rm cli doctor`
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vitruve:local
+    volumes:
+      - weights:/weights
+      - ./reports:/reports
+    environment:
+      VITRUVE_CACHE_DIR: /weights
+    command: ["catalogue"]
+    profiles: ["tools"]
+
+volumes:
+  weights:
+    name: vitruve-weights

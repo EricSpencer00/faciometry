@@ -27,7 +27,7 @@ body:
     id: spec
     attributes:
       label: Measurement id
-      description: The `id` from `vitruve catalogue`, if this concerns an existing one.
+      description: The `id` from `faciometry catalogue`, if this concerns an existing one.
       placeholder: gonial_angle_l
 
   - type: textarea

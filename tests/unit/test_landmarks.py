@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core.landmarks import (
+from faciometry.core.landmarks import (
     BILATERAL_PAIRS,
     Landmark,
     MissingLandmarkError,

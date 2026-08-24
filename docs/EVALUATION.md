@@ -550,15 +550,15 @@ An index with a between-subject relative spread of 1.2% at ten degrees of yaw:
 |---|---|---|---|
 | 8% | Kleinberg & Vanezis 2007, lower end | **0.150** | no |
 | 19% | Kleinberg & Vanezis 2007, upper end | **0.063** | no |
-| 19% | Vitruve `KLEINBERG_WORST.error_at(10,0,0)` | 0.063 | no |
+| 19% | Faciometry `KLEINBERG_WORST.error_at(10,0,0)` | 0.063 | no |
 | 28.4% | the same, after `gated_pose` inflates 10° to 14.98° | 0.042 | no |
-| 1.5% | Vitruve `TRANSVERSE_WIDTH` | 0.790 | no |
+| 1.5% | Faciometry `TRANSVERSE_WIDTH` | 0.790 | no |
 
 Reproduced. Every route gives a ratio below 1.
 
-### 5.2 Vitruve's geometry now exceeds the top of Kleinberg's band. The previous run's conclusion is overturned.
+### 5.2 Faciometry's geometry now exceeds the top of Kleinberg's band. The previous run's conclusion is overturned.
 
-The previous run concluded that "Vitruve's geometry reaches the bottom of
+The previous run concluded that "Faciometry's geometry reaches the bottom of
 Kleinberg's 8-19% band and never the top", the largest movement being
 `nasal_tip_projection_ratio` at 9.89%. That was true of the catalogue at 45. It
 is false at 68.
@@ -1241,7 +1241,7 @@ in the previous run's list.
     published spread and `gonial_angle_r` has none, so one side is withheld and
     the other is called unknown. (§5.4)
 
-15. **The undeclared-sex fallback makes Vitruve more confident, not less.**
+15. **The undeclared-sex fallback makes Faciometry more confident, not less.**
     `both|pooled` inflates the between-subject SD by up to 1.18×, and that SD
     is the numerator of the discriminability ratio. (§6.4, §6.5)
 

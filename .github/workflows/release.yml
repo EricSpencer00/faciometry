@@ -57,9 +57,9 @@ jobs:
       - name: The wheel installs and runs
         run: |
           python -m pip install "$(ls dist/*.whl)"
-          vitruve --version
-          vitruve catalogue --json > /dev/null
-          vitruve licenses --tier permissive > /dev/null
+          faciometry --version
+          faciometry catalogue --json > /dev/null
+          faciometry licenses --tier permissive > /dev/null
 
       - uses: actions/upload-artifact@v4
         with:
@@ -73,7 +73,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
-      url: https://pypi.org/p/vitruve
+      url: https://pypi.org/p/faciometry
     permissions:
       # Trusted publishing. The runner mints a short-lived OIDC token that PyPI
       # exchanges for an upload credential, so there is no API token in the

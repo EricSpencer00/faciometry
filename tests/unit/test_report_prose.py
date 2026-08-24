@@ -14,19 +14,19 @@ import math
 import numpy as np
 import pytest
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.scale import from_interpupillary
-from vitruve.core.spec import Verdict, decide_reportability
-from vitruve.measure.evaluate import (
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.scale import from_interpupillary
+from faciometry.core.spec import Verdict, decide_reportability
+from faciometry.measure.evaluate import (
     LandmarkUncertainty,
     Measured,
     Unavailable,
     evaluate,
 )
-from vitruve.measure.registry import BY_ID, CATALOGUE
-from vitruve.report import model, prose
-from vitruve.report.model import QualityIssue, ReportInput, niosh_stratum
+from faciometry.measure.registry import BY_ID, CATALOGUE
+from faciometry.report import model, prose
+from faciometry.report.model import QualityIssue, ReportInput, niosh_stratum
 
 # ---------------------------------------------------------------------------
 # A synthetic face, in the canonical frame: +x subject's right, +y up, +z
@@ -184,7 +184,7 @@ def synthetic_report(**kw) -> ReportInput:
             "seed": 7,
             "n_samples": 256,
             "landmark_backend": "synthetic fixture",
-            "vitruve_version": "0.0.0+test",
+            "faciometry_version": "0.0.0+test",
         },
         strata=strata,
         obligations=(
@@ -316,7 +316,7 @@ def test_the_four_named_causes_reach_the_reader():
 
 def _verdict_sweep() -> list[Verdict]:
     """Reason strings from every branch of the core gate that can fire."""
-    from vitruve.core.sensitivity import discriminability
+    from faciometry.core.sensitivity import discriminability
 
     spec_3d = BY_ID["bigonial_width"]
     spec_roll = BY_ID["canthal_tilt_l"]
@@ -551,9 +551,9 @@ def test_the_smallest_sufficient_change_is_the_one_offered(report: ReportInput):
 
 def test_repeats_are_priced_with_the_shared_fraction_not_root_n():
     """The one sentence that could quietly overstate what averaging buys."""
-    from vitruve.measure.budget import repeat_factor
-    from vitruve.measure.multishot import DEFAULT_SHARED_FRACTION
-    from vitruve.report.model import REPEATS_PRICED
+    from faciometry.measure.budget import repeat_factor
+    from faciometry.measure.multishot import DEFAULT_SHARED_FRACTION
+    from faciometry.report.model import REPEATS_PRICED
 
     sentence = prose.repeats_sentence()
     assert f"{repeat_factor(REPEATS_PRICED):.2f}" in sentence
@@ -579,7 +579,7 @@ def test_the_budget_section_is_empty_when_nothing_was_withheld():
 
 
 def test_a_run_that_used_a_ruler_is_not_offered_one():
-    from vitruve.measure.budget import Lever
+    from faciometry.measure.budget import Lever
 
     withheld = synthetic_report().withheld
     measured = ReportInput(measurements=withheld, scale_is_measured=True)

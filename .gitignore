@@ -14,9 +14,9 @@ venv/
 .coverage
 htmlcov/
 
-# Vitruve runtime
-# Weights and norms are downloaded by `vitruve fetch-weights` into
-# ~/.cache/vitruve, but a local override lands here and must never be
+# Faciometry runtime
+# Weights and norms are downloaded by `faciometry fetch-weights` into
+# ~/.cache/faciometry, but a local override lands here and must never be
 # committed: the checkpoints are large and several carry licenses that
 # forbid redistribution.
 weights/

@@ -39,10 +39,10 @@ from evals._bootstrap import rng, write_csv, write_json
 from evals import frll
 from evals.arms.arm02_pose_sweep import HORIZON, ROLL_CLAIMS
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.spec import Unit, View
-from vitruve.measure.registry import CATALOGUE, satisfiable
-from vitruve.norms import niosh
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.spec import Unit, View
+from faciometry.measure.registry import CATALOGUE, satisfiable
+from faciometry.norms import niosh
 
 
 def _values(ps_by_subject: dict, specs) -> dict[str, dict[str, float]]:

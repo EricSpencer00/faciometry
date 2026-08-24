@@ -1,14 +1,14 @@
-# Installing Vitruve
+# Installing Faciometry
 
 Pick the row that matches what you want to do.
 
 | You want to | Use |
 |---|---|
-| read the catalogue, no photographs | `pip install vitruve` |
-| measure faces on this machine | `pip install 'vitruve[permissive,api]'` |
+| read the catalogue, no photographs | `pip install faciometry` |
+| measure faces on this machine | `pip install 'faciometry[permissive,api]'` |
 | a Mac app, no terminal | [INSTALL-MACOS.md](INSTALL-MACOS.md) (signed, not notarised: first launch is right-click, Open) |
 | a container | [Docker](#docker) |
-| to work on Vitruve | [From source](#from-source) |
+| to work on Faciometry | [From source](#from-source) |
 
 Python 3.11 or 3.12. macOS on Apple silicon and Linux on x86_64 are the two
 platforms exercised in CI.
@@ -16,35 +16,35 @@ platforms exercised in CI.
 ## The measurement layer alone
 
 ```
-pip install vitruve
-vitruve catalogue
-vitruve licenses --tier copyleft
+pip install faciometry
+faciometry catalogue
+faciometry licenses --tier copyleft
 ```
 
 The base install is numpy and Pillow. `core`, `measure` and `norms` hold every
 decision about what a measurement is and whether it may be shown, and they run
-in milliseconds with no GPU and no weight file. `vitruve catalogue` and
-`vitruve licenses` work from this install and open no sockets.
+in milliseconds with no GPU and no weight file. `faciometry catalogue` and
+`faciometry licenses` work from this install and open no sockets.
 
 ## The full local pipeline
 
 ```
-pip install 'vitruve[permissive,api]'
-vitruve fetch-weights
-vitruve doctor
+pip install 'faciometry[permissive,api]'
+faciometry fetch-weights
+faciometry doctor
 ```
 
 `permissive` brings OpenCV, MediaPipe, torch, torchvision, SPIGA and 6DRepNet.
-`api` brings FastAPI and Uvicorn for `vitruve serve`. Both are permissively
-licensed and neither changes the license of your deployment. `vitruve
+`api` brings FastAPI and Uvicorn for `faciometry serve`. Both are permissively
+licensed and neither changes the license of your deployment. `faciometry
 licenses --tier permissive` prints the exact obligations.
 
-`fetch-weights` downloads about 416 MB into `~/.cache/vitruve/weights`, or into
-`$VITRUVE_CACHE_DIR` if you set it. It verifies every artifact against the
+`fetch-weights` downloads about 416 MB into `~/.cache/faciometry/weights`, or into
+`$FACIOMETRY_CACHE_DIR` if you set it. It verifies every artifact against the
 sha256 pinned in `assets/weights.lock.json` and fails hard on a mismatch. It is
 the only command that opens a socket.
 
-`vitruve doctor` prints the device, which weights are present and which
+`faciometry doctor` prints the device, which weights are present and which
 versions are installed. Run it before opening an issue.
 
 ### Extras
@@ -52,7 +52,7 @@ versions are installed. Run it before opening an issue.
 | Extra | What it adds | Effect on your license |
 |---|---|---|
 | `permissive` | the default backend stack | none, stays Apache-2.0 |
-| `api` | FastAPI and Uvicorn, for `vitruve serve` | none |
+| `api` | FastAPI and Uvicorn, for `faciometry serve` | none |
 | `pdf` | ReportLab, for `report.pdf` | none |
 | `all` | the three above together | none |
 | `copyleft` | Ultralytics, for YOLO detection and YOLO-seg findings | your deployment becomes AGPL-3.0 |
@@ -60,12 +60,12 @@ versions are installed. Run it before opening an issue.
 
 `all` is deliberately not `copyleft`. AGPL section 13 treats network use as
 distribution, so an extra named `all` that quietly pulled it in would make a
-`vitruve serve` instance oblige you to release your corresponding source
+`faciometry serve` instance oblige you to release your corresponding source
 without your having chosen that. Ask for it by name:
 
 ```
-pip install 'vitruve[permissive,api,copyleft]'
-vitruve analyze portrait.jpg --license-tier copyleft
+pip install 'faciometry[permissive,api,copyleft]'
+faciometry analyze portrait.jpg --license-tier copyleft
 ```
 
 Both halves are required. Installing the extra does not raise the runtime tier,
@@ -76,8 +76,8 @@ which the CLI turns into exit code 4.
 ## macOS
 
 ```
-git clone https://github.com/EricSpencer00/vitruve
-cd vitruve
+git clone https://github.com/EricSpencer00/faciometry
+cd faciometry
 make install
 ```
 
@@ -99,18 +99,18 @@ The `mediapipe>=0.10.31,<1` upper bound is load-bearing on Apple silicon.
 MediaPipe 1.0.x aborts the process when the face landmarker graph opens, with
 `Check failed: service_ Service is unavailable` from inside a Metal helper
 initialised for a CPU graph. It is a hard abort rather than an exception, so it
-cannot be caught at the call site, and `vitruve.models.dense_mediapipe` refuses
+cannot be caught at the call site, and `faciometry.models.dense_mediapipe` refuses
 to load that version.
 
-`vitruve doctor` reports `mps` when Metal is available. That is where the
+`faciometry doctor` reports `mps` when Metal is available. That is where the
 analysis runs.
 
 ## Linux
 
 ```
 sudo apt-get install -y libgl1 libglib2.0-0
-pip install 'vitruve[permissive,api]'
-vitruve fetch-weights
+pip install 'faciometry[permissive,api]'
+faciometry fetch-weights
 ```
 
 `opencv-python` links against libGL at import time. Without those two packages
@@ -132,17 +132,17 @@ Then open <http://127.0.0.1:8731>.
 Or without compose:
 
 ```
-docker build -t vitruve .
-docker volume create vitruve-weights
-docker run --rm -v vitruve-weights:/weights vitruve fetch-weights
-docker run --rm -v vitruve-weights:/weights \
-  -p 127.0.0.1:8731:8731 vitruve serve --host 0.0.0.0 --allow-remote
+docker build -t faciometry .
+docker volume create faciometry-weights
+docker run --rm -v faciometry-weights:/weights faciometry fetch-weights
+docker run --rm -v faciometry-weights:/weights \
+  -p 127.0.0.1:8731:8731 faciometry serve --host 0.0.0.0 --allow-remote
 ```
 
 **The container is CPU-only.** There is no MPS and no CUDA inside it, so an
 analysis takes noticeably longer than the same analysis from a `make install`
 on an Apple silicon host. If you are measuring faces on your own laptop, the
-native install is the faster route. The container is for putting Vitruve
+native install is the faster route. The container is for putting Faciometry
 somewhere reproducible.
 
 The image is `linux/amd64`, for the MediaPipe wheel reason above. On Apple
@@ -150,7 +150,7 @@ silicon it runs under Rosetta, which costs more speed on top of the CPU-only
 cost.
 
 **Weights are not baked into the image.** `fetch-weights` writes them into the
-`vitruve-weights` volume at runtime. The image stays small, the SPIGA
+`faciometry-weights` volume at runtime. The image stays small, the SPIGA
 checkpoint is not redistributed inside a layer that ends up on a registry, and
 every artifact is hash-checked on arrival. A container started before the
 volume is populated serves `/health` with `pipeline_available: false` and
@@ -183,8 +183,8 @@ appear in the run command instead of in a default.
 ## From source
 
 ```
-git clone https://github.com/EricSpencer00/vitruve
-cd vitruve
+git clone https://github.com/EricSpencer00/faciometry
+cd faciometry
 make install
 make test
 make lint
@@ -203,7 +203,7 @@ pytest
 ## Verifying an install
 
 ```
-vitruve doctor
+faciometry doctor
 ```
 
 That prints the device, the weights present, the versions, and the catalogue
@@ -211,18 +211,18 @@ size. Two checks worth running once:
 
 ```
 # the measurement layer, with no weights and no network
-vitruve catalogue --id nose_breadth
+faciometry catalogue --id nose_breadth
 
 # the obligation page for a tier you are not using, which needs nothing installed
-vitruve licenses --tier noncommercial
+faciometry licenses --tier noncommercial
 ```
 
 ## Uninstalling
 
 ```
-pip uninstall vitruve
-rm -rf ~/.cache/vitruve
+pip uninstall faciometry
+rm -rf ~/.cache/faciometry
 ```
 
 Reports and any stored images are ordinary files in directories you named.
-`docs/PRIVACY.md` lists every path Vitruve writes to.
+`docs/PRIVACY.md` lists every path Faciometry writes to.

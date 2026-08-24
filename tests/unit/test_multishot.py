@@ -5,9 +5,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.core.landmarks import Landmark, PointSet
-from vitruve.measure.evaluate import LandmarkUncertainty
-from vitruve.measure.multishot import DEFAULT_SHARED_FRACTION, combine
+from faciometry.core.landmarks import Landmark, PointSet
+from faciometry.measure.evaluate import LandmarkUncertainty
+from faciometry.measure.multishot import DEFAULT_SHARED_FRACTION, combine
 
 
 def _capture(truth, rng, sd=3.0):
@@ -153,7 +153,7 @@ def test_the_estimate_can_only_tighten_the_assumption(truth):
     a systematic bias on a face is invisible to this test precisely because it
     repeats. So the observed estimate may raise the shared fraction and never
     lower it below the caller's floor."""
-    from vitruve.measure.multishot import observed_shared_fraction
+    from faciometry.measure.multishot import observed_shared_fraction
 
     rng = np.random.default_rng(14)
     wild = np.stack([rng.normal(0, 100.0, size=(30, 3)) for _ in range(5)])

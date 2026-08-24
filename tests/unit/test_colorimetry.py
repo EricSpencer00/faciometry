@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from test_regions import face_points
 
-from vitruve.derm.colorimetry import (
+from faciometry.derm.colorimetry import (
     D65_WHITE,
     MONK_SWATCH_LAB,
     MONK_SWATCHES_HEX,
@@ -47,7 +47,7 @@ from vitruve.derm.colorimetry import (
     srgb_to_linear,
     tone_from_regions,
 )
-from vitruve.derm.regions import Region, build_regions
+from faciometry.derm.regions import Region, build_regions
 
 _DELTA = 6.0 / 29.0
 _XYZ_TO_SRGB = np.linalg.inv(SRGB_TO_XYZ)

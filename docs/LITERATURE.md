@@ -1,6 +1,6 @@
 # The informational literature layer
 
-`src/vitruve/report/literature.py` names, for a measurement that was reported,
+`src/faciometry/report/literature.py` names, for a measurement that was reported,
 what the clinical literature associates with it, and cites the source. It is
 off unless a caller asks for it. This document is the argument for both halves
 of that sentence, and the table of what is in it.
@@ -24,7 +24,7 @@ filler." "Recommended: blepharoplasty."
 Those are claims about a person. Each one asserts a goal state the face does
 not currently occupy, and none of them has any measurement behind it, because
 the software has no way to know what anybody wants their face to look like.
-Vitruve has no ground truth for a goal state and does not invent one.
+Faciometry has no ground truth for a goal state and does not invent one.
 
 Three rules follow, and each is a test rather than an intention:
 
@@ -116,7 +116,7 @@ a renderer that shows one association shows the statement too.
 ## Wiring
 
 ```python
-from vitruve.report.literature import literature_for, literature_text
+from faciometry.report.literature import literature_for, literature_text
 
 notes = literature_for(
     report.measurements,       # Sequence[Measured]
@@ -146,7 +146,7 @@ was retrieved and read; none was written from memory.
 
 Metgudmath et al. measured 3D CT reconstructions of 30 patients: mean
 nasofrontal angle 116.69°, 110.43° in men and 126.08° in women. They record
-Powell and Humphreys' range as **115–130°**, where the Vitruve catalogue
+Powell and Humphreys' range as **115–130°**, where the Faciometry catalogue
 carries **115–135°** from the same book. Two transcriptions of one 1984 volume
 disagree by five degrees, which is recorded in the entry's caveat rather than
 resolved, because neither transcription can be checked without the book.
@@ -184,7 +184,7 @@ Arroyo et al. is doing double duty because it is one of the few open sources
 that writes down a convention conflict instead of picking a side. It records
 **two definitions of the mentocervical angle**: Lehmann's, from the nasal tip
 to pogonion across the submental line, normal 110–120°, and Powell and
-Humphreys', from glabella to pogonion, which is what Vitruve computes and what
+Humphreys', from glabella to pogonion, which is what Faciometry computes and what
 the catalogue's 80–95° belongs to. A value read under one definition cannot be
 placed against the range published for the other. The same paper records the
 cervicomental angle at 121° in men and 126° in women, which is why it, not
@@ -246,7 +246,7 @@ carries no range sentence.
 | `periorbital_pigmentation` | the described types of periorbital hyperpigmentation | Sarkar and Das 2018, *Indian Dermatol Online J* 9(4), [doi:10.4103/idoj.idoj_303_17](https://doi.org/10.4103/idoj.idoj_303_17), [PMC6042190](https://pmc.ncbi.nlm.nih.gov/articles/PMC6042190/); Sarkar, Ranjan, Garg, Garg, Sonthalia and Bansal 2016, *J Clin Aesthet Dermatol* 9(1), [PMC4756872](https://pmc.ncbi.nlm.nih.gov/articles/PMC4756872/) |
 
 Aoki et al. is the strongest fit in the table, because it validates the method
-Vitruve already uses rather than merely naming a topic. They measured CIELAB at
+Faciometry already uses rather than merely naming a topic. They measured CIELAB at
 an unaffected site and a rash site in each of 44 patients: **a\* 7.5 ± 3.9 at
 baseline against 13.1 ± 4.6 at the rash site**, paired within subject. Baseline
 a\* itself differed significantly across Fitzpatrick phototype groups
@@ -264,7 +264,7 @@ the published justification for `from_pigmentation` reporting the L\* and b\*
 components separately instead of pooling them: an orbital-rim shadow is an L\*
 deficit with no b\* shift. The types themselves are separated by dermoscopy,
 Wood's lamp and histology, so a photograph does not distinguish them, and
-Vitruve reports the contrast rather than a type.
+Faciometry reports the contrast rather than a type.
 
 Hayashi et al. established the grade boundaries by having dermatologists
 classify global severity without a standard and then counting eruptions, fixing

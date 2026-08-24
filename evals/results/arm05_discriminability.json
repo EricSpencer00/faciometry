@@ -3919,7 +3919,7 @@
    "note": "sensitivity.KLEINBERG_WORST.error_at(10,0,0)",
    "pose_error_at_10deg_yaw": 0.19,
    "ratio": 0.06315789473684211,
-   "source": "vitruve a-priori KLEINBERG_WORST",
+   "source": "faciometry a-priori KLEINBERG_WORST",
    "verdict": "uninformative: this photograph contributes more variance than this person does"
   },
   {
@@ -3928,7 +3928,7 @@
    "note": "as assess_discriminability applies it, inflating 10 deg to 14.98 deg",
    "pose_error_at_10deg_yaw": 0.2845374853777082,
    "ratio": 0.042173705106273246,
-   "source": "vitruve a-priori KLEINBERG_WORST, pose-gated",
+   "source": "faciometry a-priori KLEINBERG_WORST, pose-gated",
    "verdict": "uninformative: this photograph contributes more variance than this person does"
   },
   {
@@ -3937,7 +3937,7 @@
    "note": "a depth-matched transverse width, cos(yaw) only",
    "pose_error_at_10deg_yaw": 0.01519224698779198,
    "ratio": 0.7898765738631572,
-   "source": "vitruve a-priori TRANSVERSE_WIDTH",
+   "source": "faciometry a-priori TRANSVERSE_WIDTH",
    "verdict": "uninformative: this photograph contributes more variance than this person does"
   },
   {

@@ -1,4 +1,4 @@
-# Vitruve
+# Faciometry
 #
 # `make install` does one thing that looks superstitious and is not: it ad-hoc
 # codesigns every compiled extension in the virtualenv. On macOS, XProtect deep
@@ -8,7 +8,7 @@
 # place where it is visible and pays it once.
 
 PY := .venv/bin/python
-VITRUVE := .venv/bin/vitruve
+FACIOMETRY := .venv/bin/faciometry
 EXTRAS := permissive,api,dev
 
 .DEFAULT_GOAL := help
@@ -24,7 +24,7 @@ install:  ## create the venv, install the permissive stack, sign the extensions
 	@echo "signing compiled extensions so XProtect does not stall the first import"
 	@find .venv \( -name "*.so" -o -name "*.dylib" \) -print0 \
 		| xargs -0 -P 8 -n 20 codesign -s - -f 2>/dev/null || true
-	@$(VITRUVE) doctor
+	@$(FACIOMETRY) doctor
 
 test:  ## the whole suite
 	$(PY) -m pytest
@@ -51,14 +51,14 @@ evals:  ## the validation arms in evals/
 	@touch $@
 
 serve: .venv/.installed  ## the local API and web UI on 127.0.0.1:8731
-	$(PY) -m vitruve serve
+	$(PY) -m faciometry serve
 
 demo: .venv/.installed  ## what the tool says before any photograph is taken
-	$(PY) -m vitruve doctor
+	$(PY) -m faciometry doctor
 	@echo
-	$(PY) -m vitruve catalogue
+	$(PY) -m faciometry catalogue
 	@echo
-	$(PY) -m vitruve licenses --tier permissive
+	$(PY) -m faciometry licenses --tier permissive
 
 clean:  ## remove caches and build output
 	rm -rf build dist .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage

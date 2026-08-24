@@ -17,9 +17,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.derm.regions import (
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.derm.regions import (
     REFERENCE_PAIRS,
     Region,
     RegionPolygon,
@@ -30,7 +30,7 @@ from vitruve.derm.regions import (
     refine_with_parser,
     skin_mask_from_parse,
 )
-from vitruve.models.licensing import LicenseViolation, Tier
+from faciometry.models.licensing import LicenseViolation, Tier
 
 IPD = 100.0
 CX, CY = 400.0, 500.0

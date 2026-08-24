@@ -38,9 +38,9 @@ from PIL import Image
 from evals._bootstrap import rng, write_csv, write_json
 from evals.synth import face as F
 
-from vitruve.core.landmarks import PointSet
-from vitruve.core.spec import Unit, View
-from vitruve.measure.registry import CATALOGUE
+from faciometry.core.landmarks import PointSet
+from faciometry.core.spec import Unit, View
+from faciometry.measure.registry import CATALOGUE
 
 PX_PER_MM = 4.0          # an IPD of 63.36 mm spans 253 px, a realistic portrait crop
 BLOB_SIGMA_PX = 1.6

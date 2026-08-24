@@ -28,18 +28,18 @@ sys.path.insert(0, str(Path(__file__).parent))
 from test_no_aggregate_score import FORBIDDEN_NAMES, FORBIDDEN_TEXT
 from test_report_prose import synthetic_report
 
-from vitruve.core.sensitivity import Discriminability
-from vitruve.core.spec import Reportability, Unit, Verdict
-from vitruve.measure.evaluate import Measured, Unavailability, Unavailable
-from vitruve.report import pdf as pdf_module
-from vitruve.report import prose
-from vitruve.report.model import QualityIssue, ReportInput
+from faciometry.core.sensitivity import Discriminability
+from faciometry.core.spec import Reportability, Unit, Verdict
+from faciometry.measure.evaluate import Measured, Unavailability, Unavailable
+from faciometry.report import pdf as pdf_module
+from faciometry.report import prose
+from faciometry.report.model import QualityIssue, ReportInput
 
 pytest.importorskip(
     "reportlab",
     reason=(
         "the PDF report is the optional [pdf] extra; "
-        "install it with `pip install 'vitruve[pdf]'`"
+        "install it with `pip install 'faciometry[pdf]'`"
     ),
 )
 
@@ -145,7 +145,7 @@ def hand_built_report() -> ReportInput:
                 reading="yaw 9.1 deg",
             ),
         ),
-        manifest={"seed": 3, "vitruve_version": "0.0.0+test"},
+        manifest={"seed": 3, "faciometry_version": "0.0.0+test"},
         obligations=("SPIGA landmark model: BSD-3-Clause",),
         references=("Farkas 1994, Anthropometry of the Head and Face, 2nd ed.",),
         subject_label="Unidentified subject",
@@ -394,8 +394,8 @@ def test_every_promised_section_is_present(text: str, heading: str):
 
 
 def test_the_evidence_tier_of_every_measurement_is_legible(text: str):
-    from vitruve.core.spec import Evidence
-    from vitruve.report.html import TIER_CODE, TIER_GLOSS
+    from faciometry.core.spec import Evidence
+    from faciometry.report.html import TIER_CODE, TIER_GLOSS
 
     for evidence in Evidence:
         assert TIER_CODE[evidence] in text
@@ -458,7 +458,7 @@ def test_the_file_asks_the_network_for_nothing(document: bytes):
 def test_the_plates_are_carried_as_bytes_and_not_as_a_link():
     import dataclasses
 
-    from vitruve.report.model import OverlayImage
+    from faciometry.report.model import OverlayImage
 
     with_plate = dataclasses.replace(
         hand_built_report(),
@@ -487,7 +487,7 @@ def test_a_photographic_plate_is_downsampled_and_still_deterministic():
     """
     import dataclasses
 
-    from vitruve.report.model import OverlayImage
+    from faciometry.report.model import OverlayImage
 
     plate = OverlayImage("jaw", "Jaw and chin", "A photograph.", _photo_png(1400))
     big = dataclasses.replace(hand_built_report(), overlays=(plate,))
@@ -502,7 +502,7 @@ def test_a_photographic_plate_is_downsampled_and_still_deterministic():
 def test_an_undecodable_plate_costs_the_plate_and_not_the_report():
     import dataclasses
 
-    from vitruve.report.model import OverlayImage
+    from faciometry.report.model import OverlayImage
 
     broken = dataclasses.replace(
         hand_built_report(),
@@ -519,19 +519,19 @@ def test_an_undecodable_plate_costs_the_plate_and_not_the_report():
 
 
 def _fake_composite_module(monkeypatch: pytest.MonkeyPatch, **attrs) -> None:
-    """Stand a module in for ``vitruve.report.composite``.
+    """Stand a module in for ``faciometry.report.composite``.
 
     Both the package attribute and ``sys.modules`` are replaced. Patching only
     ``sys.modules`` is not enough once the real module has been imported: the
     ``from . import composite`` machinery finds the attribute on the package
     first and never looks at ``sys.modules`` at all.
     """
-    import vitruve.report as package
+    import faciometry.report as package
 
-    module = types.ModuleType("vitruve.report.composite")
+    module = types.ModuleType("faciometry.report.composite")
     for name, value in attrs.items():
         setattr(module, name, value)
-    monkeypatch.setitem(sys.modules, "vitruve.report.composite", module)
+    monkeypatch.setitem(sys.modules, "faciometry.report.composite", module)
     monkeypatch.setattr(package, "composite", module, raising=False)
 
 
@@ -548,7 +548,7 @@ def test_a_mirror_composite_can_be_handed_straight_to_the_renderer():
     """
     import dataclasses
 
-    composite = pytest.importorskip("vitruve.report.composite")
+    composite = pytest.importorskip("faciometry.report.composite")
     fields = {f.name for f in dataclasses.fields(composite.MirrorComposite)}
     assert {"title", "caption", "png"} <= fields
 
@@ -666,7 +666,7 @@ def test_the_print_stylesheet_never_hides_a_measurement():
 def test_the_extractor_actually_reads_the_document(document: bytes, text: str):
     """A silent extractor would make every text assertion above vacuous."""
     assert len(text) > 4000
-    assert "VITRUVE" in text
+    assert "FACIOMETRY" in text
     assert "MORPHOMETRIC REPORT" in text
 
 
@@ -718,7 +718,7 @@ def _photo_png(side: int) -> bytes:
 
 
 def test_the_budget_section_reaches_the_pdf(text: str, report):
-    from vitruve.report import prose
+    from faciometry.report import prose
 
     assert prose.BUDGET_TITLE.upper() in text
     for line in prose.lever_lines(report):

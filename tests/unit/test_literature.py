@@ -12,12 +12,12 @@ import re
 
 import pytest
 
-from vitruve.core.spec import Reportability, Unit, Verdict
-from vitruve.derm.findings import Finding, FindingKind, contains_advice
-from vitruve.measure.evaluate import Measured
-from vitruve.measure.registry import BY_ID
-from vitruve.report import literature as lit
-from vitruve.report.prose import PRESCRIPTIVE_TERMS
+from faciometry.core.spec import Reportability, Unit, Verdict
+from faciometry.derm.findings import Finding, FindingKind, contains_advice
+from faciometry.measure.evaluate import Measured
+from faciometry.measure.registry import BY_ID
+from faciometry.report import literature as lit
+from faciometry.report.prose import PRESCRIPTIVE_TERMS
 
 # ---------------------------------------------------------------------------
 # Fixtures: the smallest Measured and Finding the module reads

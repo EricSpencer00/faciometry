@@ -1,29 +1,29 @@
-# Vitruve
+# Faciometry
 
-[![CI](https://github.com/EricSpencer00/vitruve/actions/workflows/ci.yml/badge.svg)](https://github.com/EricSpencer00/vitruve/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/vitruve.svg)](https://pypi.org/project/vitruve/)
-[![Python](https://img.shields.io/pypi/pyversions/vitruve.svg)](https://pypi.org/project/vitruve/)
+[![CI](https://github.com/EricSpencer00/faciometry/actions/workflows/ci.yml/badge.svg)](https://github.com/EricSpencer00/faciometry/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/faciometry.svg)](https://pypi.org/project/faciometry/)
+[![Python](https://img.shields.io/pypi/pyversions/faciometry.svg)](https://pypi.org/project/faciometry/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Vitruve measures a face from a photograph and reports each measurement with the
+Faciometry measures a face from a photograph and reports each measurement with the
 interval it is known to within. It runs on your machine and downloads nothing
 during an analysis.
 
 ```
-pip install 'vitruve[permissive]' && vitruve fetch-weights
-vitruve analyze portrait.jpg --out report/
+pip install 'faciometry[permissive]' && faciometry fetch-weights
+faciometry analyze portrait.jpg --out report/
 ```
 
 That writes `report.json`, `report.txt` and `report.html`, and `report.pdf` if
 you add `--pdf`. Every value carries a 95% interval, the landmarks it came
 from, and the hash of the formula that produced it.
 
-![The capture and subject plates of the local web UI](https://raw.githubusercontent.com/EricSpencer00/vitruve/main/docs/images/capture.png)
+![The capture and subject plates of the local web UI](https://raw.githubusercontent.com/EricSpencer00/faciometry/main/docs/images/capture.png)
 
 ## Two things to know before you install it
 
 **A measurement whose error is the size of the thing it measures is withheld,
-with its reason printed where the number would have gone.** Vitruve compares
+with its reason printed where the number would have gone.** Faciometry compares
 each measurement's own error against how far that measurement spreads between
 different people. When the photograph contributes more variance than the person
 does, the report says so instead of printing a value.
@@ -47,7 +47,7 @@ the gate. That is the system working. The arithmetic is four lines, in
 The measurement error is the same size as the quantity, so the number describes
 the photograph rather than the person.
 
-![The report, showing one reported measurement and the reasons behind the withheld ones](https://raw.githubusercontent.com/EricSpencer00/vitruve/main/docs/images/verdicts.png)
+![The report, showing one reported measurement and the reasons behind the withheld ones](https://raw.githubusercontent.com/EricSpencer00/faciometry/main/docs/images/verdicts.png)
 
 ## What makes more measurements clear the gate
 
@@ -66,7 +66,7 @@ halves when the resolution on the face doubles.
 the square root of N.
 
 **Use a lower-NME landmark model.** The landmark model's normalised mean error
-also enters linearly, and Vitruve's backend interface takes any model that
+also enters linearly, and Faciometry's backend interface takes any model that
 returns named points with covariances.
 
 ## Where the gate comes from
@@ -78,18 +78,18 @@ deviation of 1.2 percent for the tightest index. The pose artifact was larger
 than the entire spread between different people.
 
 FISWG's 2026 guidance (V2.1, section 6.4.1) prohibits photo-anthropometry for
-identification, citing that evidence. Vitruve keeps the measurements and gates
+identification, citing that evidence. Faciometry keeps the measurements and gates
 them. Every empirical constant in the codebase cites its source next to the
 constant, and the bibliography is [docs/REFERENCES.md](docs/REFERENCES.md).
 
-`vitruve catalogue` prints the whole table with no photograph and no weights:
+`faciometry catalogue` prints the whole table with no photograph and no weights:
 
-![The catalogue, with pose sensitivity and between-person spread per measurement](https://raw.githubusercontent.com/EricSpencer00/vitruve/main/docs/images/catalogue.png)
+![The catalogue, with pose sensitivity and between-person spread per measurement](https://raw.githubusercontent.com/EricSpencer00/faciometry/main/docs/images/catalogue.png)
 
 `moves @10deg` is how far a measurement shifts when the head turns ten degrees.
 `between people` is how far it spreads across different people. The ratio of the
 two decides whether the number describes a person or describes a photograph.
-Below 1, Vitruve prints the reason and not the number:
+Below 1, Faciometry prints the reason and not the number:
 
 ```
 Bizygomatic width: withheld
@@ -102,16 +102,16 @@ Bizygomatic width: withheld
 
 Commercial facial-analysis services, Qoves being the best known of them, return
 an aesthetic assessment: per-feature ratings and an overall figure, derived from
-the same class of 2D landmark geometry. Vitruve computes the geometry, attaches
+the same class of 2D landmark geometry. Faciometry computes the geometry, attaches
 the interval, and stops there. The measurements a consumer report prints to two
 decimal places, bizygomatic width and facial width-to-height ratio and canthal
 tilt among them, are the ones whose pose error exceeds their between-person
-spread, so those are exactly the rows Vitruve withholds.
+spread, so those are exactly the rows Faciometry withholds.
 
 ## Download for macOS
 
 There is a Mac app, so none of the above is required. `packaging/macos/build_app.sh`
-produces `Vitruve-<version>-arm64.dmg`, about 331 MB, which installs a 1.2 GB
+produces `Faciometry-<version>-arm64.dmg`, about 331 MB, which installs a 1.2 GB
 app. Drag it to Applications and open it; the web interface appears in your
 browser.
 
@@ -132,9 +132,9 @@ release procedure.
 ## Install
 
 ```
-pip install 'vitruve[permissive,api]'
-vitruve fetch-weights
-vitruve doctor
+pip install 'faciometry[permissive,api]'
+faciometry fetch-weights
+faciometry doctor
 ```
 
 `fetch-weights` is the only command that opens a socket. It verifies every
@@ -162,24 +162,24 @@ address are in [docs/INSTALL.md](docs/INSTALL.md).
 
 | Command | What it does |
 |---|---|
-| `vitruve analyze FRONTAL [FRONTAL ...]` | measure a face. Offline. Several captures of the same person in one session are pooled before measuring. |
-| `vitruve catalogue` | every measurement, its evidence tier, its pose sensitivity and its between-subject spread |
-| `vitruve catalogue --id gonial_angle_l` | everything known about one measurement, including its formula hash |
-| `vitruve licenses --tier T` | what tier `T` obliges you to |
-| `vitruve fetch-weights` | download and hash-verify weights. The only networked command. |
-| `vitruve doctor` | device, weights, versions |
-| `vitruve serve` | the local API and web UI |
+| `faciometry analyze FRONTAL [FRONTAL ...]` | measure a face. Offline. Several captures of the same person in one session are pooled before measuring. |
+| `faciometry catalogue` | every measurement, its evidence tier, its pose sensitivity and its between-subject spread |
+| `faciometry catalogue --id gonial_angle_l` | everything known about one measurement, including its formula hash |
+| `faciometry licenses --tier T` | what tier `T` obliges you to |
+| `faciometry fetch-weights` | download and hash-verify weights. The only networked command. |
+| `faciometry doctor` | device, weights, versions |
+| `faciometry serve` | the local API and web UI |
 
 Exit codes: `0` ran, `2` bad input, `3` the photograph did not clear the quality
 gate, `4` a backend exceeded the permitted license tier.
 
 ## Licensing
 
-Vitruve's own code is Apache-2.0. The weights are where the obligations live.
+Faciometry's own code is Apache-2.0. The weights are where the obligations live.
 
 The default stack is permissive throughout: YuNet (MIT), SPIGA (BSD-3-Clause),
 MediaPipe Face Landmarker (Apache-2.0, including its bundled `.task` models) and
-6DRepNet (MIT). Installing `vitruve[permissive]` leaves your deployment
+6DRepNet (MIT). Installing `faciometry[permissive]` leaves your deployment
 Apache-2.0.
 
 YOLO sits behind an opt-in tier. **Ultralytics asserts AGPL-3.0 over the models
@@ -192,7 +192,7 @@ them on first use, and FLAME and the Basel Face Model are non-commercial and
 forbid redistribution, which several popular repositories breach by vendoring
 the basis file.
 
-So Vitruve treats the license as a property of the backend, declared in the
+So Faciometry treats the license as a property of the backend, declared in the
 type, and refuses at load time to exceed the tier you selected.
 
 | Tier | Stack | What it does to your deployment |
@@ -206,17 +206,17 @@ obligations, including the ones inherited from training data rather than from a
 code license, with:
 
 ```
-vitruve licenses --tier copyleft
+faciometry licenses --tier copyleft
 ```
 
-`vitruve.models.licensing` enforces this. `require(provenance, allowed)` is
+`faciometry.models.licensing` enforces this. `require(provenance, allowed)` is
 called before a weight file is opened, and exceeding the tier raises
 `LicenseViolation`, which the CLI turns into exit code 4.
 
 ## The local server
 
 ```
-vitruve serve
+faciometry serve
 ```
 
 Binds `127.0.0.1:8731` and serves a single-page UI with a capture overlay and
@@ -228,7 +228,7 @@ Uploads are held in memory. Passing `--store` writes them, re-encoded from the
 pixel array so they carry no metadata, and prints that it is doing so.
 
 Binding anything other than loopback requires `--allow-remote` and prints why
-that is a decision. Vitruve has no authentication and it reads faces.
+that is a decision. Faciometry has no authentication and it reads faces.
 
 ## Privacy
 
@@ -241,7 +241,7 @@ then runs the measurement path underneath. The first test in that file is the
 control that proves the block blocks.
 
 Sex and ancestry are declared by the subject or left empty. They select a
-normative stratum and narrow the interpupillary prior. Nothing in Vitruve
+normative stratum and narrow the interpupillary prior. Nothing in Faciometry
 predicts either one.
 
 ## Layout
@@ -269,4 +269,4 @@ someone.
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE), and `vitruve licenses` for the weights.
+Apache-2.0. See [LICENSE](LICENSE), and `faciometry licenses` for the weights.

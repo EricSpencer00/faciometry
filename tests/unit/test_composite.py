@@ -24,10 +24,10 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.spec import Reportability, Unit, Verdict
-from vitruve.measure.evaluate import Measured
-from vitruve.report import composite as comp
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.spec import Reportability, Unit, Verdict
+from faciometry.measure.evaluate import Measured
+from faciometry.report import composite as comp
 
 W, H = 240, 300
 

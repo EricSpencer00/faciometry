@@ -10,7 +10,7 @@
 #
 # What notarisation buys, so the decision to skip it is an informed one:
 # without a stapled ticket, Gatekeeper on any Mac other than the one that
-# signed the app shows "Vitruve cannot be opened because Apple cannot check it
+# signed the app shows "Faciometry cannot be opened because Apple cannot check it
 # for malicious software", and the user has to right-click, choose Open, and
 # confirm a scary dialog. For a tool whose entire pitch is that it is careful
 # with your face, teaching users to click through that dialog is the wrong
@@ -32,7 +32,7 @@
 set -euo pipefail
 
 ARTIFACT="${1:?usage: notarize.sh PATH_TO_APP_OR_DMG}"
-NOTARY_PROFILE="${NOTARY_PROFILE:-vitruve-notary}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-faciometry-notary}"
 TEAM_ID="${TEAM_ID:-QAWD9U9CF6}"
 
 say() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
@@ -78,7 +78,7 @@ if [ -n "${MACOS_NOTARY_KEY:-}" ] && [ -n "${MACOS_NOTARY_KEY_ID:-}" ] && [ -n "
     # A .p8 cannot be put in a GitHub secret as a file, so CI passes it
     # base64-encoded and it is materialised here into a file that is removed on
     # exit whatever happens.
-    KEY_PATH="$(mktemp -t vitruve-notary-key)"
+    KEY_PATH="$(mktemp -t faciometry-notary-key)"
     CLEANUP_KEY="$KEY_PATH"
     printf '%s' "$MACOS_NOTARY_KEY" | base64 --decode > "$KEY_PATH" 2>/dev/null || {
       warn "MACOS_NOTARY_KEY is neither a readable path nor valid base64"
@@ -121,7 +121,7 @@ case "$ARTIFACT" in
     # The notary service does not accept a bare .app: it takes a zip, a dmg or
     # a pkg. ditto -c -k --keepParent is the only zip tool that preserves the
     # bundle's symlinks and signature xattrs; /usr/bin/zip does not.
-    TMPZIP="$(mktemp -d -t vitruve-notary)/Vitruve.zip"
+    TMPZIP="$(mktemp -d -t faciometry-notary)/Faciometry.zip"
     ditto -c -k --keepParent "$ARTIFACT" "$TMPZIP"
     SUBMIT="$TMPZIP"
     ;;

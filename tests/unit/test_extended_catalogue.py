@@ -23,12 +23,12 @@ import math
 import numpy as np
 import pytest
 
-from vitruve.core import geometry as geo
-from vitruve.core.formula import Axis, Pt, SignedTilt
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.spec import Evidence, Unit, View
-from vitruve.measure.registry import BY_ID, CATALOGUE
+from faciometry.core import geometry as geo
+from faciometry.core.formula import Axis, Pt, SignedTilt
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.spec import Evidence, Unit, View
+from faciometry.measure.registry import BY_ID, CATALOGUE
 
 #: Everything this file is responsible for. Listed rather than derived so that
 #: deleting a measurement breaks a test instead of shrinking a set silently.

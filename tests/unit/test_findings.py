@@ -25,14 +25,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from test_regions import face_points
 
-from vitruve.core.spec import Reportability, Verdict
-from vitruve.derm.colorimetry import (
+from faciometry.core.spec import Reportability, Verdict
+from faciometry.derm.colorimetry import (
     RegionColour,
     erythema,
     monk_tone,
     periorbital_pigmentation,
 )
-from vitruve.derm.detect_yolo import (
+from faciometry.derm.detect_yolo import (
     DETECTION_REGIONS,
     AcneDetection,
     AcneDetector,
@@ -45,7 +45,7 @@ from vitruve.derm.detect_yolo import (
     merge_duplicates,
     tiles_for_region,
 )
-from vitruve.derm.findings import (
+from faciometry.derm.findings import (
     DISCLAIMER,
     Finding,
     FindingKind,
@@ -58,8 +58,8 @@ from vitruve.derm.findings import (
     from_region_lesions,
     from_tone,
 )
-from vitruve.derm.regions import Region, build_regions
-from vitruve.models.licensing import YOLO_DERM_SEG, LicenseViolation, Tier
+from faciometry.derm.regions import Region, build_regions
+from faciometry.models.licensing import YOLO_DERM_SEG, LicenseViolation, Tier
 
 
 def colour(lab, region=None, se=(0.5, 0.5, 0.5), calibrated=False) -> RegionColour:

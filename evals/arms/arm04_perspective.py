@@ -32,10 +32,10 @@ import numpy as np
 from evals._bootstrap import write_csv, write_json
 from evals.synth import face as F
 
-from vitruve.core.landmarks import PointSet
-from vitruve.core.scale import magnification_distortion
-from vitruve.core.spec import Unit, View
-from vitruve.measure.registry import CATALOGUE
+from faciometry.core.landmarks import PointSet
+from faciometry.core.scale import magnification_distortion
+from faciometry.core.spec import Unit, View
+from faciometry.measure.registry import CATALOGUE
 
 DISTANCES_M = (0.3, 0.4, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0)
 PLANE_DEPTH_MM = 50.0

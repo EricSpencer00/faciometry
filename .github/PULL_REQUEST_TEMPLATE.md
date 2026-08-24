@@ -14,9 +14,9 @@
 - [ ] Any new empirical number cites its source next to the constant, or says
       it is a guess and what would replace it.
 - [ ] Any new measurement is a `MeasurementSpec` in
-      `vitruve/measure/registry.py` and nothing else moved.
+      `faciometry/measure/registry.py` and nothing else moved.
 - [ ] Any new model backend declares a `Provenance` in
-      `vitruve/models/licensing.py`, including anything inherited from its
+      `faciometry/models/licensing.py`, including anything inherited from its
       training data, and calls `require()` before opening the weight file.
 - [ ] No photograph of an identifiable person is attached to this PR or
       committed to the repository.

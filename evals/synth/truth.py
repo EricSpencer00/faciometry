@@ -1,7 +1,7 @@
 """Ground truth for the synthetic face, computed a second time and differently.
 
-Nothing in this file imports ``vitruve.core.geometry``, ``vitruve.core.formula``
-or ``vitruve.measure.registry``. Every value is recomputed in pure Python
+Nothing in this file imports ``faciometry.core.geometry``, ``faciometry.core.formula``
+or ``faciometry.measure.registry``. Every value is recomputed in pure Python
 ``math`` from the *anatomical definition* of the measurement -- the one written
 in the spec's label and description -- rather than from the expression tree the
 registry happens to use. That is what makes arm 1 a check rather than a
@@ -23,7 +23,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-from vitruve.core.landmarks import Landmark as L
+from faciometry.core.landmarks import Landmark as L
 
 from . import face as F
 
@@ -249,7 +249,7 @@ TRUTH: dict[str, Truth] = {
 #
 # Same rule as above: every value is written from the anatomical definition in
 # the spec's label and description, in pure-Python ``math``, importing nothing
-# from ``vitruve.core.formula`` or ``vitruve.measure.registry``. Where the
+# from ``faciometry.core.formula`` or ``faciometry.measure.registry``. Where the
 # construction makes the answer a coordinate difference it is marked exact and
 # the expected value is the construction parameter.
 #

@@ -59,12 +59,12 @@ import numpy as np
 from evals._bootstrap import rng, write_csv, write_json
 from evals.synth import face as F
 
-from vitruve.core.formula import (
+from faciometry.core.formula import (
     Abs, AngleBetween, Axis, Const, Diff, Dist, ProjLength, Pt, Ratio, SignedTilt, Vec,
 )
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.spec import Unit, View
-from vitruve.measure.registry import BY_ID, CATALOGUE
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.spec import Unit, View
+from faciometry.measure.registry import BY_ID, CATALOGUE
 
 AXES = ("yaw", "pitch", "roll")
 STEP = 2.5
@@ -209,7 +209,7 @@ def _capture(cond: dict, spec, yaw: float, pitch: float, roll: float):
 
 
 def _value(spec, coords) -> float:
-    from vitruve.core.landmarks import PointSet
+    from faciometry.core.landmarks import PointSet
     ps = PointSet(index=dict(F.INDEX), coords=coords)
     try:
         v = float(np.asarray(spec.formula.eval(ps)))

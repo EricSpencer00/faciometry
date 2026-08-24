@@ -22,13 +22,13 @@ import urllib.request
 import numpy as np
 import pytest
 
-from vitruve.cli.main import main
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.landmarks import PointSet
-from vitruve.core.scale import from_interpupillary
-from vitruve.core.spec import Reportability
-from vitruve.measure.evaluate import LandmarkUncertainty, Measured, Unavailable, evaluate
-from vitruve.measure.registry import CATALOGUE
+from faciometry.cli.main import main
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.landmarks import PointSet
+from faciometry.core.scale import from_interpupillary
+from faciometry.core.spec import Reportability
+from faciometry.measure.evaluate import LandmarkUncertainty, Measured, Unavailable, evaluate
+from faciometry.measure.registry import CATALOGUE
 
 
 class NetworkBlocked(OSError):
@@ -188,7 +188,7 @@ def test_analyze_reaches_the_pipeline_without_a_socket(no_network, tmp_path):
     """Whatever `analyze` does, it does not get there by opening a connection."""
     from PIL import Image
 
-    from vitruve.cli.runner import AnalysisRequest, Status, load_image, run_analysis
+    from faciometry.cli.runner import AnalysisRequest, Status, load_image, run_analysis
 
     buf = io.BytesIO()
     Image.new("RGB", (640, 480), (128, 120, 110)).save(buf, format="JPEG")
@@ -213,7 +213,7 @@ def test_analyze_reaches_the_pipeline_without_a_socket(no_network, tmp_path):
 def test_ingest_drops_exif_with_the_network_blocked(no_network, tmp_path):
     from PIL import Image
 
-    from vitruve.cli.runner import load_image
+    from faciometry.cli.runner import load_image
 
     exif = Image.Exif()
     exif[0x010F] = "TestCamera"

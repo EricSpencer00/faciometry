@@ -1,9 +1,9 @@
 source,pose_error_at_10deg_yaw,between_subject_sd,ratio,informative,verdict,note
 Kleinberg & Vanezis 2007 measured index movement (8%),0.08,0.012,0.15,False,uninformative: this photograph contributes more variance than this person does,"the published number, used directly"
 Kleinberg & Vanezis 2007 measured index movement (19%),0.19,0.012,0.06315789473684211,False,uninformative: this photograph contributes more variance than this person does,"the published number, used directly"
-vitruve a-priori KLEINBERG_WORST,0.19,0.012,0.06315789473684211,False,uninformative: this photograph contributes more variance than this person does,"sensitivity.KLEINBERG_WORST.error_at(10,0,0)"
-"vitruve a-priori KLEINBERG_WORST, pose-gated",0.2845374853777082,0.012,0.042173705106273246,False,uninformative: this photograph contributes more variance than this person does,"as assess_discriminability applies it, inflating 10 deg to 14.98 deg"
-vitruve a-priori TRANSVERSE_WIDTH,0.01519224698779198,0.012,0.7898765738631572,False,uninformative: this photograph contributes more variance than this person does,"a depth-matched transverse width, cos(yaw) only"
+faciometry a-priori KLEINBERG_WORST,0.19,0.012,0.06315789473684211,False,uninformative: this photograph contributes more variance than this person does,"sensitivity.KLEINBERG_WORST.error_at(10,0,0)"
+"faciometry a-priori KLEINBERG_WORST, pose-gated",0.2845374853777082,0.012,0.042173705106273246,False,uninformative: this photograph contributes more variance than this person does,"as assess_discriminability applies it, inflating 10 deg to 14.98 deg"
+faciometry a-priori TRANSVERSE_WIDTH,0.01519224698779198,0.012,0.7898765738631572,False,uninformative: this photograph contributes more variance than this person does,"a depth-matched transverse width, cos(yaw) only"
 "measured, worst relative index under ortho",0.2113867205525124,0.012,0.05676799360260181,False,uninformative: this photograph contributes more variance than this person does,ramus_body_ratio_l at 10 deg of yaw
 "measured, worst non-degenerate index under ortho",0.2113867205525124,0.012,0.05676799360260181,False,uninformative: this photograph contributes more variance than this person does,"ramus_body_ratio_l at 10 deg of yaw; excludes the three asymmetry measurements, whose zero-pose value is near zero by construction"
 "measured, worst relative index under persp_1.0m",2.3700691307370256,0.012,0.005063143451966877,False,uninformative: this photograph contributes more variance than this person does,commissure_height_l at 10 deg of yaw

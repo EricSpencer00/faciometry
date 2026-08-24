@@ -1,0 +1,165 @@
+/* Print rules for the screen report.
+ *
+ * The degraded path. Where reportlab is installed, `faciometry.report.pdf` draws
+ * the PDF directly and this file is never read. Where it is not, this makes
+ * the browser's own print-to-PDF produce something with a cover page, a
+ * running head, honest page breaks and no dark-mode ink, rather than a long
+ * screenshot of a web page.
+ *
+ * Everything here is inside `@media print` except the rule that hides the
+ * cover on screen, because a reader who is scrolling does not need a title
+ * page and a stylesheet that changes the screen document would have changed
+ * the artifact it was only supposed to paginate.
+ */
+
+.pcover { display: none; }
+
+@page {
+  size: letter;
+  margin: 18mm 20mm 16mm;
+}
+
+@media print {
+  /* --- ground ---------------------------------------------------------- */
+
+  :root {
+    --paper: #ffffff;
+    --paper-2: #f3f0e8;
+    --ink: #171412;
+    --ink-2: #4a443b;
+    --ink-3: #6f685c;
+    --rule: #b9b1a1;
+    --rule-soft: #d7d0c1;
+    --accent: #8f3d15;
+    --accent-soft: rgba(143, 61, 21, 0.1);
+  }
+
+  body {
+    background: #fff;
+    background-image: none;
+    font-size: 10.5pt;
+    line-height: 1.48;
+  }
+
+  body::before { display: none; }
+
+  .sheet { max-width: none; padding: 0; }
+
+  /* --- the cover ------------------------------------------------------- */
+
+  .pcover {
+    display: block;
+    break-after: page;
+    page-break-after: always;
+    padding-top: 6mm;
+  }
+
+  .pcover__head {
+    border-bottom: 1.5pt solid var(--ink);
+    padding-bottom: 3mm;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 1mm 8mm;
+  }
+
+  .pcover__wordmark {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26pt;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .pcover__kind,
+  .pcover__date {
+    font-family: var(--mono);
+    font-size: 7pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .pcover__date { margin-left: auto; }
+
+  .pcover__tally {
+    display: flex;
+    align-items: flex-end;
+    gap: 6mm;
+    margin: 34mm 0 6mm;
+  }
+
+  .pcover__ratio {
+    font-family: var(--serif);
+    font-size: 72pt;
+    line-height: 0.86;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .pcover__ratio span { color: var(--ink-3); }
+
+  .pcover__caption {
+    font-family: var(--mono);
+    font-size: 7pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    max-width: 34mm;
+    line-height: 1.5;
+    padding-bottom: 2mm;
+  }
+
+  .pcover__subject {
+    border-top: 0.5pt solid var(--rule);
+    padding-top: 5mm;
+    font-size: 18pt;
+    font-weight: 400;
+    margin: 0 0 4mm;
+  }
+
+  .pcover__standfirst {
+    max-width: 105mm;
+    font-size: 10.5pt;
+    margin-bottom: 8mm;
+  }
+
+  .pcover__rows {
+    border-top: 0.5pt solid var(--rule);
+    padding-top: 3mm;
+    display: grid;
+    grid-template-columns: 46mm minmax(0, 1fr);
+    gap: 0.6mm 4mm;
+    font-family: var(--mono);
+    font-size: 7pt;
+    margin: 0;
+  }
+
+  .pcover__rows dt { color: var(--ink-3); }
+  .pcover__rows dd { margin: 0; }
+
+  /* --- pagination ------------------------------------------------------ */
+
+  /* A section may break; a measurement, a figure or a manifest row may not.
+   * A value orphaned from its interval by a page boundary is the one break
+   * this document cannot take. */
+  section { break-inside: auto; page-break-inside: auto; padding-top: 10mm; }
+  section > h2 { break-after: avoid; page-break-after: avoid; }
+  .m, figure, .bar, .bar__axis, .ledger li, .manifest dt, .manifest dd {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .m__value, .m__interval { break-inside: avoid; page-break-inside: avoid; }
+  .colophon { break-before: page; page-break-before: always; }
+
+  /* --- ink ------------------------------------------------------------- */
+
+  .m--withheld { background: none; border-left: 2pt solid var(--accent); padding-left: 3mm; }
+  .causes__bar { background: var(--accent); }
+  figure img { max-height: 120mm; }
+  section { animation: none; }
+
+  /* A hyperlink's target is invisible on paper, and the report has no
+   * hyperlinks to print anyway; this keeps it that way if one is ever added. */
+  a[href]::after { content: ""; }
+}

@@ -21,11 +21,11 @@ from dataclasses import dataclass
 import numpy as np
 import pytest
 
-from vitruve.core.scale import magnification_distortion
-from vitruve.core.sensitivity import POSE_ESTIMATOR_SD_DEG, gated_pose
-from vitruve.core.spec import View
-from vitruve.pipeline.ingest import SubjectDistance
-from vitruve.pipeline.quality import (
+from faciometry.core.scale import magnification_distortion
+from faciometry.core.sensitivity import POSE_ESTIMATOR_SD_DEG, gated_pose
+from faciometry.core.spec import View
+from faciometry.pipeline.ingest import SubjectDistance
+from faciometry.pipeline.quality import (
     AGREEMENT_FAIL_DEG,
     BLUR_WARN_VARIANCE,
     FACE_HEIGHT_MINIMUM_PX,

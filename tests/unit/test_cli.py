@@ -17,15 +17,15 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from vitruve.cli import catalogue as catalogue_cmd
-from vitruve.cli import doctor as doctor_cmd
-from vitruve.cli import licenses as licenses_cmd
-from vitruve.cli import weights as weights_cmd
-from vitruve.cli.exits import Exit
-from vitruve.cli.main import main
-from vitruve.cli.runner import BadImage, load_image, load_image_file
-from vitruve.measure.registry import CATALOGUE
-from vitruve.models.licensing import Tier
+from faciometry.cli import catalogue as catalogue_cmd
+from faciometry.cli import doctor as doctor_cmd
+from faciometry.cli import licenses as licenses_cmd
+from faciometry.cli import weights as weights_cmd
+from faciometry.cli.exits import Exit
+from faciometry.cli.main import main
+from faciometry.cli.runner import BadImage, load_image, load_image_file
+from faciometry.measure.registry import CATALOGUE
+from faciometry.models.licensing import Tier
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -42,7 +42,7 @@ def jpeg(tmp_path: Path) -> Path:
 
 def test_no_arguments_prints_help_and_succeeds(capsys):
     assert main([]) == Exit.OK
-    assert "vitruve" in capsys.readouterr().out
+    assert "faciometry" in capsys.readouterr().out
 
 
 def test_version_flag():
@@ -140,7 +140,7 @@ def test_licenses_names_the_backend_it_will_not_load(capsys):
 def test_extras_text_matches_pyproject():
     """The obligation a packager reads and the one the CLI prints are one text."""
     data = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
-    declared = data["tool"]["vitruve"]["extras"]
+    declared = data["tool"]["faciometry"]["extras"]
     assert declared == licenses_cmd.EXTRAS
     for name in data["project"]["optional-dependencies"]:
         assert name in declared, f"extra {name} has no stated obligation"
@@ -188,7 +188,7 @@ def _artifact(tmp_path: Path, payload: bytes, *, provenance: str, sha: str | Non
 
 @pytest.fixture
 def sandboxed_cache(tmp_path, monkeypatch):
-    monkeypatch.setenv("VITRUVE_CACHE_DIR", str(tmp_path / "cache"))
+    monkeypatch.setenv("FACIOMETRY_CACHE_DIR", str(tmp_path / "cache"))
     return tmp_path / "cache" / "weights"
 
 
@@ -197,7 +197,7 @@ def test_doctor_flags_a_corrupt_weight_file(tmp_path, monkeypatch, sandboxed_cac
         tmp_path,
         {"fake": _artifact(tmp_path, b"the pinned bytes", provenance="YuNet face detector")},
     )
-    monkeypatch.setenv("VITRUVE_WEIGHTS_LOCK", str(lock))
+    monkeypatch.setenv("FACIOMETRY_WEIGHTS_LOCK", str(lock))
     sandboxed_cache.mkdir(parents=True)
     (sandboxed_cache / "artifact.bin").write_bytes(b"not the pinned artifact")
 
@@ -220,7 +220,7 @@ def test_every_pinned_artifact_belongs_to_a_known_backend():
     for pin in weights_cmd.pins():
         assert pin.tier is not Tier.UNLICENSED, (
             f"{pin.key} names provenance {pin.provenance!r}, which is not in "
-            "vitruve.models.licensing.CATALOGUE"
+            "faciometry.models.licensing.CATALOGUE"
         )
 
 
@@ -239,13 +239,13 @@ def test_an_unknown_provenance_is_treated_as_unlicensed():
 
 
 def test_fetch_writes_only_after_the_digest_matches(tmp_path, monkeypatch, sandboxed_cache):
-    from vitruve.models import weights as models_weights
+    from faciometry.models import weights as models_weights
 
     payload = b"weights, notionally"
     lock = _lock(
         tmp_path, {"fake": _artifact(tmp_path, payload, provenance="YuNet face detector")}
     )
-    monkeypatch.setenv("VITRUVE_WEIGHTS_LOCK", str(lock))
+    monkeypatch.setenv("FACIOMETRY_WEIGHTS_LOCK", str(lock))
 
     assert main(["fetch-weights"]) == Exit.OK
     assert (sandboxed_cache / "artifact.bin").read_bytes() == payload
@@ -253,7 +253,7 @@ def test_fetch_writes_only_after_the_digest_matches(tmp_path, monkeypatch, sandb
 
 
 def test_a_changed_artifact_is_a_hard_failure(tmp_path, monkeypatch, sandboxed_cache, capsys):
-    from vitruve.models import weights as models_weights
+    from faciometry.models import weights as models_weights
 
     lock = _lock(
         tmp_path,
@@ -263,7 +263,7 @@ def test_a_changed_artifact_is_a_hard_failure(tmp_path, monkeypatch, sandboxed_c
             )
         },
     )
-    monkeypatch.setenv("VITRUVE_WEIGHTS_LOCK", str(lock))
+    monkeypatch.setenv("FACIOMETRY_WEIGHTS_LOCK", str(lock))
 
     with pytest.raises(models_weights.WeightHashMismatch):
         models_weights.download("fake")
@@ -285,7 +285,7 @@ def test_fetch_refuses_an_artifact_above_the_tier(tmp_path, monkeypatch, sandbox
             )
         },
     )
-    monkeypatch.setenv("VITRUVE_WEIGHTS_LOCK", str(lock))
+    monkeypatch.setenv("FACIOMETRY_WEIGHTS_LOCK", str(lock))
 
     assert main(["fetch-weights"]) == Exit.OK
     out = capsys.readouterr().out
@@ -298,7 +298,7 @@ def test_fetch_refuses_an_artifact_above_the_tier(tmp_path, monkeypatch, sandbox
 
 
 def test_fetch_without_a_lock_file_is_bad_input(tmp_path, monkeypatch, capsys):
-    monkeypatch.setenv("VITRUVE_WEIGHTS_LOCK", str(tmp_path / "absent.json"))
+    monkeypatch.setenv("FACIOMETRY_WEIGHTS_LOCK", str(tmp_path / "absent.json"))
     assert main(["fetch-weights"]) == Exit.BAD_INPUT
     assert "no weight lock file" in capsys.readouterr().err
 
@@ -316,7 +316,7 @@ def test_analyze_undecodable_file_is_bad_input(tmp_path, capsys):
     bogus.write_bytes(b"this is not a JPEG")
     assert main(["analyze", str(bogus)]) == Exit.BAD_INPUT
     err = capsys.readouterr().err
-    assert "vitruve analyze:" in err
+    assert "faciometry analyze:" in err
     assert "decod" in err
 
 
@@ -330,7 +330,7 @@ def test_analyze_warns_before_accepting_a_copyleft_tier(jpeg, capsys):
     main(["analyze", str(jpeg), "--license-tier", "copyleft"])
     err = capsys.readouterr().err
     assert "license tier copyleft selected" in err
-    assert "vitruve licenses --tier copyleft" in err
+    assert "faciometry licenses --tier copyleft" in err
 
 
 def test_analyze_on_a_faceless_image_never_exits_zero(jpeg):
@@ -339,7 +339,7 @@ def test_analyze_on_a_faceless_image_never_exits_zero(jpeg):
 
 
 def test_analyze_accepts_several_frontal_photographs():
-    from vitruve.cli.main import build_parser
+    from faciometry.cli.main import build_parser
 
     args = build_parser().parse_args(["analyze", "a.jpg", "b.jpg", "c.jpg"])
     assert args.frontal == ["a.jpg", "b.jpg", "c.jpg"]
@@ -347,7 +347,7 @@ def test_analyze_accepts_several_frontal_photographs():
 
 
 def test_one_frontal_photograph_is_still_a_list_of_one():
-    from vitruve.cli.main import build_parser
+    from faciometry.cli.main import build_parser
 
     assert build_parser().parse_args(["analyze", "a.jpg"]).frontal == ["a.jpg"]
 
@@ -401,7 +401,7 @@ def test_load_image_rejects_empty_bytes():
 
 
 def test_serve_refuses_a_public_bind_without_the_flag(capsys):
-    from vitruve.api.serve import RemoteBindRefused, is_loopback, resolve_bind
+    from faciometry.api.serve import RemoteBindRefused, is_loopback, resolve_bind
 
     assert is_loopback("127.0.0.1")
     assert is_loopback("::1")

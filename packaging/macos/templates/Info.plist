@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>Vitruve</string>
+  <string>Faciometry</string>
   <key>CFBundleDisplayName</key>
-  <string>Vitruve</string>
+  <string>Faciometry</string>
   <key>CFBundleIdentifier</key>
   <string>__BUNDLE_ID__</string>
   <key>CFBundleExecutable</key>
-  <string>Vitruve</string>
+  <string>Faciometry</string>
   <key>CFBundleIconFile</key>
-  <string>Vitruve</string>
+  <string>Faciometry</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
@@ -21,7 +21,7 @@
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>NSHumanReadableCopyright</key>
-  <string>Apache-2.0. Model weights carry their own licences; see Vitruve's licences page.</string>
+  <string>Apache-2.0. Model weights carry their own licences; see Faciometry's licences page.</string>
 
   <!-- The bundled interpreter is arm64-only, and 26.0 is what the launcher is
        built against. Setting the floor here means the Finder refuses the app
@@ -48,9 +48,9 @@
        AVFoundation from inside the bundle, and a missing usage string is a
        hard crash rather than a denial. -->
   <key>NSCameraUsageDescription</key>
-  <string>Vitruve uses the camera to take the photograph it measures. The image is processed on this Mac and is never uploaded; nothing leaves the machine during an analysis.</string>
+  <string>Faciometry uses the camera to take the photograph it measures. The image is processed on this Mac and is never uploaded; nothing leaves the machine during an analysis.</string>
 
-  <!-- Vitruve talks to 127.0.0.1 only. This does not loosen ATS for any other
+  <!-- Faciometry talks to 127.0.0.1 only. This does not loosen ATS for any other
        host: it permits cleartext to local addresses, which is what a loopback
        server on a random port is. -->
   <key>NSAppTransportSecurity</key>

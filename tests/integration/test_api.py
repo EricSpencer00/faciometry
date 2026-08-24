@@ -21,9 +21,9 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from vitruve.api.app import MAX_UPLOAD_BYTES, create_app
-from vitruve.cli.runner import analysis_available
-from vitruve.measure.registry import CATALOGUE
+from faciometry.api.app import MAX_UPLOAD_BYTES, create_app
+from faciometry.cli.runner import analysis_available
+from faciometry.measure.registry import CATALOGUE
 
 
 def jpeg_bytes(size=(640, 800), colour=(150, 130, 120), quality=90) -> bytes:
@@ -195,7 +195,7 @@ def test_the_web_ui_is_served_from_the_same_origin(client):
 
     index = client.get("/")
     assert index.status_code == 200
-    assert "Vitruve" in index.text
+    assert "Faciometry" in index.text
 
     remote_ref = re.compile(
         r"""(?:src|href)\s*=\s*["']https?://"""
@@ -206,7 +206,7 @@ def test_the_web_ui_is_served_from_the_same_origin(client):
     )
     assert not remote_ref.search(index.text)
 
-    for asset in ("vitruve.css", "app.js", "capture.js", "report.js"):
+    for asset in ("faciometry.css", "app.js", "capture.js", "report.js"):
         res = client.get(f"/static/{asset}")
         assert res.status_code == 200, asset
         assert not remote_ref.search(res.text), asset

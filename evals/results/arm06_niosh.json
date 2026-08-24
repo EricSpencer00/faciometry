@@ -11,9 +11,9 @@
    "pooled_over_within_sex": 1.0284727146024892,
    "pooled_rsd": 0.061722685545088,
    "pooled_sd": 3.97311212879122,
-   "vitruve_spread_default": 0.0617224687123274,
-   "vitruve_spread_female": 0.06300483373350481,
-   "vitruve_spread_male": 0.0583324113004352,
+   "faciometry_spread_default": 0.0617224687123274,
+   "faciometry_spread_female": 0.06300483373350481,
+   "faciometry_spread_male": 0.0583324113004352,
    "within_sex_rsd": 0.0600139261535433,
    "within_sex_sd": 3.863118653883639
   },
@@ -27,9 +27,9 @@
    "pooled_over_within_sex": 1.1393196244513273,
    "pooled_rsd": 0.054413940007881155,
    "pooled_sd": 7.678481150388725,
-   "vitruve_spread_default": 0.05441406991873145,
-   "vitruve_spread_female": 0.04791980288349678,
-   "vitruve_spread_male": 0.047652802390632056,
+   "faciometry_spread_default": 0.05441406991873145,
+   "faciometry_spread_female": 0.04791980288349678,
+   "faciometry_spread_male": 0.047652802390632056,
    "within_sex_rsd": 0.04776003049546854,
    "within_sex_sd": 6.739532073000606
   },
@@ -43,9 +43,9 @@
    "pooled_over_within_sex": 1.0872649777122745,
    "pooled_rsd": 0.0945048166189741,
    "pooled_sd": 11.095579517968208,
-   "vitruve_spread_default": 0.09450495538619305,
-   "vitruve_spread_female": 0.0830673101382604,
-   "vitruve_spread_male": 0.08865501765909131,
+   "faciometry_spread_default": 0.09450495538619305,
+   "faciometry_spread_female": 0.0830673101382604,
+   "faciometry_spread_male": 0.08865501765909131,
    "within_sex_rsd": 0.08691976524234477,
    "within_sex_sd": 10.20503717623144
   },
@@ -59,9 +59,9 @@
    "pooled_over_within_sex": 1.0193915188276645,
    "pooled_rsd": 0.13322222149546997,
    "pooled_sd": 4.940854558430192,
-   "vitruve_spread_default": 0.13322350238491343,
-   "vitruve_spread_female": 0.13742565963981573,
-   "vitruve_spread_male": 0.12702433967652876,
+   "faciometry_spread_default": 0.13322350238491343,
+   "faciometry_spread_female": 0.13742565963981573,
+   "faciometry_spread_male": 0.12702433967652876,
    "within_sex_rsd": 0.13068798301233672,
    "within_sex_sd": 4.846866456287909
   },
@@ -75,9 +75,9 @@
    "pooled_over_within_sex": 1.037488822546444,
    "pooled_rsd": 0.08875562314529714,
    "pooled_sd": 4.503798287014911,
-   "vitruve_spread_default": 0.08875567064350719,
-   "vitruve_spread_female": 0.09089873399695247,
-   "vitruve_spread_male": 0.08260409971269486,
+   "faciometry_spread_default": 0.08875567064350719,
+   "faciometry_spread_female": 0.09089873399695247,
+   "faciometry_spread_male": 0.08260409971269486,
    "within_sex_rsd": 0.08554851022631033,
    "within_sex_sd": 4.341057165281696
   },
@@ -91,9 +91,9 @@
    "pooled_over_within_sex": 1.119497527434353,
    "pooled_rsd": 0.08913620078429393,
    "pooled_sd": 4.488142629182656,
-   "vitruve_spread_default": 0.08913537829061696,
-   "vitruve_spread_female": 0.07982626676984961,
-   "vitruve_spread_male": 0.07942719125944288,
+   "faciometry_spread_default": 0.08913537829061696,
+   "faciometry_spread_female": 0.07982626676984961,
+   "faciometry_spread_male": 0.07942719125944288,
    "within_sex_rsd": 0.07962161469759998,
    "within_sex_sd": 4.00906881810495
   },
@@ -107,9 +107,9 @@
    "pooled_over_within_sex": 1.178308083252485,
    "pooled_rsd": 0.06796632747833216,
    "pooled_sd": 8.151181079230879,
-   "vitruve_spread_default": 0.06796648369836662,
-   "vitruve_spread_female": 0.05668362121039684,
-   "vitruve_spread_male": 0.05810928295490798,
+   "faciometry_spread_default": 0.06796648369836662,
+   "faciometry_spread_female": 0.05668362121039684,
+   "faciometry_spread_male": 0.05810928295490798,
    "within_sex_rsd": 0.05768128763975262,
    "within_sex_sd": 6.917699364949756
   },
@@ -123,9 +123,9 @@
    "pooled_over_within_sex": 1.0140524743149513,
    "pooled_rsd": 0.06680422425399335,
    "pooled_sd": 0.05554223778255778,
-   "vitruve_spread_default": 0.06675487130141929,
-   "vitruve_spread_female": 0.0626220703125,
-   "vitruve_spread_male": 0.06762881679389313,
+   "faciometry_spread_default": 0.06675487130141929,
+   "faciometry_spread_female": 0.0626220703125,
+   "faciometry_spread_male": 0.06762881679389313,
    "within_sex_rsd": 0.06587846876378198,
    "within_sex_sd": 0.05477254795919673
   },
@@ -139,9 +139,9 @@
    "pooled_over_within_sex": 1.000136946153476,
    "pooled_rsd": 0.11067998206197334,
    "pooled_sd": 0.08099869324600072,
-   "vitruve_spread_default": 0.11068597977589506,
-   "vitruve_spread_female": 0.11214697011242115,
-   "vitruve_spread_male": 0.10979268957992364,
+   "faciometry_spread_default": 0.11068597977589506,
+   "faciometry_spread_female": 0.11214697011242115,
+   "faciometry_spread_male": 0.10979268957992364,
    "within_sex_rsd": 0.11066482693959886,
    "within_sex_sd": 0.08098760230538575
   }
@@ -153,7 +153,7 @@
   "platform": "macOS-26.5.2-arm64-arm-64bit",
   "python": "3.11.14"
  },
- "question": "are the between-subject spreads Vitruve divides by reproducible from the raw survey, in the units claimed, and normal in shape",
+ "question": "are the between-subject spreads Faciometry divides by reproducible from the raw survey, in the units claimed, and normal in shape",
  "reproduction": [
   {
    "id": "interpupillary_distance",
@@ -3178,7 +3178,7 @@
  },
  "units": {
   "ansur_ii_cross_check": "NOT RUN -- see docs/EVALUATION.md, arm 6",
-  "conclusion": "NIOSH INTPUPBR is millimetres: the mean is 64.37 against Dodgson's ANSUR 63.36 mm, the values carry a decimal place where every other facial column in the same file is a whole number of millimetres, and the range is 51.5 to 79.0. ANSUR II's interpupillarybreadth column is tenths of a millimetre, so the same quantity there reads about 633; reading it as millimetres would give a face ten times too large and, because Vitruve recovers scale from interpupillary distance, a mm-per-pixel ten times too small.",
+  "conclusion": "NIOSH INTPUPBR is millimetres: the mean is 64.37 against Dodgson's ANSUR 63.36 mm, the values carry a decimal place where every other facial column in the same file is a whole number of millimetres, and the range is 51.5 to 79.0. ANSUR II's interpupillarybreadth column is tenths of a millimetre, so the same quantity there reads about 633; reading it as millimetres would give a face ten times too large and, because Faciometry recovers scale from interpupillary distance, a mm-per-pixel ten times too small.",
   "difference_pooled_mm": 1.0103703703703673,
   "difference_pooled_pct": 0.01594650205761312,
   "fraction_of_values_that_are_integers": {
@@ -3195,15 +3195,15 @@
   "niosh_INTPUPBR_mean": 64.37037037037037,
   "niosh_INTPUPBR_min": 51.5,
   "niosh_INTPUPBR_sd": 3.97311212879122,
-  "vitruve_IPD_PRIORS_female": [
+  "faciometry_IPD_PRIORS_female": [
    62.31,
    3.599
   ],
-  "vitruve_IPD_PRIORS_male": [
+  "faciometry_IPD_PRIORS_male": [
    64.67,
    3.708
   ],
-  "vitruve_IPD_PRIORS_pooled": [
+  "faciometry_IPD_PRIORS_pooled": [
    63.36,
    3.832
   ]

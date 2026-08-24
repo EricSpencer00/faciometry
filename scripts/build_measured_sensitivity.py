@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 
 SOURCE = Path("evals/results/arm02_recommendations.csv")
-DEST = Path("src/vitruve/measure/data/measured_sensitivity.json")
+DEST = Path("src/faciometry/measure/data/measured_sensitivity.json")
 
 
 def _number(row: dict, key: str) -> float:

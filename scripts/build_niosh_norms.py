@@ -9,7 +9,7 @@ including the two that photogrammetry cannot recover.
 
 That last point is what makes it valuable here. NIOSH gives the *true*
 between-person spread of bigonial and bizygomatic breadth, measured with
-calipers on a living face. Vitruve compares its own photographic error against
+calipers on a living face. Faciometry compares its own photographic error against
 that spread to decide whether a number is worth printing. Using a
 photogrammetric study for the same purpose would be circular.
 
@@ -37,7 +37,7 @@ SEX = {"1": "male", "2": "female"}
 RACE = {"1": "White", "2": "Black", "3": "Hispanic", "4": "Other"}
 AGE = {"1": "17-29", "2": "30-44", "3": "45+"}
 
-#: NIOSH column -> the Vitruve measurement it corresponds to. Only exact
+#: NIOSH column -> the Faciometry measurement it corresponds to. Only exact
 #: correspondences are mapped; a NIOSH dimension whose landmark definition
 #: differs from the catalogue's is left out rather than approximated.
 COLUMN_TO_MEASUREMENT = {
@@ -115,7 +115,7 @@ def main(path: Path) -> None:
 
         collect(mid, sel)
 
-    dest = Path("src/vitruve/norms/data/niosh2003.json")
+    dest = Path("src/faciometry/norms/data/niosh2003.json")
     dest.write_text(
         json.dumps(
             {

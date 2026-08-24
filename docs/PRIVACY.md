@@ -1,6 +1,6 @@
 # Privacy
 
-Vitruve reads photographs of faces. This document says exactly what it does
+Faciometry reads photographs of faces. This document says exactly what it does
 with them, in enough detail that you can check each claim against the code
 rather than trust it.
 
@@ -28,20 +28,20 @@ would defeat the point of dropping them.
 
 Nothing, by default. Three commands write files, and each one is asked for.
 
-**`vitruve analyze --out DIR`** writes `report.json`, `report.txt` and
+**`faciometry analyze --out DIR`** writes `report.json`, `report.txt` and
 `report.html` into `DIR`. The JSON and the text carry measurements, intervals,
 reasons and the run manifest. The HTML embeds the annotated overlays, which
 are crops of the face with the landmarks and their uncertainty ellipses drawn
 on them. An HTML report is therefore a picture of the subject. The source
 photographs are not copied into `DIR` in any format.
 
-**`vitruve serve --store`** writes each uploaded image into `vitruve-store/`
+**`faciometry serve --store`** writes each uploaded image into `faciometry-store/`
 as a PNG named by the first 16 hex digits of its sha256. The PNG is re-encoded
 from the decoded pixel array rather than copied from the upload, so it carries
 no metadata at all. Without `--store`, no upload reaches disk.
 
-**`vitruve fetch-weights`** writes model files into
-`~/.cache/vitruve/weights`, or under `$VITRUVE_CACHE_DIR` if you set it.
+**`faciometry fetch-weights`** writes model files into
+`~/.cache/faciometry/weights`, or under `$FACIOMETRY_CACHE_DIR` if you set it.
 Weights only.
 
 An HTTP upload is held in memory for the length of the request. Starlette
@@ -62,11 +62,11 @@ this branch stops being reachable.
 ## What is never inferred
 
 Sex and ancestry are declared by the subject or left empty. They select a
-normative stratum and narrow the interpupillary prior. No model in Vitruve
+normative stratum and narrow the interpupillary prior. No model in Faciometry
 predicts either one, and an undeclared subject gets the pooled distribution
 and a wider interval.
 
-Vitruve does not do identification or matching. FISWG's 2026 guidance (V2.1,
+Faciometry does not do identification or matching. FISWG's 2026 guidance (V2.1,
 section 6.4.1) prohibits photo-anthropometry for identification, and the
 measurement gate here is built on the same evidence.
 
@@ -77,7 +77,7 @@ measurements anywhere in any output.
 
 Nothing, during an analysis.
 
-`vitruve fetch-weights` is the only command that opens a socket. It downloads
+`faciometry fetch-weights` is the only command that opens a socket. It downloads
 the artifacts pinned in `assets/weights.lock.json`, verifies each against its
 sha256, and fails hard on a mismatch.
 
@@ -94,5 +94,5 @@ would tell somebody else that a face-analysis tool had been opened.
 ## Deleting things
 
 Reports and stored images are ordinary files in directories you named. Weights
-live in `~/.cache/vitruve/weights` and `rm -rf` on that costs a re-download
+live in `~/.cache/faciometry/weights` and `rm -rf` on that costs a re-download
 and nothing else.

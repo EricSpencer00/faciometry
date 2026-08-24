@@ -1,4 +1,4 @@
-// Vitruve.app's launcher.
+// Faciometry.app's launcher.
 //
 // It owns exactly one thing: the lifetime of the Python server. A user who
 // double-clicks the app gets a window, a progress bar for the first-run weight
@@ -15,7 +15,7 @@
 //     main executable of its own to attach entitlements to.
 //
 // The port is chosen at runtime. 8731 is the documented default for
-// `vitruve serve` and is exactly the wrong thing to hard-code here: a user who
+// `faciometry serve` and is exactly the wrong thing to hard-code here: a user who
 // already has one running from a terminal would get a bind failure on launch
 // with nowhere to read the error.
 
@@ -75,13 +75,13 @@ func freeLoopbackPort() -> UInt16? {
 final class Log {
     static let shared = Log()
     private let handle: FileHandle?
-    private let queue = DispatchQueue(label: "us.ericspencer.vitruve.log")
+    private let queue = DispatchQueue(label: "us.ericspencer.faciometry.log")
 
     init() {
         let dir = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Logs/Vitruve", isDirectory: true)
+            .appendingPathComponent("Library/Logs/Faciometry", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let file = dir.appendingPathComponent("vitruve.log")
+        let file = dir.appendingPathComponent("faciometry.log")
         if !FileManager.default.fileExists(atPath: file.path) {
             FileManager.default.createFile(atPath: file.path, contents: nil)
         }
@@ -136,7 +136,7 @@ final class Server {
             "--resources", resources.path,
         ]
         var env = ProcessInfo.processInfo.environment
-        env["VITRUVE_BUNDLED"] = "1"
+        env["FACIOMETRY_BUNDLED"] = "1"
         env["PYTHONDONTWRITEBYTECODE"] = "1"
         process.environment = env
         process.standardInput = stdinPipe
@@ -178,7 +178,7 @@ final class Server {
             guard let line = String(data: Data(lineData), encoding: .utf8) else { continue }
             // uvicorn's access log shares this stream, so anything without the
             // sentinel is a log line and not an event.
-            let sentinel = "@@VITRUVE@@ "
+            let sentinel = "@@FACIOMETRY@@ "
             guard line.hasPrefix(sentinel) else {
                 if !line.isEmpty { Log.shared.write("server: " + line) }
                 continue
@@ -249,7 +249,7 @@ func waitForHealth(port: UInt16, timeout: TimeInterval, onReady: @escaping (Bool
 // MARK: - Window
 
 final class StatusWindow: NSWindow {
-    let headline = NSTextField(labelWithString: "Starting Vitruve")
+    let headline = NSTextField(labelWithString: "Starting Faciometry")
     let detail = NSTextField(wrappingLabelWithString: "")
     let bar = NSProgressIndicator()
     let openButton = NSButton(title: "Open in browser", target: nil, action: nil)
@@ -262,7 +262,7 @@ final class StatusWindow: NSWindow {
             backing: .buffered,
             defer: false
         )
-        title = "Vitruve"
+        title = "Faciometry"
         isReleasedWhenClosed = false
         center()
 
@@ -356,7 +356,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         waitForHealth(port: port, timeout: 1800) { [weak self] ok in
             guard let self, !self.quitting else { return }
             if ok { self.ready() } else {
-                self.fail("The server did not answer /health. See ~/Library/Logs/Vitruve/vitruve.log.")
+                self.fail("The server did not answer /health. See ~/Library/Logs/Faciometry/faciometry.log.")
             }
         }
     }
@@ -366,7 +366,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func handle(_ event: [String: Any]) {
         switch event["event"] as? String ?? "" {
         case "starting":
-            window.headline.stringValue = "Starting Vitruve"
+            window.headline.stringValue = "Starting Faciometry"
             window.detail.stringValue = "Checking model weights."
         case "weights_start":
             let total = (event["total_bytes"] as? NSNumber)?.doubleValue ?? 0
@@ -404,7 +404,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let url else { return }
         window.bar.stopAnimation(nil)
         window.bar.isHidden = true
-        window.headline.stringValue = "Vitruve is running"
+        window.headline.stringValue = "Faciometry is running"
         window.detail.stringValue = url.absoluteString + "\nNothing leaves this Mac."
         window.openButton.isEnabled = true
         statusItem?.menu?.item(withTag: 1)?.title = "Running at " + url.absoluteString
@@ -414,13 +414,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func serverExited(_ status: Int32) {
         if quitting { return }
         let tail = server?.recentStderr.suffix(6).joined(separator: "\n") ?? ""
-        fail("The Vitruve server stopped (exit \(status)).\n\(tail)")
+        fail("The Faciometry server stopped (exit \(status)).\n\(tail)")
     }
 
     private func fail(_ message: String) {
         window.bar.stopAnimation(nil)
         window.bar.isHidden = true
-        window.headline.stringValue = "Vitruve could not start"
+        window.headline.stringValue = "Faciometry could not start"
         window.detail.stringValue = message
         window.openButton.isEnabled = false
         Log.shared.write("fatal: " + message)
@@ -433,12 +433,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appItem = NSMenuItem()
         main.addItem(appItem)
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "About Vitruve", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: "About Faciometry", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Open in Browser", action: #selector(openBrowser), keyEquivalent: "o")
         appMenu.addItem(withTitle: "Reveal Log in Finder", action: #selector(revealLog), keyEquivalent: "")
         appMenu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "Quit Vitruve", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Quit Faciometry", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         appMenu.addItem(quitItem)
         appItem.submenu = appMenu
@@ -448,7 +448,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func buildStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.image = NSImage(systemSymbolName: "square.circle", accessibilityDescription: "Vitruve")
+        item.button?.image = NSImage(systemSymbolName: "square.circle", accessibilityDescription: "Faciometry")
         item.button?.image?.isTemplate = true
         let menu = NSMenu()
         let status = NSMenuItem(title: "Starting", action: nil, keyEquivalent: "")
@@ -459,11 +459,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let open = NSMenuItem(title: "Open in Browser", action: #selector(openBrowser), keyEquivalent: "")
         open.target = self
         menu.addItem(open)
-        let show = NSMenuItem(title: "Show Vitruve Window", action: #selector(showWindow), keyEquivalent: "")
+        let show = NSMenuItem(title: "Show Faciometry Window", action: #selector(showWindow), keyEquivalent: "")
         show.target = self
         menu.addItem(show)
         menu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "Quit Vitruve", action: #selector(quit), keyEquivalent: "")
+        let quitItem = NSMenuItem(title: "Quit Faciometry", action: #selector(quit), keyEquivalent: "")
         quitItem.target = self
         menu.addItem(quitItem)
         item.menu = menu
@@ -481,7 +481,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func revealLog() {
         let log = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Logs/Vitruve/vitruve.log")
+            .appendingPathComponent("Library/Logs/Faciometry/faciometry.log")
         NSWorkspace.shared.activateFileViewerSelecting([log])
     }
 

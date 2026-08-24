@@ -15,7 +15,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from vitruve.models import device as dev
+from faciometry.models import device as dev
 
 
 @pytest.fixture

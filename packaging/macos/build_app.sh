@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-# Build Vitruve.app and a .dmg that a non-technical user can install by
+# Build Faciometry.app and a .dmg that a non-technical user can install by
 # dragging.
 #
 # The shape of the result, and why:
 #
-#   Vitruve.app/Contents/
-#     MacOS/Vitruve                  the Swift launcher, the only thing macOS runs
+#   Faciometry.app/Contents/
+#     MacOS/Faciometry                  the Swift launcher, the only thing macOS runs
 #     Resources/runtime/             a python-build-standalone interpreter
 #     Resources/runtime/lib/python3.11/site-packages/
-#                                    vitruve plus the [permissive] and [api] stacks
+#                                    faciometry plus the [permissive] and [api] stacks
 #     Resources/app_main.py          the process the launcher supervises
 #     Resources/assets/              weights.lock.json, the sha256 pins
 #
@@ -31,7 +31,7 @@
 #
 # Environment:
 #   SIGN_IDENTITY       default "Developer ID Application: Eric Spencer (QAWD9U9CF6)"
-#   NOTARY_PROFILE      notarytool keychain profile name, default "vitruve-notary"
+#   NOTARY_PROFILE      notarytool keychain profile name, default "faciometry-notary"
 #   MACOS_NOTARY_KEY / _KEY_ID / _ISSUER_ID   App Store Connect key, used by CI
 
 set -euo pipefail
@@ -44,15 +44,15 @@ HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd -- "$HERE/../.." && pwd)"
 BUILD="$HERE/build"
 DIST="$HERE/dist"
-APP="$BUILD/Vitruve.app"
+APP="$BUILD/Faciometry.app"
 SNAPSHOT="$BUILD/source"
 
 PY_VERSION="${PY_VERSION:-3.11}"
 PY_TAG="python3.11"
-BUNDLE_ID="${BUNDLE_ID:-us.ericspencer.vitruve}"
+BUNDLE_ID="${BUNDLE_ID:-us.ericspencer.faciometry}"
 MIN_MACOS="${MIN_MACOS:-12.0}"
 SIGN_IDENTITY="${SIGN_IDENTITY:-Developer ID Application: Eric Spencer (QAWD9U9CF6)}"
-NOTARY_PROFILE="${NOTARY_PROFILE:-vitruve-notary}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-faciometry-notary}"
 SIGN_JOBS="${SIGN_JOBS:-6}"
 export NOTARY_PROFILE
 
@@ -103,7 +103,7 @@ xcrun -f swiftc >/dev/null 2>&1 || die "swiftc is not available; install the Xco
 VERSION="$(sed -n 's/^version[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$REPO/pyproject.toml" | head -1)"
 [ -n "$VERSION" ] || die "could not read version from $REPO/pyproject.toml"
 BUILD_NUMBER="$(date -u +%Y%m%d%H%M)"
-note "vitruve $VERSION (build $BUILD_NUMBER), arch $ARCH"
+note "faciometry $VERSION (build $BUILD_NUMBER), arch $ARCH"
 
 if [ "$DO_SIGN" = 1 ]; then
   if ! security find-identity -v -p codesigning | grep -qF "$SIGN_IDENTITY"; then
@@ -168,7 +168,7 @@ else
   # install into it.
   find "$RUNTIME" -name EXTERNALLY-MANAGED -delete
 
-  # Bulk that cannot be reached from `vitruve serve`. Tcl/Tk is the big one:
+  # Bulk that cannot be reached from `faciometry serve`. Tcl/Tk is the big one:
   # about 40 MB of GUI toolkit for a program whose entire interface is a web
   # page. The stdlib test suite and the C headers are the other two.
   say "Pruning the interpreter"
@@ -196,7 +196,7 @@ else
   # a Mach-O in place: signing a hardlinked .so would write the app's signature
   # into the shared cache entry, and the next project to install that wheel
   # would get a file signed with this app's identity.
-  say "Installing vitruve[permissive,api] into the bundle"
+  say "Installing faciometry[permissive,api] into the bundle"
   uv pip install \
     --python "$BUNDLED_PY" \
     --link-mode=copy \
@@ -210,7 +210,7 @@ else
   #
   # torch/bin is NOT in this list, and the first version of it was: removing
   # torch/bin deletes torch_shm_manager, which torch looks for at import time,
-  # and the only symptom is `vitruve doctor` and /health reporting the device
+  # and the only symptom is `faciometry doctor` and /health reporting the device
   # as "unknown" with the failure buried in device_detail. Prune by what a
   # running app reads, and check /health afterwards.
   rm -rf "$SP/torch/include" "$SP/torch/test" "$SP/torch/utils/bottleneck"
@@ -269,9 +269,9 @@ say "Assembling the bundle"
 RES="$APP/Contents/Resources"
 cp "$HERE/resources/app_main.py" "$RES/app_main.py"
 
-# weights.lock.json is not in the wheel, and vitruve.models.weights looks for
+# weights.lock.json is not in the wheel, and faciometry.models.weights looks for
 # it four directories above its own source file, which is a checkout layout.
-# app_main.py points VITRUVE_WEIGHTS_LOCK at this copy.
+# app_main.py points FACIOMETRY_WEIGHTS_LOCK at this copy.
 mkdir -p "$RES/assets"
 cp "$REPO/assets/weights.lock.json" "$RES/assets/weights.lock.json"
 cp "$REPO/LICENSE" "$RES/LICENSE"
@@ -285,13 +285,13 @@ printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 say "Drawing the icon"
 uv run --quiet --with "pillow>=10.3" python "$HERE/make_icon.py" \
-  "$RES/Vitruve.icns" --png "$BUILD/icon-1024.png"
+  "$RES/Faciometry.icns" --png "$BUILD/icon-1024.png"
 
 say "Compiling the launcher"
 xcrun swiftc \
   -swift-version 5 -O \
   -target "$ARCH-apple-macos$MIN_MACOS" \
-  -o "$APP/Contents/MacOS/Vitruve" \
+  -o "$APP/Contents/MacOS/Faciometry" \
   "$HERE/launcher/main.swift"
 
 # ---------------------------------------------------------------------------
@@ -313,12 +313,12 @@ say "Byte-compiling the bundled Python"
 say "Smoke-testing the bundled interpreter"
 "$BUNDLED_PY" -I -c '
 import sys
-import vitruve
-from vitruve.api.app import web_root
-print("    vitruve", vitruve.__version__, "on python", sys.version.split()[0])
+import faciometry
+from faciometry.api.app import web_root
+print("    faciometry", faciometry.__version__, "on python", sys.version.split()[0])
 print("    web ui:", web_root())
 assert web_root() is not None, "the web UI is not in the wheel"
-' || die "the bundled interpreter cannot import vitruve"
+' || die "the bundled interpreter cannot import faciometry"
 
 # ---------------------------------------------------------------------------
 # Signing
@@ -380,14 +380,14 @@ if [ "$DO_SIGN" = 1 ]; then
   # service rate-limits, and a single 500 would otherwise fail the build after
   # twenty minutes of work.
   export SIGN_IDENTITY
-  tr '\0' '\n' < "$MACHO_LIST" | grep -v "^$APP/Contents/MacOS/Vitruve$" | tr '\n' '\0' | \
+  tr '\0' '\n' < "$MACHO_LIST" | grep -v "^$APP/Contents/MacOS/Faciometry$" | tr '\n' '\0' | \
   xargs -0 -P "$SIGN_JOBS" -n 12 /bin/sh -c '
     for attempt in 1 2 3 4; do
-      if codesign --force --sign "$SIGN_IDENTITY" --timestamp --options runtime "$@" 2>/tmp/vitruve-codesign.$$; then
-        rm -f /tmp/vitruve-codesign.$$
+      if codesign --force --sign "$SIGN_IDENTITY" --timestamp --options runtime "$@" 2>/tmp/faciometry-codesign.$$; then
+        rm -f /tmp/faciometry-codesign.$$
         exit 0
       fi
-      cat /tmp/vitruve-codesign.$$ >&2
+      cat /tmp/faciometry-codesign.$$ >&2
       sleep $((attempt * 4))
     done
     echo "codesign failed after 4 attempts on: $*" >&2
@@ -403,7 +403,7 @@ if [ "$DO_SIGN" = 1 ]; then
     --entitlements "$ENTITLEMENTS" "$BUNDLED_PY"
 
   codesign --force --sign "$SIGN_IDENTITY" --timestamp --options runtime \
-    --entitlements "$ENTITLEMENTS" "$APP/Contents/MacOS/Vitruve"
+    --entitlements "$ENTITLEMENTS" "$APP/Contents/MacOS/Faciometry"
 
   # Outermost last. This seals Resources, so nothing may be added to the
   # bundle after this line.
@@ -444,17 +444,17 @@ if [ "$DO_DMG" = 1 ]; then
   mkdir -p "$STAGE"
   # ditto rather than cp: it preserves the signature's extended attributes and
   # the bundle's symlinks exactly, and cp -R has historically mangled both.
-  ditto "$APP" "$STAGE/Vitruve.app"
+  ditto "$APP" "$STAGE/Faciometry.app"
   ln -s /Applications "$STAGE/Applications"
 
-  DMG="$DIST/Vitruve-$VERSION-$ARCH.dmg"
+  DMG="$DIST/Faciometry-$VERSION-$ARCH.dmg"
   rm -f "$DMG"
   # ULFO is LZFSE. It was chosen by measuring both on this bundle rather than
   # by reputation: UDZO at zlib-level=9 took 12 minutes and produced 358 MB,
   # ULFO took 36 seconds and produced 330 MB. LZFSE images mount on macOS
   # 10.11 and later, and this app already requires 12.
   hdiutil create \
-    -volname "Vitruve $VERSION" \
+    -volname "Faciometry $VERSION" \
     -srcfolder "$STAGE" \
     -fs HFS+ \
     -format ULFO \
@@ -492,7 +492,7 @@ fi
 # next to it rather than left in a terminal scrollback.
 if [ -n "$DMG" ]; then
   {
-    echo "vitruve $VERSION, build $BUILD_NUMBER, $ARCH"
+    echo "faciometry $VERSION, build $BUILD_NUMBER, $ARCH"
     echo "signed:     $([ "$DO_SIGN" = 1 ] && echo "yes, $SIGN_IDENTITY" || echo no)"
     echo "notarised:  $NOTARISED"
     if [ "$NOTARISED" = "yes" ]; then

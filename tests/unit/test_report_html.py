@@ -21,8 +21,8 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).parent))
 from test_report_prose import FACE, point_set, synthetic_report, uncertainty
 
-from vitruve.report import html, overlay, prose
-from vitruve.report.model import ReportInput
+from faciometry.report import html, overlay, prose
+from faciometry.report.model import ReportInput
 
 
 def esc(text: str) -> str:

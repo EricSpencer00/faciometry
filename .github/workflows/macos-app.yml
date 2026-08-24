@@ -1,6 +1,6 @@
 name: macOS app
 
-# Builds the same Vitruve.app and .dmg that packaging/macos/build_app.sh
+# Builds the same Faciometry.app and .dmg that packaging/macos/build_app.sh
 # produces on a laptop, on a macOS runner, and attaches the disk image to a
 # release when the run was triggered by a tag.
 #
@@ -85,7 +85,7 @@ jobs:
           # A dedicated keychain, unlocked for this job only. Importing into
           # the login keychain on a shared runner image works but leaves the
           # key sitting in the default keychain for anything else in the job.
-          KEYCHAIN="$RUNNER_TEMP/vitruve-signing.keychain-db"
+          KEYCHAIN="$RUNNER_TEMP/faciometry-signing.keychain-db"
           PASSWORD="$(uuidgen)"
           security create-keychain -p "$PASSWORD" "$KEYCHAIN"
           security set-keychain-settings -lut 21600 "$KEYCHAIN"
@@ -147,7 +147,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Vitruve-macos-arm64
+          name: Faciometry-macos-arm64
           path: |
             packaging/macos/dist/*.dmg
             packaging/macos/dist/*.build.txt

@@ -1,6 +1,6 @@
-# Vitruve on macOS, without a terminal
+# Faciometry on macOS, without a terminal
 
-Vitruve ships as an ordinary Mac app. Download the disk image, drag Vitruve to
+Faciometry ships as an ordinary Mac app. Download the disk image, drag Faciometry to
 Applications, open it. The web interface appears in your browser. There is no
 Python to install and no command to type.
 
@@ -11,9 +11,9 @@ second is for whoever builds and releases it.
 
 ## Installing
 
-1. Download `Vitruve-<version>-arm64.dmg`.
-2. Open it and drag **Vitruve** onto the **Applications** folder.
-3. Open Vitruve from Applications or Spotlight.
+1. Download `Faciometry-<version>-arm64.dmg`.
+2. Open it and drag **Faciometry** onto the **Applications** folder.
+3. Open Faciometry from Applications or Spotlight.
 
 A small window appears. On the first launch only, it downloads about 415 MB of
 model weights and shows the progress. Every file is checked against a sha256
@@ -22,11 +22,11 @@ rather than being repaired quietly. After that the app opens your browser at
 `http://127.0.0.1:<port>/` and you can take or upload a photograph.
 
 The port changes between launches. That is deliberate: the documented default
-for `vitruve serve` is 8731, and an app that insisted on it would fail to start
+for `faciometry serve` is 8731, and an app that insisted on it would fail to start
 for anyone who already had one running.
 
-**Quitting.** Closing the browser tab does not stop Vitruve. Quit from the
-Vitruve window, from the menu bar item, or with Command-Q. Any of those stops
+**Quitting.** Closing the browser tab does not stop Faciometry. Quit from the
+Faciometry window, from the menu bar item, or with Command-Q. Any of those stops
 the server. Force-quitting the app also stops it: the server watches the pipe
 to the app and exits when it closes, so there is no way to leave one running by
 accident.
@@ -38,8 +38,8 @@ OpenCV and MediaPipe. The disk image is around 330 MB, the installed app around
 1.2 GB, and the weights another 416 MB in your home directory.
 
 **What the app is allowed to do.** It binds a loopback socket, reads the photo
-you give it, and writes model weights to `~/.cache/vitruve/weights`. It writes
-a log to `~/Library/Logs/Vitruve/vitruve.log`. It is not sandboxed, which is
+you give it, and writes model weights to `~/.cache/faciometry/weights`. It writes
+a log to `~/Library/Logs/Faciometry/faciometry.log`. It is not sandboxed, which is
 normal for a directly downloaded Mac app, so the guarantee that nothing leaves
 the machine comes from the code and its tests rather than from the sandbox.
 `docs/PRIVACY.md` says which test asserts which claim.
@@ -51,7 +51,7 @@ description for the paths that reach the camera from inside the bundle.
 
 ### If macOS refuses to open it
 
-> "Vitruve" cannot be opened because Apple cannot check it for malicious
+> "Faciometry" cannot be opened because Apple cannot check it for malicious
 > software.
 
 That message means the build you downloaded was **not notarised**. Check the
@@ -66,10 +66,10 @@ the release process treats notarisation as mandatory rather than optional.
 
 ### Uninstalling
 
-Drag Vitruve out of Applications. Then, if you want the rest:
+Drag Faciometry out of Applications. Then, if you want the rest:
 
 ```
-rm -rf ~/.cache/vitruve ~/Library/Logs/Vitruve
+rm -rf ~/.cache/faciometry ~/Library/Logs/Faciometry
 ```
 
 Nothing else is written anywhere.
@@ -82,7 +82,7 @@ Nothing else is written anywhere.
 packaging/macos/build_app.sh
 ```
 
-That produces `packaging/macos/dist/Vitruve-<version>-arm64.dmg` and a
+That produces `packaging/macos/dist/Faciometry-<version>-arm64.dmg` and a
 `.build.txt` beside it recording the signing and notarisation state.
 
 Options: `--no-sign` for a fast unsigned build, `--skip-deps` to reuse the
@@ -99,14 +99,14 @@ took thirty-six seconds and produced 330 MB.
 ### What goes into the bundle
 
 ```
-Vitruve.app/Contents/
-  MacOS/Vitruve                 a Swift launcher, the only thing macOS executes
+Faciometry.app/Contents/
+  MacOS/Faciometry                 a Swift launcher, the only thing macOS executes
   Resources/runtime/            CPython 3.11, python-build-standalone
   Resources/runtime/lib/python3.11/site-packages/
-                                vitruve, plus the [permissive] and [api] extras
+                                faciometry, plus the [permissive] and [api] extras
   Resources/app_main.py         what the launcher supervises
   Resources/assets/             weights.lock.json
-  Resources/Vitruve.icns
+  Resources/Faciometry.icns
 ```
 
 There is no virtualenv in there. A venv writes the absolute path of its base
@@ -129,8 +129,8 @@ The reasons, in the order they mattered:
 
 - **The disk image stays a download people finish.** Bundling would push it
   past a gigabyte, on top of a runtime that is already large because torch is.
-- **`vitruve fetch-weights` already exists and already verifies.** The app
-  calls the same `vitruve.models.weights.download`, so the sha256 check, the
+- **`faciometry fetch-weights` already exists and already verifies.** The app
+  calls the same `faciometry.models.weights.download`, so the sha256 check, the
   atomic rename and the hard failure on a mismatch are the shipped code path
   and not a second implementation that could drift from it.
 - **Redistribution is a licence question, and not fetching it is the cleaner
@@ -141,7 +141,7 @@ The reasons, in the order they mattered:
   the Basel Face Model, and that inherited obligation is recorded on the
   provenance rather than on the file.
 - **Weights outlive a version.** A user who installs three releases downloads
-  them once, because the cache is `~/.cache/vitruve/weights` and not inside the
+  them once, because the cache is `~/.cache/faciometry/weights` and not inside the
   app.
 
 The cost is real and is stated where a user sees it: the app needs the network
@@ -171,8 +171,8 @@ tree, and the Python process is the one that runs libffi.
 Verify by hand:
 
 ```
-codesign --verify --deep --strict --verbose=2 packaging/macos/build/Vitruve.app
-spctl -a -vvv -t exec packaging/macos/build/Vitruve.app
+codesign --verify --deep --strict --verbose=2 packaging/macos/build/Faciometry.app
+spctl -a -vvv -t exec packaging/macos/build/Faciometry.app
 ```
 
 ### Notarisation, the one manual step
@@ -186,14 +186,14 @@ Set the credentials up once, using an app-specific password generated at
 <https://appleid.apple.com> under Sign-In and Security:
 
 ```
-xcrun notarytool store-credentials "vitruve-notary" \
+xcrun notarytool store-credentials "faciometry-notary" \
     --apple-id "YOUR_APPLE_ID@example.com" \
     --team-id "QAWD9U9CF6" \
     --password "abcd-efgh-ijkl-mnop"
 ```
 
 That writes the credentials into the login keychain under the profile name
-`vitruve-notary`, which is what `notarize.sh` looks for. Nothing else in the
+`faciometry-notary`, which is what `notarize.sh` looks for. Nothing else in the
 build changes; the next run notarises and staples on its own.
 
 CI uses the other path, an App Store Connect API key, because a `.p8` and two

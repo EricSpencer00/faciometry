@@ -4,7 +4,7 @@ FRLL is 102 people and 68 percent white. Any per-group number here rests on
 cells of four to thirty-five people, so every estimate is reported with a
 bootstrap interval and the intervals are wide enough that most pairwise
 comparisons do not separate. That is the finding. This arm is not powered to
-settle whether Vitruve measures some groups worse than others; it is powered to
+settle whether Faciometry measures some groups worse than others; it is powered to
 say how far from settling it we are, and to make the gap visible instead of
 absent.
 
@@ -34,10 +34,10 @@ from scipy import stats
 from evals._bootstrap import rng, write_csv, write_json
 from evals import frll
 
-from vitruve.core.landmarks import Landmark as L
-from vitruve.core.spec import Unit, View
-from vitruve.measure.registry import satisfiable
-from vitruve.norms import niosh
+from faciometry.core.landmarks import Landmark as L
+from faciometry.core.spec import Unit, View
+from faciometry.measure.registry import satisfiable
+from faciometry.norms import niosh
 
 MIN_CELL = 4
 N_BOOT = 2000

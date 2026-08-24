@@ -38,8 +38,8 @@ import numpy as np
 from evals._bootstrap import rng, write_csv, write_json
 from evals import frll
 
-from vitruve.core.spec import Unit, View
-from vitruve.measure.registry import CATALOGUE, satisfiable
+from faciometry.core.spec import Unit, View
+from faciometry.measure.registry import CATALOGUE, satisfiable
 
 CONDITIONS = {
     "expression": ("neutral_front", "smiling_front"),

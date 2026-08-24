@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from vitruve.core.sensitivity import (
+from faciometry.core.sensitivity import (
     CANTHAL_TILT,
     KLEINBERG_WORST,
     POSE_ESTIMATOR_SD_DEG,
@@ -18,14 +18,14 @@ from vitruve.core.sensitivity import (
     discriminability,
     gated_pose,
 )
-from vitruve.core.spec import (
+from faciometry.core.spec import (
     Evidence,
     Reportability,
     Unit,
     assess_discriminability,
     decide_reportability,
 )
-from vitruve.measure.registry import BY_ID, CATALOGUE
+from faciometry.measure.registry import BY_ID, CATALOGUE
 
 
 def test_reproduces_kleinberg_and_vanezis():
@@ -92,8 +92,8 @@ def test_roll_cancels_exactly_in_the_geometry_not_merely_in_the_table(upright_fa
     """
     import numpy as np
 
-    from vitruve.core import geometry as geo
-    from vitruve.core.landmarks import PointSet
+    from faciometry.core import geometry as geo
+    from faciometry.core.landmarks import PointSet
 
     face = {n: upright_face.get(n) for n in upright_face.available}
     ids = (
@@ -120,8 +120,8 @@ def test_a_real_asymmetry_still_registers_under_roll(upright_face):
     """Roll invariance is worthless if it were achieved by measuring nothing."""
     import numpy as np
 
-    from vitruve.core import geometry as geo
-    from vitruve.core.landmarks import Landmark, PointSet
+    from faciometry.core import geometry as geo
+    from faciometry.core.landmarks import Landmark, PointSet
 
     skewed = {n: upright_face.get(n) for n in upright_face.available}
     skewed[Landmark.EXOCANTHION_L] = np.array([-46.0, 7.0, -4.0])
@@ -265,7 +265,7 @@ def test_self_occlusion_is_keyed_off_landmarks_not_the_evidence_tier():
     Keying the 3D requirement off the evidence tier let it through, and it was
     briefly the only measurement a frontal photograph reported.
     """
-    from vitruve.core.landmarks import SELF_OCCLUDING
+    from faciometry.core.landmarks import SELF_OCCLUDING
 
     spec = BY_ID["gonial_angle_l"]
     assert spec.evidence is Evidence.POSE_CRITICAL
@@ -280,7 +280,7 @@ def test_self_occlusion_is_keyed_off_landmarks_not_the_evidence_tier():
 
 
 def test_every_measurement_touching_a_self_occluding_landmark_needs_3d():
-    from vitruve.core.landmarks import SELF_OCCLUDING
+    from faciometry.core.landmarks import SELF_OCCLUDING
 
     checked = 0
     for spec in CATALOGUE:

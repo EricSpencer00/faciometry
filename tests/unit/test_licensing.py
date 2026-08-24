@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from vitruve.models.licensing import (
+from faciometry.models.licensing import (
     CATALOGUE,
     MICA,
     SPIGA,
