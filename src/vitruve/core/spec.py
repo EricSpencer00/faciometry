@@ -168,14 +168,50 @@ class MeasurementSpec:
 
 @dataclass(frozen=True)
 class Verdict:
-    """The decision about whether a measured value may be shown, and why."""
+    """The decision about whether a measured value may be shown, and why.
+
+    Each finding carries its own severity. A withheld measurement usually
+    accumulates several findings, only one of which is the reason it was
+    withheld; the rest are caveats that would have applied anyway. Flattening
+    them into one list forces the renderer to guess which is which, and it
+    guesses wrong on exactly the measurements that matter most.
+    """
 
     reportability: Reportability
-    reasons: tuple[str, ...] = field(default_factory=tuple)
+    findings: tuple[tuple[Reportability, str], ...] = field(default_factory=tuple)
+
+    def __post_init__(self) -> None:
+        """Accept a plain tuple of strings and attribute it to this verdict.
+
+        Callers that only have unclassified reason strings stay valid; their
+        findings simply all take the verdict's own severity, which is the
+        correct reading when no finer information exists.
+        """
+        normalised = tuple(
+            f if isinstance(f, tuple) else (self.reportability, f) for f in self.findings
+        )
+        if normalised != self.findings:
+            object.__setattr__(self, "findings", normalised)
 
     @property
     def shown(self) -> bool:
         return self.reportability is not Reportability.WITHHOLD
+
+    @property
+    def reasons(self) -> tuple[str, ...]:
+        """Every finding's text, most severe first."""
+        order = {Reportability.WITHHOLD: 0, Reportability.CAVEAT: 1, Reportability.REPORT: 2}
+        return tuple(t for _, t in sorted(self.findings, key=lambda f: order[f[0]]))
+
+    @property
+    def blocking(self) -> tuple[str, ...]:
+        """Only the findings that caused a withholding."""
+        return tuple(t for lvl, t in self.findings if lvl is Reportability.WITHHOLD)
+
+    @property
+    def caveats(self) -> tuple[str, ...]:
+        """Findings that qualify the number without suppressing it."""
+        return tuple(t for lvl, t in self.findings if lvl is Reportability.CAVEAT)
 
 
 def assess_discriminability(
@@ -235,12 +271,12 @@ def decide_reportability(
     Every rule here traces to a specific finding, and every refusal names it.
     A withheld measurement is a correct output, not a missing one.
     """
-    reasons: list[str] = []
+    findings: list[tuple[Reportability, str]] = []
     worst = Reportability.REPORT
 
     def escalate(level: Reportability, why: str) -> None:
         nonlocal worst
-        reasons.append(why)
+        findings.append((level, why))
         if level is Reportability.WITHHOLD or worst is Reportability.WITHHOLD:
             worst = Reportability.WITHHOLD
         else:
@@ -328,4 +364,4 @@ def decide_reportability(
             "agreement study against direct anthropometric measurement",
         )
 
-    return Verdict(worst, tuple(reasons))
+    return Verdict(worst, tuple(findings))

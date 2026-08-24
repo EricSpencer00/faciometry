@@ -11,6 +11,7 @@ from vitruve.core.spec import Reportability
 from vitruve.measure.evaluate import (
     LandmarkUncertainty,
     Measured,
+    Unavailability,
     Unavailable,
     evaluate,
 )
@@ -67,7 +68,8 @@ def test_a_missing_landmark_is_unavailable_not_withheld(face):
 def test_a_millimetre_measurement_without_scale_is_unavailable(face):
     r = _run(face, "interpupillary_distance", scale=None)
     assert isinstance(r, Unavailable)
-    assert "no scale reference" in r.missing_landmarks[0]
+    assert r.kind is Unavailability.NO_SCALE
+    assert "no scale reference" in r.reason
 
 
 def test_scale_uncertainty_propagates_into_the_interval(face):
@@ -144,3 +146,29 @@ def test_anisotropic_uncertainty_is_representable(face):
     # The interpupillary span lies along x, which this covariance localises
     # tightly; the vertical face height lies along y, which it does not.
     assert r.sd < horizontal.sd
+
+
+def test_landmark_error_is_scoped_to_the_measurement(face):
+    """A few poorly localised contour points must not inflate every measurement.
+
+    Pooling the whole point set made the interpupillary distance inherit the
+    jawline's uncertainty, which withholds it for a reason that has nothing to
+    do with it.
+    """
+    n, dim = face.coords.shape[-2], face.dim
+    cov = np.tile(np.eye(dim) * 0.04, (n, 1, 1))
+    for lm in (Landmark.GONION_L, Landmark.GONION_R, Landmark.ZYGION_L, Landmark.ZYGION_R):
+        cov[face.index[lm]] = np.eye(dim) * 25.0
+    unc = LandmarkUncertainty(index=dict(face.index), covariances=cov)
+
+    scoped = unc.positional_sd_for([Landmark.PUPIL_L, Landmark.PUPIL_R])
+    jaw = unc.positional_sd_for([Landmark.GONION_L, Landmark.GONION_R])
+    assert scoped < 0.5 < jaw
+    assert scoped < unc.mean_positional_sd < jaw
+
+
+def test_verdict_separates_blocking_findings_from_caveats(face):
+    r = _run(face, "facial_width_height_ratio")
+    assert r.verdict.blocking
+    assert set(r.verdict.blocking).isdisjoint(r.verdict.caveats)
+    assert set(r.verdict.reasons) == set(r.verdict.blocking) | set(r.verdict.caveats)

@@ -19,7 +19,9 @@ where the uncertainty matters most.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
+from enum import Enum
 
 import numpy as np
 from numpy.typing import NDArray
@@ -74,9 +76,25 @@ class LandmarkUncertainty:
             out[:, i, :] = rng.multivariate_normal(base[i], cov, size=n_samples, method="cholesky")
         return PointSet(index=ps.index, coords=out)
 
+    def positional_sd_for(self, names: Iterable[Landmark]) -> float:
+        """Root-mean-square positional standard deviation over ``names`` only.
+
+        Scoped to the landmarks a measurement actually reads. Pooling across the
+        whole point set would let a handful of poorly localised contour points
+        inflate the error term of every measurement in the catalogue -- the
+        interpupillary distance would inherit the jawline's uncertainty and be
+        withheld for a reason that has nothing to do with it.
+        """
+        idx = [self.index[n] for n in names if n in self.index]
+        if not idx:
+            return 0.0
+        traces = np.trace(self.covariances[idx], axis1=-2, axis2=-1)
+        return float(np.sqrt(np.mean(traces / self.covariances.shape[-1])))
+
     @property
     def mean_positional_sd(self) -> float:
-        """Root-mean-square positional standard deviation across landmarks."""
+        """Pooled across every landmark. Use :meth:`positional_sd_for` instead
+        when evaluating a measurement; this is for whole-image quality summaries."""
         traces = np.trace(self.covariances, axis1=-2, axis2=-1)
         return float(np.sqrt(np.mean(traces / self.covariances.shape[-1])))
 
@@ -123,20 +141,38 @@ class Measured:
         )
 
 
+class Unavailability(str, Enum):
+    """Why a measurement could not be attempted at all."""
+
+    MISSING_LANDMARKS = "missing_landmarks"
+    NO_SCALE = "no_scale"
+    DEGENERATE = "degenerate"
+
+
 @dataclass(frozen=True)
 class Unavailable:
-    """A measurement that could not be attempted, and precisely why."""
+    """A measurement that could not be attempted, and precisely why.
+
+    Distinct from a withheld measurement: this says the input was not there,
+    not that the number would be meaningless. The renderer writes a different
+    sentence for each, so the cause is a typed field rather than free text
+    smuggled through a list of landmark names.
+    """
 
     spec_id: str
     label: str
-    missing_landmarks: tuple[str, ...]
+    #: Kept third, where it has always been, so positional callers keep working.
+    missing_landmarks: tuple[str, ...] = ()
+    kind: Unavailability = Unavailability.MISSING_LANDMARKS
+    detail: str = ""
 
     @property
     def reason(self) -> str:
-        return (
-            "the landmark model does not supply "
-            + ", ".join(self.missing_landmarks)
-        )
+        if self.kind is Unavailability.MISSING_LANDMARKS:
+            return "the landmark model does not supply " + ", ".join(self.missing_landmarks)
+        if self.kind is Unavailability.NO_SCALE:
+            return "no scale reference is available in this image"
+        return self.detail or "the formula is degenerate for this geometry"
 
 
 def evaluate(
@@ -175,13 +211,18 @@ def evaluate(
     finite = samples[np.isfinite(samples)]
     n_valid = int(finite.size)
     if n_valid < max(32, n_samples // 100):
-        return Unavailable(spec.id, spec.label, ("formula degenerate for this geometry",))
+        return Unavailable(
+            spec.id,
+            spec.label,
+            kind=Unavailability.DEGENERATE,
+            detail=f"only {n_valid} of {n_samples} Monte-Carlo samples were finite",
+        )
 
     scale_notes: tuple[str, ...] = ()
     scale_source: str | None = None
     if spec.unit is Unit.MILLIMETRES:
         if scale is None:
-            return Unavailable(spec.id, spec.label, ("no scale reference in the image",))
+            return Unavailable(spec.id, spec.label, kind=Unavailability.NO_SCALE)
         # Fold scale uncertainty in as a multiplicative factor rather than
         # applying the point estimate: the scale prior is often the dominant
         # error term for a millimetre value, and applying it as a constant
@@ -195,12 +236,13 @@ def evaluate(
     lo, hi = (float(x) for x in np.percentile(finite, [2.5, 97.5]))
     sd = float(np.std(finite))
 
+    landmark_sd = uncertainty.positional_sd_for(spec.landmarks)
     relative_landmark_error = (
-        uncertainty.mean_positional_sd / abs(value) if spec.unit is not Unit.DEGREES else
+        landmark_sd / abs(value) if spec.unit is not Unit.DEGREES else
         # For an angle, express landmark scatter as the angle it subtends at a
         # typical facial baseline, so the units of the discriminability ratio
         # match the units of the published between-subject spread.
-        float(np.degrees(np.arctan2(uncertainty.mean_positional_sd, 60.0)))
+        float(np.degrees(np.arctan2(landmark_sd, 60.0)))
     )
     disc = assess_discriminability(
         spec,
