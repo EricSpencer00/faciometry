@@ -166,11 +166,16 @@ def test_no_bare_value_element_exists(rendered: str):
 
 def test_withheld_measurements_show_the_reason_and_not_the_number(report: ReportInput):
     victim = next(m for m in report.withheld)
-    loud = dataclasses.replace(victim, value=987.654, ci_low=900.0, ci_high=1100.0)
+    # The sentinel needs a digit run long enough that it cannot occur by
+    # coincidence. A three-digit one collided with another measurement's own
+    # interval ("0.891 to 0.987"), which failed the test while nothing had
+    # leaked. The same trap caught the base64 payloads earlier in this file.
+    loud = dataclasses.replace(victim, value=913579.246, ci_low=902468.0, ci_high=924680.0)
     others = tuple(m for m in report.measurements if m.spec_id != victim.spec_id)
     out = text_only(html.render(dataclasses.replace(report, measurements=(loud, *others))))
-    assert "987" not in out
-    assert "1100" not in out
+    assert "913579" not in out
+    assert "902468" not in out
+    assert "924680" not in out
     assert "withheld" in out
     assert esc(prose.withheld_paragraph(loud)) in out
 

@@ -140,7 +140,11 @@ def test_the_block_actually_blocks(no_network):
 def test_measurement_runs_with_the_network_blocked(no_network):
     results = measure_everything()
 
-    assert len(results) == len(CATALOGUE) == 45
+    # Not a hardcoded count: the catalogue grows, and pinning it here means a
+    # measurement added elsewhere fails an offline test for no reason. What
+    # matters is that every catalogue entry was evaluated with no network.
+    assert len(results) == len(CATALOGUE)
+    assert len(CATALOGUE) >= 45
     measured = [r for r in results if isinstance(r, Measured)]
     assert measured, "no measurement evaluated on a complete synthetic face"
 
