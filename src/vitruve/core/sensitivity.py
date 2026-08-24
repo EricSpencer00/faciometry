@@ -30,6 +30,7 @@ gates on ``|pose| + k * pose_sd`` rather than on the point estimate.
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 #: Mean absolute error of the head-pose estimator, degrees. 6DRepNet reports
@@ -128,8 +129,45 @@ KLEINBERG_WORST = PoseSensitivity(
 
 
 @dataclass(frozen=True)
+class SignalOverError:
+    """Is the quantity of interest larger than the uncertainty around it?
+
+    The general form of the question this project keeps asking. For a
+    morphometric measurement the signal is the between-person spread, and the
+    specialised view is :class:`Discriminability`. For a within-face colour
+    contrast the signal is the contrast itself, which is not a between-person
+    spread at all -- so it gets the same rule without a misleading label.
+    """
+
+    signal: float
+    error: float
+
+    @property
+    def ratio(self) -> float:
+        return self.signal / self.error if self.error > 0 else math.inf
+
+    @property
+    def informative(self) -> bool:
+        """The threshold is 1.0 rather than something more generous because at
+        exactly 1.0 the quantity is already as much noise as it is signal."""
+        return self.ratio > 1.0
+
+
+def signal_over_error(*, signal: float, errors: Iterable[float]) -> SignalOverError:
+    """Combine independent error sources in quadrature and compare to a signal."""
+    if signal < 0:
+        raise ValueError("signal cannot be negative")
+    total = math.sqrt(sum(e**2 for e in errors))
+    return SignalOverError(signal=signal, error=total)
+
+
+@dataclass(frozen=True)
 class Discriminability:
-    """Whether a measurement separates people better than it separates photos."""
+    """Whether a measurement separates people better than it separates photos.
+
+    A :class:`SignalOverError` whose signal is specifically the between-person
+    spread, carrying the error breakdown the report needs to name a cause.
+    """
 
     ratio: float
     between_subject_sd: float
