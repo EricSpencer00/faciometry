@@ -195,3 +195,40 @@ def test_a_casual_photograph_withholds_a_substantial_share():
         )
         withheld += v.reportability is Reportability.WITHHOLD
     assert withheld >= 8, f"only {withheld} withheld on a casual photograph"
+
+
+def test_self_occlusion_is_keyed_off_landmarks_not_the_evidence_tier():
+    """The gonial angle is tagged POSE_CRITICAL for its pose sensitivity, but it
+    reads gonion and tragion, both of which sit on a self-occluding surface.
+
+    Keying the 3D requirement off the evidence tier let it through, and it was
+    briefly the only measurement a frontal photograph reported.
+    """
+    from vitruve.core.landmarks import SELF_OCCLUDING
+
+    spec = BY_ID["gonial_angle_l"]
+    assert spec.evidence is Evidence.POSE_CRITICAL
+    assert spec.landmarks & SELF_OCCLUDING
+
+    v = decide_reportability(
+        spec, max_pose_error_deg=1.0, roll_deg=0.5, have_3d=False,
+        subject_distance_m=1.5, relative_ci_width=0.05, disc=None,
+    )
+    assert v.reportability is Reportability.WITHHOLD
+    assert any("self-occluding" in r for r in v.blocking)
+
+
+def test_every_measurement_touching_a_self_occluding_landmark_needs_3d():
+    from vitruve.core.landmarks import SELF_OCCLUDING
+
+    checked = 0
+    for spec in CATALOGUE:
+        if not spec.landmarks & SELF_OCCLUDING:
+            continue
+        checked += 1
+        v = decide_reportability(
+            spec, max_pose_error_deg=0.0, roll_deg=0.0, have_3d=False,
+            subject_distance_m=1.5, relative_ci_width=0.01, disc=None,
+        )
+        assert v.reportability is Reportability.WITHHOLD, spec.id
+    assert checked >= 6

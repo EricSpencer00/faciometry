@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .formula import ScalarExpr
-from .landmarks import Landmark
+from .landmarks import SELF_OCCLUDING, Landmark
 from .sensitivity import (
     PoseSensitivity,
     Discriminability,
@@ -265,6 +265,8 @@ def decide_reportability(
     relative_ci_width: float | None,
     repeatability_cv: float | None = None,
     disc: Discriminability | None = None,
+    scale_relative_sd: float | None = None,
+    scale_is_measured: bool = False,
 ) -> Verdict:
     """Decide whether a measured value is fit to print.
 
@@ -302,12 +304,17 @@ def decide_reportability(
             "it distinguishes individuals at all is unknown",
         )
 
-    if spec.evidence is Evidence.REQUIRES_3D and not have_3d:
+    occluding = spec.landmarks & SELF_OCCLUDING
+    if (spec.evidence is Evidence.REQUIRES_3D or occluding) and not have_3d:
+        named = ", ".join(sorted(m.value for m in occluding))
+        where = f" ({named})" if named else ""
         escalate(
             Reportability.WITHHOLD,
-            "endpoints lie on a self-occluding lateral surface; 2D photogrammetry "
-            "does not reproduce this measurement (Lim et al. 2022: bigonial breadth "
-            "mean difference 9.3 mm, limits of agreement -0.9 to 19.6 mm)",
+            f"reads a landmark on a self-occluding lateral surface{where}, whose "
+            "apparent position in a photograph is where the silhouette turns away "
+            "rather than the anatomical point; 2D photogrammetry does not "
+            "reproduce these (Lim et al. 2022: bigonial breadth mean difference "
+            "9.3 mm, limits of agreement -0.9 to 19.6 mm)",
         )
 
     if spec.evidence is Evidence.POSE_CRITICAL and abs(roll_deg) > 2.0:
@@ -325,12 +332,21 @@ def decide_reportability(
             "tolerance for this measurement",
         )
 
-    if spec.needs_metric_scale:
+    if spec.needs_metric_scale and not scale_is_measured:
+        # A ruler in frame is a direct observation, so blaming a population
+        # prior when one was used would be simply false. The caveat belongs to
+        # the prior, not to the millimetre.
+        sd_text = (
+            f"about {scale_relative_sd * 100:.1f}% at one standard deviation"
+            if scale_relative_sd is not None
+            else "roughly 6% at one standard deviation"
+        )
         escalate(
             Reportability.CAVEAT,
-            "millimetre value rests on a scale assumption; interpupillary-distance "
-            "priors carry roughly 5.5% error at one standard deviation "
-            "(Dodgson 2004, ANSUR: mean 63 mm, SD ~3.5 mm)",
+            "millimetre value rests on a population scale prior rather than a "
+            f"measured reference, carrying {sd_text} "
+            "(Dodgson 2004 over ANSUR: interpupillary mean 63.36 mm, SD 3.83). "
+            "Photographing a ruler in the facial plane removes this term",
         )
 
     if subject_distance_m is not None and subject_distance_m < 1.0:

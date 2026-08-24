@@ -200,6 +200,7 @@ _MATCHERS: tuple[tuple[str, Cause], ...] = (
     ("image roll", CAUSE_ROLL),
     ("head pose", CAUSE_POSE),
     ("scale assumption", CAUSE_SCALE),
+    ("scale prior", CAUSE_SCALE),
     ("95% interval spans", CAUSE_LANDMARK),
     ("perspective magnification", CAUSE_PERSPECTIVE),
     ("test-retest", CAUSE_REPEATABILITY),
@@ -522,9 +523,9 @@ def summary(report: ReportInput) -> tuple[str, ...]:
         )
 
     paras.append(
-        "This report contains no rating, rank or composite of these "
-        "measurements. There is no ground truth for such a number, only panels "
-        "of raters, and roughly half the stable variance in those panels is "
+        "This report contains no single number standing for the face as a "
+        "whole. There is no ground truth for such a number, only panels of "
+        "judges, and roughly half the stable variance in those panels is "
         "private taste rather than anything shared (Hönekopp 2006)."
     )
     return tuple(paras)

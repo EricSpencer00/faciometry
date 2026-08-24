@@ -95,3 +95,24 @@ def test_rejects_impossible_inputs():
 def test_fuse_requires_at_least_one_estimate():
     with pytest.raises(ValueError, match="at least one"):
         fuse()
+
+
+def test_a_ruler_removes_the_scale_caveat_rather_than_reciting_the_prior():
+    """Blaming an interpupillary prior when a ruler was photographed would be
+    simply false, and it made every millimetre value in a clinical capture
+    carry a caveat it had not earned."""
+    from vitruve.core.spec import Reportability, decide_reportability
+    from vitruve.measure.registry import BY_ID
+
+    spec = BY_ID["nose_breadth"]
+    common = dict(
+        max_pose_error_deg=0.25, roll_deg=0.25, have_3d=True,
+        subject_distance_m=1.5, relative_ci_width=0.02, disc=None,
+    )
+    measured = decide_reportability(**common, spec=spec, scale_is_measured=True)
+    prior = decide_reportability(**common, spec=spec, scale_relative_sd=0.058)
+
+    assert not any("scale prior" in r for r in measured.reasons)
+    assert any("scale prior" in r for r in prior.reasons)
+    assert any("5.8%" in r for r in prior.reasons)
+    assert any("ruler" in r for r in prior.reasons)

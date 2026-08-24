@@ -95,6 +95,22 @@ class Landmark(str, Enum):
     CERVICALE = "cervicale"
 
 
+#: Landmarks that sit on a laterally curved, self-occluding surface.
+#:
+#: In a photograph their apparent position is where the silhouette turns away
+#: from the camera, which is not the anatomical point and moves with pose. This
+#: is the mechanism behind the agreement failures Lim et al. (2022) measured:
+#: bigonial breadth at a mean difference of 9.3 mm from direct measurement with
+#: limits of agreement spanning -0.9 to 19.6 mm, against 0.3 to 1.0 mm for the
+#: midline sagittal dimensions.
+#:
+#: Any measurement reading one of these needs real 3D geometry, whatever its
+#: evidence tier says. Keying that check off the tier instead let angular
+#: measurements over the mandible through, because they were tagged for their
+#: pose sensitivity rather than for their landmarks.
+SELF_OCCLUDING: frozenset["Landmark"] = frozenset()  # populated below
+
+
 #: Landmarks that only a profile view can locate reliably.
 PROFILE_ONLY: frozenset[Landmark] = frozenset(
     {Landmark.CERVICALE, Landmark.PORION_L, Landmark.PORION_R}
@@ -198,3 +214,17 @@ class PointSet:
         names = list(points)
         stacked = np.stack([np.asarray(points[n], dtype=float) for n in names], axis=-2)
         return cls(index={n: i for i, n in enumerate(names)}, coords=stacked)
+
+
+SELF_OCCLUDING = frozenset(
+    {
+        Landmark.ZYGION_L,
+        Landmark.ZYGION_R,
+        Landmark.GONION_L,
+        Landmark.GONION_R,
+        Landmark.TRAGION_L,
+        Landmark.TRAGION_R,
+        Landmark.PORION_L,
+        Landmark.PORION_R,
+    }
+)

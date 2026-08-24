@@ -27,7 +27,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from ..core.landmarks import Landmark, MissingLandmarkError, PointSet
-from ..core.scale import ScaleEstimate
+from ..core.scale import ScaleEstimate, ScaleSource
 from ..core.spec import (
     Discriminability,
     MeasurementSpec,
@@ -261,6 +261,8 @@ def evaluate(
         relative_ci_width=(hi - lo) / abs(value) if abs(value) > 1e-12 else float("inf"),
         repeatability_cv=repeatability_cv,
         disc=disc,
+        scale_relative_sd=scale.relative_sd if scale else None,
+        scale_is_measured=bool(scale and scale.source is ScaleSource.RULER),
     )
 
     return Measured(
