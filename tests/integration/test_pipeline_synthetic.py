@@ -32,6 +32,7 @@ from __future__ import annotations
 import json
 import math
 import socket
+import dataclasses
 from dataclasses import dataclass
 from fractions import Fraction
 
@@ -47,12 +48,14 @@ from vitruve.core.scale import ScaleSource
 from vitruve.core.sensitivity import POSE_ESTIMATOR_SD_DEG
 from vitruve.core.spec import Reportability, Unit, View
 from vitruve.measure.evaluate import Unavailable
+from vitruve.measure.multishot import DEFAULT_SHARED_FRACTION
 from vitruve.measure.registry import BY_ID, for_view
 from vitruve.models import licensing
 from vitruve.models.licensing import Tier
 from vitruve.pipeline.ingest import Ruler, pixel_sha256, save_stripped
 from vitruve.pipeline.manifest import RunManifest
 from vitruve.pipeline.ports import Backends
+from vitruve.pipeline.quality import Severity
 from vitruve.pipeline.run import analyze
 
 # ---------------------------------------------------------------------------
@@ -868,3 +871,191 @@ def test_analysis_opens_no_sockets(tmp_path, monkeypatch):
     )
     result = run(tmp_path, name="offline", n_samples=256)
     assert not result.failed
+
+
+# ---------------------------------------------------------------------------
+# Several captures of one face
+# ---------------------------------------------------------------------------
+
+
+def _captures(tmp_path, n=3, *, sd=0.0, yaws=None, seed=3):
+    """``n`` distinct photographs of the same synthetic head.
+
+    ``render_seed`` differs per capture so the pixel hashes differ and the
+    fixture table can tell them apart, which is exactly what a real run does
+    with several files. ``sd`` jitters the landmark positions, standing in for
+    the independent part of the landmark model's error, which is the only part
+    pooling can remove.
+    """
+    rng = np.random.default_rng(seed)
+    yaws = yaws if yaws is not None else [0.0] * n
+    out = []
+    for i, yaw in enumerate(yaws):
+        view = make_view(tmp_path, f"cap{i}", yaw=yaw, render_seed=100 + i)
+        if sd:
+            path, pixels, entry = view
+            ps = entry.landmarks.points
+            entry.landmarks = FakeLandmarkSet(
+                points=PointSet(
+                    index=dict(ps.index),
+                    coords=np.asarray(ps.coords, dtype=float)
+                    + rng.normal(0.0, sd, np.shape(ps.coords)),
+                ),
+                covariances=entry.landmarks.covariances,
+                yaw_deg=entry.landmarks.yaw_deg,
+                pitch_deg=entry.landmarks.pitch_deg,
+                roll_deg=entry.landmarks.roll_deg,
+            )
+            view = (path, pixels, entry)
+        out.append(view)
+    return out
+
+
+def _run_captures(views, **kwargs):
+    stack = make_stack(*views)
+    kwargs.setdefault("ruler_mm", RULER)
+    kwargs.setdefault("seed", 11)
+    kwargs.setdefault("n_samples", 512)
+    return analyze([v[0] for v in views], tier=Tier.PERMISSIVE, backends=stack, **kwargs)
+
+
+def test_several_frontal_captures_are_pooled_into_one_measurement(tmp_path):
+    views = _captures(tmp_path, 3, sd=LANDMARK_SD_PX)
+    result = _run_captures(views)
+    assert not result.failed
+    assert len(result.frontals) == 3
+    assert result.pooled is not None
+    assert result.pooled.n_supplied == 3
+    assert result.pooled.n_used == 3
+    assert result.n_captures == 3
+    # One measurement pass over one point set, not three sets of numbers.
+    assert len({m.spec_id for m in result.measured}) == len(result.measured)
+
+
+def test_pooling_narrows_the_landmark_covariances_by_the_correlated_factor(tmp_path):
+    """Not by one over N. The floor is what makes the claim honest."""
+    views = _captures(tmp_path, 3, sd=LANDMARK_SD_PX)
+    pooled = _run_captures(views)
+    single = _run_captures(views[:1])
+
+    combined = pooled.pooled
+    assert combined is not None
+    assert combined.variance_factor == pytest.approx(
+        DEFAULT_SHARED_FRACTION + (1 - DEFAULT_SHARED_FRACTION) / 3
+    )
+    assert combined.effective_n < 3
+    assert combined.effective_n > 1
+
+    name = next(iter(pooled.frontal.frame.uncertainty.index))
+    after = pooled.frontal.frame.uncertainty.covariances[
+        pooled.frontal.frame.uncertainty.index[name]
+    ]
+    before = single.frontal.frame.uncertainty.covariances[
+        single.frontal.frame.uncertainty.index[name]
+    ]
+    assert np.trace(after) < np.trace(before)
+    assert np.trace(after) > np.trace(before) / 3.0
+
+
+def test_the_pooled_run_records_what_pooling_achieved(tmp_path):
+    result = _run_captures(_captures(tmp_path, 3, sd=LANDMARK_SD_PX))
+    captures = result.manifest.captures
+    assert captures["n_supplied"] == 3
+    assert captures["n_used"] == 3
+    assert captures["dropped"] == []
+    assert captures["shared_fraction"] == pytest.approx(DEFAULT_SHARED_FRACTION)
+    assert captures["note"] == result.pooled.note()
+    assert "does not average away" in captures["note"]
+    # Every file that fed the point set is named, not just the one measured on.
+    assert len(result.manifest.images) == 3
+    assert json.loads(result.manifest.to_json())["captures"]["n_used"] == 3
+
+
+def test_a_single_capture_still_records_that_it_was_one(tmp_path):
+    result = run(tmp_path)
+    assert result.pooled is None
+    assert result.n_captures == 1
+    assert result.manifest.captures["n_supplied"] == 1
+    assert result.manifest.captures["pooled"] is False
+    assert "no averaging was possible" in result.manifest.captures["note"]
+
+
+def test_captures_at_different_poses_are_not_pooled(tmp_path):
+    """The guard that stops pooling averaging a face photographed twice over."""
+    views = _captures(tmp_path, 3, yaws=[0.0, 22.0, -22.0])
+    result = _run_captures(views)
+    assert not result.failed, "an unpoolable set is not an unmeasurable photograph"
+    assert result.pooled is None
+    assert result.n_captures == 1
+    codes = {i.code for i in result.frontal.quality.issues}
+    assert "captures.pose_spread" in codes
+    issue = next(
+        i for i in result.frontal.quality.issues if i.code == "captures.pose_spread"
+    )
+    assert issue.severity is Severity.WARN
+    assert "were not pooled" in issue.message
+
+
+def test_captures_that_scatter_further_than_landmark_noise_are_not_pooled(tmp_path):
+    """Two different faces at the same pose are not repeats of one face."""
+    views = _captures(tmp_path, 3, sd=LANDMARK_SD_PX * 12.0)
+    result = _run_captures(views)
+    assert result.pooled is None
+    issue = next(
+        i for i in result.frontal.quality.issues if i.code == "captures.scatter"
+    )
+    assert issue.severity is Severity.WARN
+    assert "not repeats of one face" in issue.message
+
+
+def test_agreeing_captures_say_so_rather_than_saying_nothing(tmp_path):
+    result = _run_captures(_captures(tmp_path, 3, sd=LANDMARK_SD_PX))
+    issue = next(
+        i for i in result.frontal.quality.issues if i.code == "captures.pose_spread"
+    )
+    assert issue.severity is Severity.INFO
+    assert "agree on head pose" in issue.message
+
+
+def test_one_unusable_capture_costs_that_capture_and_not_the_run(tmp_path):
+    """Failing the whole run would throw away the photographs that did work."""
+    views = _captures(tmp_path, 2, sd=LANDMARK_SD_PX)
+    empty = np.full((IMAGE_H, IMAGE_W, 3), 128, dtype=np.uint8)
+    blank = tmp_path / "blank.png"
+    PILImage.fromarray(empty).save(blank)
+    blank_key = pixel_sha256(empty)
+
+    stack = make_stack(*views)
+    inner = stack.detector
+
+    class _FindsNothingInTheBlank:
+        provenance = inner.provenance
+        weights_sha256 = inner.weights_sha256
+
+        def detect(self, image):
+            return [] if pixel_sha256(image) == blank_key else inner.detect(image)
+
+    result = analyze(
+        [views[0][0], blank, views[1][0]],
+        tier=Tier.PERMISSIVE,
+        backends=dataclasses.replace(stack, detector=_FindsNothingInTheBlank()),
+        ruler_mm=RULER,
+        seed=11,
+        n_samples=512,
+    )
+    assert not result.failed
+    assert len(result.frontals) == 2
+    assert result.pooled is not None
+    assert result.pooled.n_supplied == 2
+    assert any("no face was detected" in r for r in result.failure_reasons)
+
+
+def test_the_capture_note_reaches_the_rendered_report(tmp_path):
+    from vitruve.cli.runner import AnalysisOutcome, Status, build_report_input
+    from vitruve.report import prose
+
+    result = _run_captures(_captures(tmp_path, 3, sd=LANDMARK_SD_PX))
+    report = build_report_input(AnalysisOutcome(Status.OK, report=result))
+    assert report.n_captures == 3
+    assert report.capture_note == result.pooled.note()
+    assert result.pooled.note() in prose.report_text(report)

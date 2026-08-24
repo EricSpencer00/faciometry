@@ -233,6 +233,38 @@ p { margin: 0 0 1.05rem; max-width: 38em; }
   min-width: 2px;
 }
 
+/* --- error budget ------------------------------------------------------- */
+
+.levers {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+}
+
+.levers li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule-soft);
+  max-width: 38em;
+}
+
+/* Tabular so the counts line up down the left edge and the ranking is legible
+   without reading a single number. */
+.levers b {
+  display: inline-block;
+  min-width: 2.2em;
+  font-family: var(--mono);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.levers__why {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+}
+
 /* --- measurements ------------------------------------------------------ */
 
 .region__blurb {

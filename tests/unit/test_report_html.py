@@ -289,3 +289,29 @@ def test_a_report_with_nothing_in_it_still_renders():
     assert "0<span>/0</span>" in out
     assert "No quality issues were recorded" in out
     assert "No manifest was supplied" in out
+
+
+# ---------------------------------------------------------------------------
+# The error budget
+# ---------------------------------------------------------------------------
+
+
+def test_the_budget_section_is_in_the_html(report: ReportInput, rendered: str):
+    assert prose.BUDGET_TITLE in rendered
+    for line in prose.lever_lines(report):
+        assert line.action in rendered
+        assert str(line.n_recovered) in rendered
+
+
+def test_the_budget_precedes_the_measurements(report: ReportInput, rendered: str):
+    """A ranked account of what was responsible is no use after the refusals."""
+    assert rendered.index(prose.BUDGET_TITLE) < rendered.index(
+        report.groups()[0].region.title
+    )
+
+
+def test_the_budget_context_carries_no_number_spanning_measurements(report: ReportInput):
+    budget = html.build_context(report)["budget"]
+    assert set(budget) == {"title", "paragraphs", "levers", "lines"}
+    for line in budget["levers"]:
+        assert isinstance(line.n_recovered, int)

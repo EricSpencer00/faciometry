@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 from ..models.licensing import Tier
@@ -40,7 +41,7 @@ _STATUS_EXIT = {
 
 def run(
     *,
-    frontal: str,
+    frontal: str | Sequence[str],
     profile: str | None = None,
     license_tier: Tier = Tier.PERMISSIVE,
     declared_sex: str | None = None,
@@ -51,8 +52,9 @@ def run(
     seed: int = 0,
     pdf: bool = False,
 ) -> int:
+    frontal_paths = [frontal] if isinstance(frontal, str) else list(frontal)
     try:
-        frontal_image = load_image_file(frontal)
+        frontal_images = [load_image_file(p) for p in frontal_paths]
         profile_image = load_image_file(profile) if profile else None
     except BadImage as exc:
         print(f"vitruve analyze: {exc}", file=sys.stderr)
@@ -67,7 +69,8 @@ def run(
         )
 
     request = AnalysisRequest(
-        frontal=frontal_image,
+        frontal=frontal_images[0],
+        extra_frontals=tuple(frontal_images[1:]),
         profile=profile_image,
         license_tier=license_tier,
         declared_sex=declared_sex,

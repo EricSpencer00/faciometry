@@ -51,9 +51,43 @@
     {% endfor %}
   </section>
 
+  {% if budget.paragraphs %}
+  <section>
+    <span class="num">02</span>
+    <h2>{{ budget.title }}</h2>
+
+    {% for para in budget.paragraphs %}
+    <p>{{ para }}</p>
+    {% endfor %}
+
+    {% if budget.levers %}
+    <p class="region__blurb">Ranked by how many of the withheld measurements
+      each change would carry over.</p>
+    <ul class="levers">
+      {% for lever in budget.levers %}
+      <li>
+        <b>{{ lever.n_recovered }}</b> {{ lever.action }}
+        <span class="levers__why">{{ lever.detail }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No single change priced here would carry a withheld measurement over on
+      this photograph. The list is empty rather than padded with changes that
+      would not reach.</p>
+    {% endif %}
+
+    <ul class="plain">
+      {% for line in budget.lines %}
+      <li>{{ line.shares }}{% if line.counterfactual %} <span class="levers__why">{{ line.counterfactual }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
   {% for view in groups %}
   <section>
-    <span class="num">02.{{ loop.index }}</span>
+    <span class="num">03.{{ loop.index }}</span>
     <h2>{{ view.region.title }}</h2>
     <p class="region__blurb">{{ view.region.blurb }} <b>{{ view.counted }}</b> reportable.</p>
 
@@ -128,7 +162,7 @@
   {% endfor %}
 
   <section>
-    <span class="num">03</span>
+    <span class="num">04</span>
     <h2>The photograph itself</h2>
     {% if quality %}
     <ul class="plain">
@@ -144,7 +178,7 @@
   </section>
 
   <section>
-    <span class="num">04</span>
+    <span class="num">05</span>
     <h2>Licence obligations incurred by this run</h2>
     {% if obligations %}
     <p>These are the obligations of the backends that actually loaded, printed
@@ -164,7 +198,7 @@
   </section>
 
   <section>
-    <span class="num">05</span>
+    <span class="num">06</span>
     <h2>References</h2>
     {% if references %}
     <ul class="plain plain--mono">
@@ -178,7 +212,7 @@
   </section>
 
   <section>
-    <span class="num">06</span>
+    <span class="num">07</span>
     <h2>Run manifest</h2>
     {% if manifest %}
     <dl class="manifest">

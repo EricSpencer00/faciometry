@@ -105,3 +105,46 @@ def test_an_already_reporting_measurement_contributes_no_lever():
     )
     assert good.ratio > 1.0
     assert ranked_levers([good]) == []
+
+
+# ---------------------------------------------------------------------------
+# The budget decomposes the gate's own arithmetic, not a second opinion
+# ---------------------------------------------------------------------------
+
+
+def test_the_budget_total_is_the_gate_total():
+    """The identity that makes this a decomposition rather than a re-estimate.
+
+    ``budget_for`` is handed the three components the gate recorded, so the
+    quadrature it does has to land back on the number the gate divided by. If
+    it does not, the report is explaining a refusal that never happened.
+    """
+    from vitruve.core.sensitivity import discriminability
+
+    terms = dict(pose_error=0.0076, landmark_error=0.0465, scale_error=0.053)
+    d = discriminability(between_subject_sd=0.0423, **terms)
+    b = budget_for(
+        spec_id="biocular_width",
+        label="Biocular width (ex-ex)",
+        spread=d.between_subject_sd,
+        pose_error=d.pose_component,
+        landmark_error=d.landmark_component,
+        scale_error=d.scale_component,
+        scale_is_measured=False,
+        sex_declared=False,
+    )
+    assert b.total == pytest.approx(d.total_error_sd)
+    assert b.ratio == pytest.approx(d.ratio)
+    assert sum(t.share_of(b.total) for t in b.terms) == pytest.approx(1.0)
+
+
+def test_a_capture_already_taken_is_not_offered_back():
+    """A run that pooled six photographs is not told to take four."""
+    b = budget_for(
+        spec_id="x", label="X", spread=0.05, pose_error=0.004,
+        landmark_error=0.06, scale_error=0.0,
+        scale_is_measured=True, sex_declared=True, repeats=6,
+    )
+    details = [c.detail for c in b.counterfactuals if c.lever is Lever.REPEATS]
+    assert not any("4 photographs" in d for d in details)
+    assert any("9 photographs" in d for d in details)

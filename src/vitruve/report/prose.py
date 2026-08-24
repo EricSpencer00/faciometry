@@ -24,6 +24,16 @@ than by good intentions:
    not a target, this module never writes that a value is ideal or ought to be
    anything else, and it recommends nothing at all. Vitruve reports
    measurements.
+
+The error budget is the one part of this module that answers a question the
+gate does not ask. A report that withholds thirty measurements and prints
+ninety reasons has told the reader what happened without telling them what was
+responsible, and the two are different: the loudest reason in a report is
+routinely the smallest term in its variance. So the budget prints the shares,
+ranks the changes by how many measurements each would recover, and prices only
+the changes that would actually alter a verdict. It is still not a
+prescription. It says what the arithmetic does under a substitution, in the
+same voice as everything else here.
 """
 
 from __future__ import annotations
@@ -33,9 +43,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from ..core.spec import Evidence, MeasurementSpec, Reportability, Unit
+from ..measure.budget import LEVER_TEXT, Budget, Lever, ranked_levers, repeat_factor
 from ..measure.evaluate import Measured, Unavailable
+from ..measure.multishot import DEFAULT_SHARED_FRACTION
 from ..measure.registry import BY_ID
-from .model import NormativeStratum, ReportInput
+from .model import REPEATS_PRICED, NormativeStratum, ReportInput
 
 #: Vocabulary that would turn a measurement into a target or a prescription.
 #: The test suite scans every generated sentence against this list. Adding a
@@ -488,6 +500,217 @@ def describe(m: Measured, stratum: NormativeStratum | None = None) -> Measuremen
 
 
 # ---------------------------------------------------------------------------
+# Where the error came from
+# ---------------------------------------------------------------------------
+
+#: Heading for the budget section, shared by all three renderers so a reader
+#: who has seen one of them recognises the section in the others.
+BUDGET_TITLE = "Where the error came from, and what would move it"
+
+
+@dataclass(frozen=True)
+class LeverLine:
+    """One change, and how many withheld measurements it would carry over."""
+
+    n_recovered: int
+    action: str
+    detail: str
+
+
+@dataclass(frozen=True)
+class BudgetLine:
+    """One withheld measurement's error, split into where it came from."""
+
+    spec_id: str
+    label: str
+    shares: str
+    counterfactual: str | None = None
+
+
+def _shares(b: Budget) -> str:
+    """Each term as its share of the variance, largest first.
+
+    Variance rather than magnitude, because the terms combine in quadrature
+    and a reader shown magnitudes would over-read the small ones by their
+    square root.
+    """
+    ordered = sorted(b.terms, key=lambda t: -t.value)
+    return ", ".join(f"{t.name} {t.share_of(b.total) * 100:.0f}%" for t in ordered)
+
+
+def error_terms_sentence(report: ReportInput) -> str | None:
+    """Which term did the damage most often across the whole report.
+
+    A count of measurements, not an average over them. Which term dominates is
+    a property of the photograph and of the state of the literature, and it is
+    the first thing a reader of a page of refusals wants.
+    """
+    budgets = report.budgets()
+    tally: dict[str, int] = {}
+    for b in budgets:
+        dominant = b.dominant
+        if dominant is not None:
+            tally[dominant.name] = tally.get(dominant.name, 0) + 1
+    if not tally:
+        return None
+    ordered = sorted(tally.items(), key=lambda t: (-t[1], t[0]))
+    head_name, head_n = ordered[0]
+    rest = "".join(f", {name} in {n}" for name, n in ordered[1:])
+    return (
+        f"Across {len(budgets)} withheld measurements the largest error term was "
+        f"{head_name} in {head_n} of them{rest}. The terms combine in quadrature, "
+        "so what a term costs is its share of the variance, and a term at half "
+        "the size of another answers for a quarter as much. That is how a "
+        "sentence about head pose can be the loudest one in a report and account "
+        "for a hundredth of the problem."
+    )
+
+
+def repeats_sentence() -> str:
+    """What averaging captures actually buys, taken from the model that does it.
+
+    The number comes from :func:`~vitruve.measure.budget.repeat_factor`, which
+    imports the shared fraction from the module that performs the pooling.
+    Writing one over root N here would promise a reduction the feature cannot
+    deliver, and the two would then disagree in print.
+    """
+    factor = repeat_factor(REPEATS_PRICED)
+    return (
+        f"Repeats are priced with the correlated-average model rather than one "
+        f"over root N. {REPEATS_PRICED} photographs analysed together leave the "
+        f"landmark term at {factor:.2f} of a single capture, which is worth about "
+        f"{1.0 / factor**2:.1f} independent captures rather than {REPEATS_PRICED}, "
+        f"because a shared fraction of {DEFAULT_SHARED_FRACTION:.0%} of that error "
+        "does not average away."
+    )
+
+
+def _offers_repeats(budgets: Sequence[Budget]) -> bool:
+    return any(c.lever is Lever.REPEATS for b in budgets for c in b.counterfactuals)
+
+
+def counterfactual_sentence(b: Budget) -> str | None:
+    """The smallest change that would carry this measurement over, or nothing.
+
+    ``sufficient`` is ordered by the error each change leaves behind, so its
+    last entry is the least intervention that still crosses. Offering the first
+    would price a change larger than the one the arithmetic needs, and offering
+    anything at all when the tuple is empty would be an errand with nothing at
+    the end of it.
+    """
+    sufficient = b.sufficient
+    if not sufficient:
+        return None
+    c = sufficient[-1]
+    return (
+        f"The smallest change that carries it over is {c.detail}: the "
+        f"between-person spread then stands at {c.ratio:.1f} times the remaining "
+        f"error, against {b.ratio:.1f} on this photograph, and the gate prints a "
+        "measurement above one."
+    )
+
+
+def lever_lines(report: ReportInput) -> tuple[LeverLine, ...]:
+    """The changes worth making, ranked by how many measurements each recovers."""
+    return tuple(
+        LeverLine(n_recovered=n, action=action, detail=LEVER_TEXT[lever][1])
+        for lever, n, action in ranked_levers(list(report.budgets()))
+    )
+
+
+def budget_lines(report: ReportInput) -> tuple[BudgetLine, ...]:
+    """One line per withheld measurement, naming its dominant term."""
+    out: list[BudgetLine] = []
+    for b in report.budgets():
+        dominant = b.dominant
+        if dominant is None:
+            continue
+        out.append(
+            BudgetLine(
+                spec_id=b.spec_id,
+                label=b.label,
+                shares=(
+                    f"{b.label}: the largest term is {dominant.name}. Shares of "
+                    f"the variance are {_shares(b)}."
+                ),
+                counterfactual=counterfactual_sentence(b),
+            )
+        )
+    return tuple(out)
+
+
+def budget_paragraphs(report: ReportInput) -> tuple[str, ...]:
+    """The prose that opens the budget section."""
+    budgets = report.budgets()
+    if not budgets:
+        return ()
+    paras = [
+        "The error on a measurement taken from a photograph is made of three "
+        "terms: the scale prior sitting under any millimetre value, the "
+        "landmark model's placement of the points, and the head pose the "
+        "camera caught. Each withheld measurement below is split into those "
+        "three, and each change is priced by substituting one term and "
+        "recomputing the same ratio the gate used."
+    ]
+    sentence = error_terms_sentence(report)
+    if sentence:
+        paras.append(sentence)
+    if _offers_repeats(budgets):
+        paras.append(repeats_sentence())
+    missing = report.n_withheld - len(budgets)
+    if missing > 0:
+        paras.append(
+            f"{missing} of the {report.n_withheld} withheld measurements have no "
+            "published between-person spread to compare an error against, so "
+            "there is no ratio to decompose and they are absent from the list "
+            "below. Nothing here reaches them, and nothing here reaches a "
+            "measurement withheld for a self-occluding landmark either: the "
+            "budget prices three error terms, and a point the camera never saw "
+            "is not one of them."
+        )
+    else:
+        paras.append(
+            "Nothing here reaches a measurement withheld for a self-occluding "
+            "landmark. The budget prices three error terms, and a point the "
+            "camera never saw is not one of them."
+        )
+    return tuple(paras)
+
+
+def budget_section(report: ReportInput) -> tuple[str, ...]:
+    """The whole section as plain-text lines, empty when nothing was withheld."""
+    if not report.budgets():
+        return ()
+    lines: list[str] = [BUDGET_TITLE, "-" * len(BUDGET_TITLE)]
+    lines.extend(budget_paragraphs(report))
+    lines.append("")
+    levers = lever_lines(report)
+    if levers:
+        lines.append(
+            "Ranked by how many of the withheld measurements each change would "
+            "carry over:"
+        )
+        lines.append("")
+        for lever in levers:
+            lines.append(f"  {lever.n_recovered:>3}  {lever.action}")
+            lines.append(f"       {lever.detail}")
+        lines.append("")
+    else:
+        lines.append(
+            "No single change priced here would carry a withheld measurement "
+            "over on this photograph. The list is empty rather than padded "
+            "with changes that would not reach."
+        )
+        lines.append("")
+    for line in budget_lines(report):
+        lines.append(line.shares)
+        if line.counterfactual:
+            lines.append(f"    {line.counterfactual}")
+    lines.append("")
+    return tuple(lines)
+
+
+# ---------------------------------------------------------------------------
 # The summary
 # ---------------------------------------------------------------------------
 
@@ -567,6 +790,12 @@ def summary(report: ReportInput) -> tuple[str, ...]:
             "from the photograph."
         )
 
+    if report.capture_note:
+        paras.append(
+            f"Several frontal photographs were pooled before measuring: "
+            f"{report.capture_note}."
+        )
+
     paras.append(
         "This report contains no single number standing for the face as a "
         "whole. There is no ground truth for such a number, only panels of "
@@ -593,6 +822,10 @@ def report_text(report: ReportInput) -> str:
     lines: list[str] = [report.subject_label, "=" * len(report.subject_label), ""]
     lines.extend(summary(report))
     lines.append("")
+    # Before the regions, because the regions are where the withheld
+    # measurements are printed and the reader needs the cause ranked before
+    # the refusals rather than after them.
+    lines.extend(budget_section(report))
     for group in report.groups():
         lines.append(group.region.title)
         lines.append("-" * len(group.region.title))

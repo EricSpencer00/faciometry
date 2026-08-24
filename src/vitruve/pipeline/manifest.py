@@ -369,6 +369,12 @@ class RunManifest:
     measurements: tuple[MeasurementRecord, ...] = ()
     scale: dict[str, Any] = field(default_factory=dict)
     quality: dict[str, Any] = field(default_factory=dict)
+    #: What the frontal captures were and what pooling them achieved:
+    #: ``n_supplied``, ``n_used``, ``dropped``, ``shared_fraction`` and the
+    #: sentence ``multishot.Combined.note()`` produced. Recorded even for a
+    #: single photograph, because "one capture, no averaging" is a fact about
+    #: the run and not the absence of one.
+    captures: dict[str, Any] = field(default_factory=dict)
     failure_reasons: tuple[str, ...] = ()
 
     # -- construction ------------------------------------------------------
@@ -440,6 +446,7 @@ class RunManifest:
             "measurements": [m.to_dict() for m in self.measurements],
             "scale": dict(self.scale),
             "quality": dict(self.quality),
+            "captures": dict(self.captures),
             "failure_reasons": list(self.failure_reasons),
         }
 
@@ -476,6 +483,7 @@ class RunManifest:
             ),
             scale=dict(d.get("scale", {})),
             quality=dict(d.get("quality", {})),
+            captures=dict(d.get("captures", {})),
             failure_reasons=tuple(d.get("failure_reasons", ())),
         )
 

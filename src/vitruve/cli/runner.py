@@ -192,6 +192,12 @@ class AnalysisRequest:
 
     frontal: LoadedImage
     profile: LoadedImage | None = None
+    #: Further captures of the same face in the same session, pooled with
+    #: ``frontal`` before anything is measured. ``frontal`` stays a field of
+    #: its own because it is the capture the scale ladder and the overlays are
+    #: read from, and a tuple with a privileged first element is a worse way to
+    #: say that than a field is.
+    extra_frontals: tuple[LoadedImage, ...] = ()
     license_tier: Tier = Tier.PERMISSIVE
     declared_sex: str | None = None
     declared_ancestry: str | None = None
@@ -324,31 +330,45 @@ def _materialised(request: AnalysisRequest, kind: str) -> Iterator[tuple[Any, ..
     a ``finally``. `docs/PRIVACY.md` says so in those words; when the pipeline
     grows an array entry point this branch stops being reachable.
     """
+    fronts = (request.frontal, *request.extra_frontals)
+
     if kind == "array":
-        yield (request.frontal.pixels, request.profile.pixels if request.profile else None)
+        yield (
+            [f.pixels for f in fronts] if len(fronts) > 1 else request.frontal.pixels,
+            request.profile.pixels if request.profile else None,
+        )
         return
 
-    if request.frontal.path is not None and (
+    if all(f.path is not None for f in fronts) and (
         request.profile is None or request.profile.path is not None
     ):
-        yield (request.frontal.path, request.profile.path if request.profile else None)
+        yield (
+            [f.path for f in fronts] if len(fronts) > 1 else request.frontal.path,
+            request.profile.path if request.profile else None,
+        )
         return
 
     with tempfile.TemporaryDirectory(prefix="vitruve-") as tmp:
         root = Path(tmp)
         root.chmod(0o700)
-        frontal = root / "frontal.png"
-        frontal.write_bytes(request.frontal.to_png_bytes())
+        written: list[Path] = []
+        for i, image in enumerate(fronts):
+            path = root / f"frontal-{i}.png"
+            path.write_bytes(image.to_png_bytes())
+            written.append(path)
         profile: Path | None = None
         if request.profile is not None:
             profile = root / "profile.png"
             profile.write_bytes(request.profile.to_png_bytes())
+            written.append(profile)
         try:
-            yield (frontal, profile)
+            yield (
+                written[: len(fronts)] if len(fronts) > 1 else written[0],
+                profile,
+            )
         finally:
-            for p in (frontal, profile):
-                if p is not None:
-                    p.unlink(missing_ok=True)
+            for path in written:
+                path.unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------------------
@@ -423,10 +443,27 @@ def build_report_input(outcome: AnalysisOutcome) -> Any:
         declared_sex=request.declared_sex if request else None,
         declared_ancestry=request.declared_ancestry if request else None,
         generated_at=datetime.now(UTC).isoformat(timespec="seconds"),
+        n_captures=int(getattr(result, "n_captures", 1) or 1),
+        capture_note=str(getattr(result, "capture_note", "") or ""),
+        scale_is_measured=_scale_is_measured(result),
     )
 
     overlays = _overlays(result, report_input, report_overlay)
     return replace(report_input, overlays=overlays) if overlays else report_input
+
+
+def _scale_is_measured(result: Any) -> bool:
+    """Whether the millimetres rest on something measured in the frame.
+
+    It decides whether a ruler is a lever the error budget may offer at all,
+    and offering a ruler to a run that already used one would be the report
+    pricing a change the user has already made. Read off the scale estimate's
+    own source rather than off a measurement's ``scale_source`` string, because
+    a run with no millimetre measurements at all has no such string to read.
+    """
+    scale = getattr(result, "scale", None)
+    source = getattr(scale, "source", None)
+    return str(getattr(source, "value", source or "")) == "ruler"
 
 
 def _quality_reports(result: Any) -> tuple[Any, ...]:
@@ -533,6 +570,7 @@ def to_dict(outcome: AnalysisOutcome) -> dict[str, Any]:
             "declared_ancestry": request.declared_ancestry,
             "ruler_mm": request.ruler_mm,
             "frontal": _image_dict(request.frontal),
+            "extra_frontals": [_image_dict(f) for f in request.extra_frontals],
             "profile": _image_dict(request.profile) if request.profile else None,
         }
     return out

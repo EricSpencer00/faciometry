@@ -98,3 +98,65 @@ def test_outlier_rejection_never_leaves_fewer_than_two(truth):
     spread = [_capture({k: v * (1 + 0.3 * i) for k, v in truth.items()}, rng) for i in range(3)]
     c = combine(spread)
     assert c.n_used >= 2
+
+
+def test_the_same_capture_repeated_earns_nothing(truth):
+    """The bug this guard exists for.
+
+    A landmark model is deterministic, so the same photograph submitted twice
+    yields identical points and identical covariances, and averaging them
+    changes nothing about the estimate. A count-based reduction handed out a
+    smaller interval for free: three copies of one real photograph took a real
+    report from 1 of 68 reportable to 3 of 68, and claimed 1.76 effective
+    captures. Someone submitting one photograph nine times would have received
+    measurements that are not real.
+    """
+    rng = np.random.default_rng(11)
+    one = _capture(truth, rng)
+    for n in (2, 3, 9):
+        c = combine([one] * n)
+        assert c.shared_fraction == pytest.approx(1.0)
+        assert c.error_factor == pytest.approx(1.0)
+        assert c.effective_n == pytest.approx(1.0)
+        assert "100% of the error does not average away" in c.note()
+
+
+def test_near_identical_captures_earn_almost_nothing(truth):
+    """The reduction degrades smoothly rather than falling off a cliff."""
+    rng = np.random.default_rng(12)
+    barely = [_capture(truth, rng, sd=3.0) for _ in range(3)]
+    barely = [
+        (
+            PointSet.from_mapping(
+                {n: truth[n] + (ps.get(n) - truth[n]) * 0.1 for n in ps.available}
+            ),
+            unc,
+        )
+        for ps, unc in barely
+    ]
+    c = combine(barely)
+    assert c.shared_fraction > 0.9
+    assert c.error_factor > 0.95
+
+
+def test_genuinely_independent_captures_still_earn_the_reduction(truth):
+    """The guard must not be so strict that honest repeats stop helping."""
+    rng = np.random.default_rng(13)
+    c = combine([_capture(truth, rng) for _ in range(9)])
+    assert c.shared_fraction == pytest.approx(DEFAULT_SHARED_FRACTION)
+    assert c.error_factor < 0.7
+    assert c.effective_n > 2.0
+
+
+def test_the_estimate_can_only_tighten_the_assumption(truth):
+    """Scatter matching the model's claim does not prove independence, because
+    a systematic bias on a face is invisible to this test precisely because it
+    repeats. So the observed estimate may raise the shared fraction and never
+    lower it below the caller's floor."""
+    from vitruve.measure.multishot import observed_shared_fraction
+
+    rng = np.random.default_rng(14)
+    wild = np.stack([rng.normal(0, 100.0, size=(30, 3)) for _ in range(5)])
+    assert observed_shared_fraction(wild, claimed_sd=1.0, floor=0.35) == pytest.approx(0.35)
+    identical = np.repeat(rng.normal(0, 5.0, size=(1, 30, 3)), 5, axis=0)
+    assert observed_shared_fraction(identical, claimed_sd=1.0, floor=0.35) == pytest.approx(1.0)

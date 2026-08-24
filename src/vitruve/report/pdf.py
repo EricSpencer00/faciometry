@@ -1216,9 +1216,62 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
             "anything else."
         )
 
-    # -- 03 measurements by region ---------------------------------------
+    # -- 03 where the error came from -------------------------------------
+    # Before the measurements rather than after them. The refusals are printed
+    # inside the regions, and a reader who has already turned twenty pages of
+    # them has stopped looking for the ranked account of what was responsible.
+    sheet.section("03", prose.BUDGET_TITLE)
+    budget_paragraphs = prose.budget_paragraphs(report)
+    if budget_paragraphs:
+        for para in budget_paragraphs:
+            sheet.para(para, size=9.4, leading=12.8)
+        levers = prose.lever_lines(report)
+        if levers:
+            sheet.tracked(
+                "Withheld measurements each change would carry over",
+                size=6.8,
+                color=ACCENT,
+                tracking=1.4,
+            )
+            widest = levers[0].n_recovered
+            for lever in levers:
+                sheet.need(24.0)
+                sheet.y -= 11.0
+                _mono_pair(sheet, f"{lever.n_recovered:>3}", lever.action)
+                _tally_rule(sheet, lever.n_recovered / widest if widest else 0.0)
+                sheet.y -= 5.0
+                sheet.para(
+                    lever.detail, size=8.8, leading=11.8, color=INK_3, gap_after=2.0
+                )
+        else:
+            sheet.para(
+                "No single change priced here would carry a withheld measurement "
+                "over on this photograph. The list is empty rather than padded "
+                "with changes that would not reach.",
+                color=INK_2,
+            )
+        for line in prose.budget_lines(report):
+            sheet.rule(color=RULE_SOFT, gap_before=7.0, gap_after=3.0)
+            sheet.need(26.0)
+            sheet.para(line.shares, size=9.2, leading=12.6, gap_after=2.0)
+            if line.counterfactual:
+                sheet.para(
+                    line.counterfactual,
+                    size=8.8,
+                    leading=11.8,
+                    color=INK_2,
+                    gap_after=2.0,
+                )
+    else:
+        sheet.para(
+            "Nothing on this photograph was computed and then withheld, so there "
+            "is no error here to account for.",
+            color=INK_2,
+        )
+
+    # -- 04 measurements by region ---------------------------------------
     groups = report.groups()
-    sheet.section("03", "Measurements by region")
+    sheet.section("04", "Measurements by region")
     sheet.para(
         "Grouped by the part of the face they describe rather than by how well "
         "they survive a photograph, because the reader is looking at a face and "
@@ -1227,7 +1280,7 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
         color=INK_2,
     )
     for i, view in enumerate(groups, start=1):
-        sheet.section(f"03.{i}", view.region.title)
+        sheet.section(f"04.{i}", view.region.title)
         sheet.para(
             f"{view.region.blurb} {view.n_shown} of "
             f"{len(view.measurements) + len(view.unavailable)} reportable.",
@@ -1254,8 +1307,8 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
                     gap_after=3.0,
                 )
 
-    # -- 04 withheld ------------------------------------------------------
-    sheet.section("04", "Withheld, and why")
+    # -- 05 withheld ------------------------------------------------------
+    sheet.section("05", "Withheld, and why")
     counts = prose.cause_counts(report)
     sheet.para(
         "Each of these was computed and then not printed. A withheld "
@@ -1303,11 +1356,11 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
                 gap_after=3.0,
             )
 
-    # -- 05 plates --------------------------------------------------------
+    # -- 06 plates --------------------------------------------------------
     all_plates = [
         Plate(o.title, o.caption, o.png) for o in report.overlays
     ] + list(plates)
-    sheet.section("05", "Plates")
+    sheet.section("06", "Plates")
     if all_plates:
         sheet.para(
             "Every landmark is drawn as its 95% ellipse rather than as a dot. A "
@@ -1326,10 +1379,10 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
             color=INK_2,
         )
 
-    # -- 06 skin ----------------------------------------------------------
+    # -- 07 skin ----------------------------------------------------------
     findings = skin_findings(report, skin)
     if findings:
-        sheet.section("06", "Skin findings")
+        sheet.section("07", "Skin findings")
         sheet.para(
             "Measured from the photograph in the same way as everything above: "
             "each finding carries its own interval, and a finding the gate "
@@ -1354,13 +1407,13 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
             sheet.rule(color=RULE, gap_before=10.0, gap_after=5.0)
             sheet.para(disclaimer, font=SERIF_I, size=9.0, leading=12.2, color=INK_2)
 
-    # -- 07 method --------------------------------------------------------
-    sheet.section("07", "Method")
+    # -- 08 method --------------------------------------------------------
+    sheet.section("08", "Method")
     for para in METHOD:
         sheet.para(para, size=9.4, leading=12.8)
 
-    # -- 08 references ----------------------------------------------------
-    sheet.section("08", "References")
+    # -- 09 references ----------------------------------------------------
+    sheet.section("09", "References")
     if report.references:
         for ref in report.references:
             sheet.para(
@@ -1370,8 +1423,8 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
     else:
         sheet.para("No references were supplied with this run.", color=INK_2)
 
-    # -- 09 licence obligations -------------------------------------------
-    sheet.section("09", "Licence obligations incurred by this run")
+    # -- 10 licence obligations -------------------------------------------
+    sheet.section("10", "Licence obligations incurred by this run")
     if report.obligations:
         sheet.para(
             "The obligations of the backends that actually loaded, printed in "
@@ -1392,8 +1445,8 @@ def build(sheet: Sheet, report: ReportInput, *, plates: Sequence[Plate], skin: A
             color=INK_2,
         )
 
-    # -- 10 run manifest ---------------------------------------------------
-    sheet.section("10", "Run manifest")
+    # -- 11 run manifest ---------------------------------------------------
+    sheet.section("11", "Run manifest")
     rows = _manifest_rows(report.manifest)
     if rows:
         sheet.key_value(rows)

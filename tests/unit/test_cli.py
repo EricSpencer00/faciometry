@@ -338,6 +338,33 @@ def test_analyze_on_a_faceless_image_never_exits_zero(jpeg):
     assert main(["analyze", str(jpeg)]) != Exit.OK
 
 
+def test_analyze_accepts_several_frontal_photographs():
+    from vitruve.cli.main import build_parser
+
+    args = build_parser().parse_args(["analyze", "a.jpg", "b.jpg", "c.jpg"])
+    assert args.frontal == ["a.jpg", "b.jpg", "c.jpg"]
+    assert args.profile is None
+
+
+def test_one_frontal_photograph_is_still_a_list_of_one():
+    from vitruve.cli.main import build_parser
+
+    assert build_parser().parse_args(["analyze", "a.jpg"]).frontal == ["a.jpg"]
+
+
+def test_the_help_says_the_captures_must_be_one_person_in_one_session(capsys):
+    """Pooling photographs of two people would average a face nobody has."""
+    with pytest.raises(SystemExit):
+        main(["analyze", "--help"])
+    out = " ".join(capsys.readouterr().out.split())
+    assert "same person in the same session" in out
+
+
+def test_a_missing_file_among_several_frontals_is_bad_input(capsys):
+    assert main(["analyze", "/nonexistent/a.jpg", "/nonexistent/b.jpg"]) == Exit.BAD_INPUT
+    assert "no such file" in capsys.readouterr().err
+
+
 # -------------------------------------------------------------------- ingest
 
 

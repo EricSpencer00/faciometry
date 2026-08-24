@@ -482,3 +482,118 @@ def test_report_text_covers_every_measurement(report: ReportInput):
         assert m.label in text
     for u in report.unavailable:
         assert u.label in text
+
+
+# ---------------------------------------------------------------------------
+# The error budget: what was responsible, and what would move it
+# ---------------------------------------------------------------------------
+
+
+def test_every_budget_decomposes_its_own_measurement(report: ReportInput):
+    """The budget is the gate's arithmetic re-read, not a second estimate.
+
+    If these two ever diverge the report is explaining a refusal that did not
+    happen, which is worse than printing no explanation at all.
+    """
+    by_id = {m.spec_id: m for m in report.withheld}
+    budgets = report.budgets()
+    assert budgets
+    for b in budgets:
+        d = by_id[b.spec_id].discriminability
+        assert d is not None
+        assert b.total == pytest.approx(d.total_error_sd)
+        assert b.ratio == pytest.approx(d.ratio)
+        assert b.spread == pytest.approx(d.between_subject_sd)
+
+
+def test_the_budget_names_the_dominant_term_across_the_report(report: ReportInput):
+    sentence = prose.error_terms_sentence(report)
+    assert sentence is not None
+    assert sentence.startswith(
+        f"Across {len(report.budgets())} withheld measurements the largest error term was"
+    )
+    assert "share of the variance" in sentence
+
+
+def test_the_levers_are_ranked_by_measurements_recovered(report: ReportInput):
+    levers = prose.lever_lines(report)
+    assert levers
+    counts = [line.n_recovered for line in levers]
+    assert counts == sorted(counts, reverse=True)
+    assert all(isinstance(n, int) and n > 0 for n in counts)
+
+
+def test_a_counterfactual_is_only_offered_when_it_changes_the_verdict(report: ReportInput):
+    """The rule that keeps the section from becoming a wish list."""
+    offered = 0
+    for b in report.budgets():
+        sentence = prose.counterfactual_sentence(b)
+        if sentence is None:
+            assert not b.sufficient
+            continue
+        offered += 1
+        assert b.sufficient
+        assert b.sufficient[-1].ratio > 1.0
+    assert offered, "no counterfactual was offered at all, so the rule is untested"
+
+
+def test_the_smallest_sufficient_change_is_the_one_offered(report: ReportInput):
+    """Not the largest. Pricing a bigger change than the arithmetic needs would
+    ask for work the numbers do not."""
+    for b in report.budgets():
+        if len(b.sufficient) < 2:
+            continue
+        chosen = b.sufficient[-1]
+        assert chosen.error == max(c.error for c in b.sufficient)
+        return
+    pytest.skip("this fixture offers no measurement with two sufficient changes")
+
+
+def test_repeats_are_priced_with_the_shared_fraction_not_root_n():
+    """The one sentence that could quietly overstate what averaging buys."""
+    from vitruve.measure.budget import repeat_factor
+    from vitruve.measure.multishot import DEFAULT_SHARED_FRACTION
+    from vitruve.report.model import REPEATS_PRICED
+
+    sentence = prose.repeats_sentence()
+    assert f"{repeat_factor(REPEATS_PRICED):.2f}" in sentence
+    assert f"{DEFAULT_SHARED_FRACTION:.0%}" in sentence
+    assert "does not average away" in sentence
+    naive = 1.0 / math.sqrt(REPEATS_PRICED)
+    assert f"{naive:.2f}" not in sentence
+
+
+def test_the_budget_section_precedes_the_withheld_measurements(report: ReportInput):
+    text = prose.report_text(report)
+    assert prose.BUDGET_TITLE in text
+    first_withheld = min(
+        text.index(m.label) for m in report.withheld if m.label in text
+    )
+    assert text.index(prose.BUDGET_TITLE) < first_withheld
+
+
+def test_the_budget_section_is_empty_when_nothing_was_withheld():
+    """No section rather than a section saying there is nothing to say."""
+    kept = tuple(m for m in synthetic_report().measurements if m.shown)
+    assert prose.budget_section(ReportInput(measurements=kept)) == ()
+
+
+def test_a_run_that_used_a_ruler_is_not_offered_one():
+    from vitruve.measure.budget import Lever
+
+    withheld = synthetic_report().withheld
+    measured = ReportInput(measurements=withheld, scale_is_measured=True)
+    levers = {
+        lever
+        for b in measured.budgets()
+        for c in b.counterfactuals
+        for lever in (c.lever,)
+    }
+    assert Lever.RULER not in levers
+
+
+def test_the_capture_note_reaches_the_summary():
+    note = "3 of 3 photographs averaged. Landmark error falls to 0.66 of a single capture"
+    text = " ".join(prose.summary(ReportInput(capture_note=note)))
+    assert note in text
+    assert "Several frontal photographs were pooled" in text

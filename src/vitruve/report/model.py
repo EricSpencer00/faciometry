@@ -24,8 +24,16 @@ from dataclasses import dataclass, field
 from typing import Mapping
 
 from ..core.spec import Reportability
+from ..measure.budget import Budget, budget_for
 from ..measure.evaluate import Measured, Unavailable
 from ..norms import niosh
+
+#: How many captures the repeat counterfactual is allowed to propose. Nine is
+#: where the correlated-average model has flattened out: a tenth photograph
+#: moves the landmark term by under a percent, so pricing more would offer a
+#: reader an errand with nothing at the end of it. Declared here rather than
+#: left to ``budget_for``'s default so the prose can quote the same number.
+REPEATS_PRICED = 9
 
 
 @dataclass(frozen=True)
@@ -285,6 +293,20 @@ class ReportInput:
     #: Specs the pipeline set out to evaluate. Defaults to what came back,
     #: which is right when nothing was dropped before evaluation.
     n_attempted_override: int | None = None
+    #: Frontal photographs that were pooled into the measured point set. One
+    #: unless the run was given several, and it changes what the repeat
+    #: counterfactual is allowed to offer: proposing four photographs to
+    #: someone who already supplied six is not a change.
+    n_captures: int = 1
+    #: ``multishot.Combined.note()``, verbatim, or empty for a single capture.
+    #: Carried as the sentence the pooling produced rather than as its
+    #: ingredients, because the sentence is the part that must not drift.
+    capture_note: str = ""
+    #: Whether the millimetre scale came from something measured in the frame
+    #: rather than from a population prior. It decides whether a ruler is a
+    #: lever at all, so it is stated by whoever walked the scale ladder rather
+    #: than guessed from a measurement's scale source.
+    scale_is_measured: bool = False
 
     @property
     def n_attempted(self) -> int:
@@ -342,6 +364,36 @@ class ReportInput:
             if o.region == region_key:
                 return o
         return None
+
+    def budgets(self) -> tuple[Budget, ...]:
+        """Where each withheld measurement's error came from, and what moves it.
+
+        Built from the gate's own three components rather than recomputed, so
+        the decomposition a reader is shown is arithmetically the same object
+        the gate refused on. A measurement with no discriminability has no
+        between-person spread to compare against, so there is nothing to
+        decompose and it is left out rather than given a budget of zeros.
+        """
+        out: list[Budget] = []
+        for m in self.withheld:
+            d = m.discriminability
+            if d is None:
+                continue
+            out.append(
+                budget_for(
+                    spec_id=m.spec_id,
+                    label=m.label,
+                    spread=d.between_subject_sd,
+                    pose_error=d.pose_component,
+                    landmark_error=d.landmark_component,
+                    scale_error=d.scale_component,
+                    scale_is_measured=self.scale_is_measured,
+                    sex_declared=self.declared_sex is not None,
+                    repeats=self.n_captures,
+                    max_repeats=REPEATS_PRICED,
+                )
+            )
+        return tuple(out)
 
     def groups(self) -> tuple[MeasurementGroup, ...]:
         """Measurements by region, in the order of :data:`REGIONS`.

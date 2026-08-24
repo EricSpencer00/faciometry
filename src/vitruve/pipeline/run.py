@@ -35,7 +35,7 @@ from __future__ import annotations
 import time
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import numpy as np
@@ -43,8 +43,16 @@ import numpy as np
 from ..core.landmarks import Landmark, PointSet
 from ..core.scale import ScaleEstimate, from_interpupillary, from_iris, from_ruler, fuse
 from ..core.spec import Reportability, View
+from ..core.sensitivity import POSE_ESTIMATOR_SD_DEG
 from ..measure import registry
-from ..measure.evaluate import DEFAULT_SAMPLES, Measured, Unavailable, evaluate
+from ..measure.evaluate import (
+    DEFAULT_SAMPLES,
+    LandmarkUncertainty,
+    Measured,
+    Unavailable,
+    evaluate,
+)
+from ..measure.multishot import Combined, combine
 from ..models.licensing import Tier
 from .align import AlignedFace
 from .align import align as align_face
@@ -52,8 +60,23 @@ from .canonical import CanonicalFrame, interocular_distance_px, roll_from_eyes, 
 from .ingest import Ruler, SourceImage, SubjectDistance, estimate_subject_distance, load_image
 from .manifest import ImageRecord, ModelRecord, RunManifest, StageTiming
 from .ports import Backends, Detection, LandmarkSet, load_backends
-from .quality import PoseEstimate, QualityReport, reconcile_pose
+from .quality import PoseEstimate, QualityIssue, QualityReport, Severity, reconcile_pose
 from .quality import assess as assess_quality
+
+
+#: How far apart the pose estimates of several captures may sit before they
+#: stop describing one pose. Three times the estimator's own spread, so a
+#: disagreement this large is not something the estimator's noise explains, and
+#: pooling captures taken at genuinely different poses would average a face
+#: photographed from two directions into a face that was never photographed.
+CAPTURE_POSE_SPREAD_DEG = 3.0 * POSE_ESTIMATOR_SD_DEG
+
+#: How far the captures may scatter, as a multiple of the landmark model's own
+#: positional spread, before they stop looking like repeats of one face. The
+#: pooling model in ``measure.multishot`` assumes the captures differ by
+#: landmark noise; where they differ by much more than that, the assumption is
+#: false and the reduction it promises is not there to be had.
+CAPTURE_SCATTER_LIMIT = 2.0
 
 
 class NoFaceFound(RuntimeError):
@@ -126,6 +149,28 @@ class AnalysisResult:
     scale: ScaleEstimate | None = None
     failed: bool = False
     failure_reasons: tuple[str, ...] = field(default_factory=tuple)
+    #: Every frontal capture that produced landmarks, in the order supplied.
+    #: ``frontal`` is the first of them and is the one whose pixels the scale
+    #: ladder and the overlays are read from, so it is kept as its own field
+    #: rather than left to be recovered by indexing.
+    frontals: tuple[ViewAnalysis, ...] = field(default_factory=tuple)
+    #: What pooling those captures achieved, or ``None`` when there was only
+    #: one capture or when the captures disagreed too much to be pooled.
+    pooled: Combined | None = None
+
+    @property
+    def n_captures(self) -> int:
+        """Frontal photographs that went into the measured point set.
+
+        The number *used*, not the number supplied: a capture the outlier
+        rejection discarded did not contribute, and counting it would inflate
+        every claim the report makes about what averaging bought.
+        """
+        return self.pooled.n_used if self.pooled is not None else 1
+
+    @property
+    def capture_note(self) -> str:
+        return self.pooled.note() if self.pooled is not None else ""
 
     def by_id(self, spec_id: str) -> Measured | Unavailable | None:
         for m in self.measured:
@@ -153,7 +198,7 @@ class AnalysisResult:
 
 
 def analyze(
-    frontal_path: str | Path,
+    frontal_path: str | Path | Sequence[str | Path],
     profile_path: str | Path | None = None,
     *,
     tier: Tier | str = Tier.PERMISSIVE,
@@ -166,6 +211,16 @@ def analyze(
     correct_roll: bool = True,
 ) -> AnalysisResult:
     """Run the whole pipeline over one or two photographs.
+
+    ``frontal_path`` may be a sequence, in which case every capture is
+    detected, landmarked and posed on its own and the results are pooled in the
+    canonical frame before a single measurement pass. Pooling in the canonical
+    frame rather than in image coordinates is the whole point: roll has been
+    rotated out and the interocular span normalised by then, so what is
+    averaged is one face rather than several framings of it. The captures must
+    be of the same person in one session, and where their poses or their
+    landmark positions disagree by more than the models' own noise explains,
+    the run says so and measures the first capture alone.
 
     ``declared_sex`` and ``declared_ancestry`` are exactly that: declared. They
     select a normative stratum and narrow the interpupillary prior, they are
@@ -201,12 +256,29 @@ def analyze(
 
     failure_reasons: list[str] = []
 
-    try:
-        frontal = _analyse_view(
-            frontal_path, View.FRONTAL, backends, stages, correct_roll=correct_roll
-        )
-    except NoFaceFound as exc:
-        return _failed(manifest, stages, [str(exc)])
+    frontal_paths = _frontal_paths(frontal_path)
+    frontals: list[ViewAnalysis] = []
+    for i, path in enumerate(frontal_paths):
+        try:
+            frontals.append(
+                _analyse_view(
+                    path,
+                    View.FRONTAL,
+                    backends,
+                    stages,
+                    correct_roll=correct_roll,
+                    tag=f"frontal.{i}" if len(frontal_paths) > 1 else None,
+                )
+            )
+        except NoFaceFound as exc:
+            # One unusable capture out of several costs that capture. Failing
+            # the run would throw away the photographs that did work over one
+            # the user can simply drop.
+            failure_reasons.append(str(exc))
+    if not frontals:
+        return _failed(manifest, stages, failure_reasons or [str(NoFaceFound(View.FRONTAL))])
+
+    frontal, pooled = _pool_frontals(frontals, stages)
 
     profile: ViewAnalysis | None = None
     if profile_path is not None:
@@ -222,8 +294,14 @@ def analyze(
 
     views = [v for v in (frontal, profile) if v is not None]
     manifest = manifest.with_(
-        images=tuple(_image_record(v.source) for v in views),
+        # Every frontal that produced landmarks is recorded, not just the one
+        # the measurements were read against, so a reader can tie the pooled
+        # point set back to each file that fed it.
+        images=tuple(
+            _image_record(v.source) for v in list(frontals) + ([profile] if profile else [])
+        ),
         quality={v.view.value: _quality_dict(v) for v in views},
+        captures=_captures_dict(frontals, pooled, frontal),
     )
 
     hard_fail = [v for v in views if v.quality.failed]
@@ -263,6 +341,8 @@ def analyze(
         scale=scale,
         failed=False,
         failure_reasons=tuple(failure_reasons),
+        frontals=tuple(frontals),
+        pooled=pooled,
     )
 
 
@@ -278,8 +358,12 @@ def _analyse_view(
     stages: _Stages,
     *,
     correct_roll: bool,
+    tag: str | None = None,
 ) -> ViewAnalysis:
-    tag = view.value
+    # ``tag`` only names the timings. Several frontal captures would otherwise
+    # write several stages called "frontal.detect" and the manifest would say
+    # how long detection took without saying which photograph it took it on.
+    tag = tag or view.value
 
     with stages.stage(f"{tag}.ingest"):
         source = load_image(path, view=view)
@@ -367,6 +451,294 @@ def _analyse_view(
         subject_distance=subject_distance,
         iris_diameter_px=iris_px,
     )
+
+
+# ---------------------------------------------------------------------------
+# Several captures of one face
+# ---------------------------------------------------------------------------
+
+
+def _frontal_paths(given: str | Path | Sequence[str | Path]) -> tuple[str | Path, ...]:
+    """One path or many, always as a tuple.
+
+    ``str`` and ``Path`` are both sequences of a sort, so the check is by type
+    rather than by ``isinstance(given, Sequence)``, which would turn a single
+    filename into a list of its characters.
+    """
+    if isinstance(given, (str, Path)):
+        return (given,)
+    return tuple(given)
+
+
+def _rescaled_frame(frame: CanonicalFrame, reference: CanonicalFrame) -> CanonicalFrame:
+    """One capture's canonical frame in the reference capture's pixel units.
+
+    Canonical conversion is a rigid motion, so two captures taken at different
+    distances arrive with the same face at different pixel sizes and averaging
+    them would average a large face with a small one. Normalising the
+    interocular span is the one similarity term that closes that gap, and doing
+    it against the *reference* capture rather than against a mean keeps the
+    scale ladder honest: every millimetre in the report descends from the pupil
+    span measured in one real photograph, not in a synthetic average of
+    several.
+    """
+    here, there = frame.interocular_px, reference.interocular_px
+    if not here or not there or here <= 0:
+        return frame
+    s = there / here
+    return replace(
+        frame,
+        points=PointSet(
+            index=dict(frame.points.index),
+            coords=np.asarray(frame.points.coords, dtype=float) * s,
+        ),
+        uncertainty=LandmarkUncertainty(
+            index=dict(frame.uncertainty.index),
+            covariances=np.asarray(frame.uncertainty.covariances, dtype=float) * (s * s),
+        ),
+        interocular_px=there,
+    )
+
+
+def _pose_spread_deg(views: Sequence[ViewAnalysis]) -> float:
+    """The widest disagreement between the captures on any pose axis."""
+    axes = (
+        [v.pose.yaw_deg for v in views],
+        [v.pose.pitch_deg for v in views],
+        [v.pose.roll_deg for v in views],
+    )
+    return max(float(max(a) - min(a)) for a in axes)
+
+
+def _capture_scatter(
+    frames: Sequence[CanonicalFrame], originals: Sequence[CanonicalFrame]
+) -> tuple[float, float] | None:
+    """How far the captures scatter, against how far the models said they would.
+
+    The pooling model treats the captures as one face seen through independent
+    landmark noise. If that is true, a landmark's spread across captures is the
+    size of what the models themselves account for. If it is much larger, the
+    captures are not repeats: they are different faces, different expressions,
+    or a landmark model that failed on one of them, and averaging them would
+    produce a point set describing none of them.
+
+    Two things go into what the models account for, and leaving the second one
+    out was enough to make this guard refuse every honest set of captures.
+
+    The first is the landmark model's own positional spread. The second is the
+    alignment that brought the captures into a common frame, which is read off
+    the two eye landmarks and therefore carries their noise: the roll
+    correction rotates each capture by a slightly different angle, and the
+    interocular normalisation scales each one by a slightly different factor.
+    With a positional spread of ``sd`` on each endpoint of an interocular span
+    ``D``, both of those have a spread of about ``sd * sqrt(2) / D``, and both
+    move a landmark in proportion to its distance ``r`` from the eye midpoint,
+    so together they contribute about ``2 * r * sd / D``. On a face measured
+    two hundred pixels out from the eyes that is larger than the landmark term
+    it sits beside, and omitting it made this guard refuse every honest set of
+    captures.
+
+    Both terms are taken from the spread the landmark model *claims*, never
+    from the spread the captures were *observed* to have. Deriving the second
+    from the first would let a set of captures explain its own disagreement,
+    and the guard would then pass anything.
+
+    Returns ``(observed, accounted for)`` in pixels, or ``None`` when the
+    captures share too few landmarks for the comparison to mean anything.
+    """
+    common = set(frames[0].points.available)
+    for f in frames[1:]:
+        common &= set(f.points.available)
+    if len(common) < 3:
+        return None
+    names = sorted(common, key=lambda m: m.value)
+
+    stack = np.stack([np.stack([f.points.get(n) for n in names]) for f in frames])
+    # Standard deviation across captures, per landmark, pooled over coordinates.
+    observed = np.sqrt((stack.std(axis=0, ddof=1) ** 2).mean(axis=-1))
+
+    model_sd = []
+    for f in frames:
+        cov = np.asarray(f.uncertainty.covariances, dtype=float)
+        rows = [f.uncertainty.index[n] for n in names]
+        model_sd.append(np.sqrt(np.trace(cov[rows], axis1=-2, axis2=-1) / cov.shape[-1]))
+
+    per_landmark = np.median(np.stack(model_sd), axis=0)
+    spans = [f.interocular_px for f in originals if f.interocular_px]
+    span = float(np.median(spans)) if spans else 0.0
+    # One factor of sqrt(2) for the two endpoints the eye axis is read from,
+    # another for the roll and the scale entering independently.
+    alignment = (
+        2.0 * float(np.median(per_landmark)) / span * np.linalg.norm(
+            stack.mean(axis=0), axis=-1
+        )
+        if span > 0
+        else 0.0
+    )
+    accounted = np.sqrt(per_landmark**2 + alignment**2)
+
+    return float(np.median(observed)), float(np.median(accounted))
+
+
+def _capture_issues(
+    views: Sequence[ViewAnalysis], frames: Sequence[CanonicalFrame]
+) -> tuple[tuple[QualityIssue, ...], bool]:
+    """What the captures say about each other, and whether to pool them.
+
+    Never ``Severity.FAIL``. A set of captures that cannot be pooled is not a
+    photograph that cannot be measured: the first capture is still a perfectly
+    good single-photograph analysis, and failing the run would take that away
+    over a mistake the user made in *addition* to taking a usable picture.
+    """
+    issues: list[QualityIssue] = []
+    agreed = True
+
+    spread = _pose_spread_deg(views)
+    if spread > CAPTURE_POSE_SPREAD_DEG:
+        agreed = False
+        issues.append(
+            QualityIssue(
+                code="captures.pose_spread",
+                severity=Severity.WARN,
+                message=(
+                    f"The {len(views)} frontal captures disagree by {spread:.1f} "
+                    f"degrees of head pose, further than the {CAPTURE_POSE_SPREAD_DEG:.1f} "
+                    "degrees the pose estimator's own noise accounts for. They "
+                    "were not photographs of one pose, so they were not pooled "
+                    "and the first capture was measured on its own."
+                ),
+                remedy=(
+                    "Captures pooled together have to be of one person holding "
+                    "one pose in one session."
+                ),
+            )
+        )
+    else:
+        issues.append(
+            QualityIssue(
+                code="captures.pose_spread",
+                severity=Severity.INFO,
+                message=(
+                    f"The {len(views)} frontal captures agree on head pose to "
+                    f"within {spread:.1f} degrees."
+                ),
+                remedy="",
+            )
+        )
+
+    scatter = _capture_scatter(frames, [v.frame for v in views])
+    if scatter is not None:
+        observed, claimed = scatter
+        ratio = observed / claimed if claimed > 0 else float("inf")
+        if ratio > CAPTURE_SCATTER_LIMIT:
+            agreed = False
+            issues.append(
+                QualityIssue(
+                    code="captures.scatter",
+                    severity=Severity.WARN,
+                    message=(
+                        f"Landmarks move {observed:.1f} px between the captures, "
+                        f"{ratio:.1f} times the {claimed:.1f} px the landmark model "
+                        "and the alignment between them account for. Captures that "
+                        "differ by more than their own noise are not repeats of one "
+                        "face, so they were not pooled and the first capture was "
+                        "measured on its own."
+                    ),
+                    remedy=(
+                        "Captures pooled together have to be of one person in one "
+                        "session, with the same expression."
+                    ),
+                )
+            )
+
+    return tuple(issues), agreed
+
+
+def _with_issues(
+    report: QualityReport, issues: Sequence[QualityIssue]
+) -> QualityReport:
+    return replace(report, issues=tuple(report.issues) + tuple(issues))
+
+
+def _pool_frontals(
+    views: list[ViewAnalysis], stages: _Stages
+) -> tuple[ViewAnalysis, Combined | None]:
+    """Pool several frontal captures into one measurable frame.
+
+    Returns the capture the rest of the run reads from, which is the first one
+    with its canonical frame replaced by the pooled point set, plus the record
+    of what pooling achieved. Pose for the pooled frame is the median across
+    captures rather than the first capture's, because a median is the estimate
+    that the outlier rejection downstream is already built around.
+    """
+    reference = views[0]
+    if len(views) == 1:
+        return reference, None
+
+    with stages.stage("frontal.pool"):
+        frames = [_rescaled_frame(v.frame, reference.frame) for v in views]
+        issues, agreed = _capture_issues(views, frames)
+        quality = _with_issues(reference.quality, issues)
+        if not agreed:
+            return replace(reference, quality=quality), None
+
+        pooled = combine([(f.points, f.uncertainty) for f in frames])
+        frame = replace(
+            reference.frame,
+            points=pooled.points,
+            uncertainty=pooled.uncertainty,
+            yaw_deg=float(np.median([f.yaw_deg for f in frames])),
+            pitch_deg=float(np.median([f.pitch_deg for f in frames])),
+            roll_deg=float(np.median([f.roll_deg for f in frames])),
+            notes=(*reference.frame.notes, pooled.note()),
+        )
+        return replace(reference, frame=frame, quality=quality), pooled
+
+
+def _captures_dict(
+    frontals: Sequence[ViewAnalysis],
+    pooled: Combined | None,
+    reference: ViewAnalysis,
+) -> dict:
+    """What the manifest records about the frontal captures.
+
+    Always written, including for a single photograph, because "one capture,
+    no averaging possible" is a fact about the run and a reader should not have
+    to infer it from a missing key.
+    """
+    if pooled is None:
+        return {
+            "view": "frontal",
+            "n_supplied": len(frontals),
+            "n_used": 1,
+            "dropped": [],
+            "shared_fraction": None,
+            "pooled": False,
+            "note": (
+                "a single photograph, so no averaging was possible"
+                if len(frontals) == 1
+                else "the captures did not agree closely enough to be pooled, so "
+                "the first was measured on its own"
+            ),
+            "pose_spread_deg": (
+                None if len(frontals) < 2 else _pose_spread_deg(frontals)
+            ),
+            "interocular_px": [v.interocular_px for v in frontals],
+        }
+    return {
+        "view": "frontal",
+        "n_supplied": pooled.n_supplied,
+        "n_used": pooled.n_used,
+        "dropped": list(pooled.dropped),
+        "shared_fraction": pooled.shared_fraction,
+        "pooled": True,
+        "note": pooled.note(),
+        "error_factor": pooled.error_factor,
+        "effective_n": pooled.effective_n,
+        "pose_spread_deg": _pose_spread_deg(frontals),
+        "interocular_px": [v.interocular_px for v in frontals],
+        "reference_interocular_px": reference.interocular_px,
+    }
 
 
 def _pick_face(detections: Sequence[Detection]) -> Detection:

@@ -9,9 +9,13 @@ result.
 The ordering of the document is the argument it makes. It opens with how many
 measurements survived out of how many were attempted and why the rest did not,
 because a report that opens with its successes and appendixes its refusals has
-told the reader which of the two it thinks is embarrassing. Then the
-measurements by region, each carrying its interval, its evidence tier, its
-discriminability ratio and the fingerprint of the formula that produced it.
+told the reader which of the two it thinks is embarrassing. Then the error
+budget, which comes *before* the measurements rather than after them: the
+refusals are printed inside the regions, and a reader who has already read
+thirty of them has stopped looking for the ranked list of what was actually
+responsible. Then the measurements by region, each carrying its interval, its
+evidence tier, its discriminability ratio and the fingerprint of the formula
+that produced it.
 Then the photograph's own quality, then the licence obligations the run
 incurred, then the literature.
 
@@ -267,6 +271,15 @@ def build_context(report: ReportInput) -> dict[str, Any]:
         "generated_at": generated,
         "summary": prose.summary(report),
         "cause_counts": prose.cause_counts(report),
+        # The budget is assembled here rather than in the template because the
+        # arithmetic that decides whether a change is worth printing belongs in
+        # Python where a test can read it, not in a Jinja expression.
+        "budget": {
+            "title": prose.BUDGET_TITLE,
+            "paragraphs": prose.budget_paragraphs(report),
+            "levers": prose.lever_lines(report),
+            "lines": prose.budget_lines(report),
+        },
         "groups": views,
         "quality": report.quality,
         "obligations": report.obligations,

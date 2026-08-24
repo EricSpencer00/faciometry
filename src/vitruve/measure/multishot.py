@@ -49,6 +49,19 @@ DEFAULT_SHARED_FRACTION = 0.35
 #: detection should not be averaged in.
 OUTLIER_MAD_LIMIT = 3.5
 
+#: Below this ratio of observed scatter to the scatter the model claims, the
+#: captures are treated as carrying no independent information at all.
+#:
+#: The limiting case is the same photograph submitted twice. A landmark model
+#: is deterministic, so it returns identical points and identical covariances,
+#: and averaging them changes nothing whatsoever about the estimate. Applying a
+#: count-based reduction there would hand out a smaller interval for free, and
+#: someone submitting one photograph nine times would receive measurements that
+#: are not real. Guessing is not required: if captures agree far more closely
+#: than the model's own claimed noise, the error they share is the error, and
+#: there is nothing left to average away.
+SCATTER_FLOOR = 0.05
+
 
 @dataclass(frozen=True)
 class Combined:
@@ -101,6 +114,41 @@ class Combined:
 
 def _robust_centre(stack: NDArray[np.float64]) -> NDArray[np.float64]:
     return np.median(stack, axis=0)
+
+
+def observed_shared_fraction(
+    stack: NDArray[np.float64],
+    claimed_sd: float,
+    *,
+    floor: float = DEFAULT_SHARED_FRACTION,
+) -> float:
+    """How much of the landmark error these captures actually share.
+
+    ``stack`` is ``(n_captures, n_landmarks, dim)`` and ``claimed_sd`` is the
+    positional standard deviation the model reports for a single capture.
+
+    If the captures were independent draws from that model, their scatter about
+    their own mean would be about ``claimed_sd``. Scatter far below that means
+    the captures are repeating one another rather than sampling: at the limit of
+    identical inputs the scatter is exactly zero and none of the error is
+    independent. So the independent fraction is estimated as the ratio of
+    observed to claimed variance, and the shared fraction is what remains.
+
+    The result is floored at :data:`DEFAULT_SHARED_FRACTION`. Scatter matching
+    the model's claim does not prove independence, only that the visible part of
+    the error varies; a systematic bias on a face is invisible to this test
+    precisely because it repeats. The estimate can therefore make the pooling
+    more pessimistic than the default and never more optimistic.
+    """
+    if stack.shape[0] < 2 or claimed_sd <= 0:
+        return 1.0
+    per_axis = stack.var(axis=0, ddof=1)
+    observed = float(np.sqrt(per_axis.sum(axis=-1).mean()))
+    ratio = observed / claimed_sd
+    if ratio < SCATTER_FLOOR:
+        return 1.0
+    independent = min(1.0, ratio**2)
+    return float(min(1.0, max(floor, 1.0 - independent)))
 
 
 def combine(
@@ -168,6 +216,10 @@ def combine(
         ]
     )
     mean_cov = covs.mean(axis=0)
+    # Prefer what the captures demonstrate over what the caller assumed. The
+    # assumption can only be tightened, never loosened.
+    claimed_sd = float(np.sqrt(np.trace(mean_cov, axis1=-2, axis2=-1).mean() / used.shape[-1]))
+    shared_fraction = observed_shared_fraction(used, claimed_sd, floor=shared_fraction)
     factor = shared_fraction + (1.0 - shared_fraction) / n
 
     index = {nm: i for i, nm in enumerate(names)}

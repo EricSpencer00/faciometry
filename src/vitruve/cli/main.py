@@ -39,6 +39,7 @@ examples:
   vitruve doctor                           device, weights, versions
   vitruve fetch-weights                    the only command that uses the network
   vitruve analyze front.jpg --profile side.jpg --out report/
+  vitruve analyze a.jpg b.jpg c.jpg --out report/   pool three captures of one face
 
 exit codes:
   0  ran; some measurements may have been withheld, which is a result
@@ -64,7 +65,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="measure a face from a photograph",
         description="Measure a face. Nothing is downloaded; run `vitruve fetch-weights` first.",
     )
-    analyze.add_argument("frontal", help="frontal photograph")
+    analyze.add_argument(
+        "frontal",
+        nargs="+",
+        help="frontal photograph. Several may be given, and they are pooled "
+        "before measuring, which is the largest reduction available for the "
+        "landmark term. Every one must be the same person in the same session, "
+        "holding the same pose: captures that disagree by more than the models' "
+        "own noise are reported as a quality issue and are not pooled.",
+    )
     analyze.add_argument("--profile", help="profile photograph, for the sagittal measurements")
     analyze.add_argument(
         "--license-tier",

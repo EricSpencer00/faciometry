@@ -715,3 +715,11 @@ def _photo_png(side: int) -> bytes:
     buffer = io.BytesIO()
     img.save(buffer, format="PNG")
     return buffer.getvalue()
+
+
+def test_the_budget_section_reaches_the_pdf(text: str, report):
+    from vitruve.report import prose
+
+    assert prose.BUDGET_TITLE.upper() in text
+    for line in prose.lever_lines(report):
+        assert line.action in text.replace("\n", " ")
