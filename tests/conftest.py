@@ -73,3 +73,15 @@ def face() -> PointSet:
 @pytest.fixture
 def rng() -> np.random.Generator:
     return np.random.default_rng(20260823)
+
+
+@pytest.fixture
+def upright_face(face) -> PointSet:
+    """The synthetic face, reached through a fixture rather than an import.
+
+    Ultralytics installs a top-level `tests` package into site-packages, which
+    shadows this one, so `from tests.conftest import ...` resolves to somebody
+    else's test suite the moment the copyleft extra is installed. A fixture
+    goes through pytest's own collection and cannot be shadowed that way.
+    """
+    return face

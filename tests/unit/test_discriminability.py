@@ -82,7 +82,7 @@ def test_canthal_tilt_no_longer_absorbs_roll():
     assert CANTHAL_TILT.error_at(0.0, 5.0, 0.0) == pytest.approx(1.35)
 
 
-def test_roll_cancels_exactly_in_the_geometry_not_merely_in_the_table():
+def test_roll_cancels_exactly_in_the_geometry_not_merely_in_the_table(upright_face):
     """The constant was corrected because the measurement was redefined. If the
     formula regresses to an image-horizon axis this fails, even though the
     declared sensitivity would still read low.
@@ -94,9 +94,8 @@ def test_roll_cancels_exactly_in_the_geometry_not_merely_in_the_table():
 
     from vitruve.core import geometry as geo
     from vitruve.core.landmarks import PointSet
-    from tests.conftest import SYNTHETIC
 
-    face = {k: np.array(v, float) for k, v in SYNTHETIC.items()}
+    face = {n: upright_face.get(n) for n in upright_face.available}
     ids = (
         "canthal_tilt_l",
         "canthal_tilt_r",
@@ -117,15 +116,14 @@ def test_roll_cancels_exactly_in_the_geometry_not_merely_in_the_table():
             ), f"{i} moved under {roll} deg of roll"
 
 
-def test_a_real_asymmetry_still_registers_under_roll():
+def test_a_real_asymmetry_still_registers_under_roll(upright_face):
     """Roll invariance is worthless if it were achieved by measuring nothing."""
     import numpy as np
 
     from vitruve.core import geometry as geo
     from vitruve.core.landmarks import Landmark, PointSet
-    from tests.conftest import SYNTHETIC
 
-    skewed = {k: np.array(v, float) for k, v in SYNTHETIC.items()}
+    skewed = {n: upright_face.get(n) for n in upright_face.available}
     skewed[Landmark.EXOCANTHION_L] = np.array([-46.0, 7.0, -4.0])
     flat = float(BY_ID["canthal_tilt_asymmetry"].formula.eval(PointSet.from_mapping(skewed)))
     assert flat > 3.0

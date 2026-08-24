@@ -452,11 +452,33 @@ class SpigaLandmarker:
             uncertainty=uncertainty,
             provenance=PROVENANCE,
             # Channel identity was fixed by a mirror test: pitch is invariant
-            # under a horizontal flip while the other two move. The absolute
-            # sign was not resolved (see protocols.HeadPose), and the
-            # cross-check in pose_sixdrepnet is the estimate the pipeline
-            # should prefer.
-            yaw_deg=float(pose[0]),
+            # under a horizontal flip while the other two move.
+            #
+            # The yaw sign is now resolved, and SPIGA runs the other way from
+            # the convention `protocols.HeadPose` declares. Two pieces of
+            # evidence: over 24 FRLL studio frontals SPIGA and 6DRepNet yaw are
+            # anti-correlated at r = -0.857 with a mean difference of +0.06
+            # degrees, which is a flip rather than an offset; and on an FRLL
+            # 90-degree profile where the subject has turned toward her own
+            # right, which the protocol calls negative yaw, 6DRepNet reports
+            # negative and SPIGA does not. So 6DRepNet honours the declared
+            # convention and this one is negated to match.
+            #
+            # This mattered beyond the sign. `quality.reconcile_pose` averages
+            # the two sources, so before this negation their mean was near zero
+            # whatever the subject was doing, and the gate saw a frontal face on
+            # every input.
+            yaw_deg=-float(pose[0]),
+            # Roll needs no correction: a controlled image rotation gives
+            # slopes of -0.992 here, -0.977 for 6DRepNet and -0.978 for the
+            # interocular axis, all three agreeing with each other and with the
+            # declared convention.
+            #
+            # Pitch is left alone and is the one axis still unresolved. It is
+            # positively correlated with 6DRepNet at r = +0.829 but sits a mean
+            # 8.99 degrees above it, so the two disagree about where pitch is
+            # zero rather than about the face. Nothing here establishes which
+            # zero is right, so neither is moved.
             pitch_deg=float(pose[1]),
             roll_deg=float(pose[2]),
             unsupported=UNSUPPORTED,
