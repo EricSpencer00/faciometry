@@ -1,0 +1,81 @@
+name: A measurement, or a number behind one
+description: Propose a measurement, correct a constant, or dispute a threshold.
+labels: ["measurement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every empirical number in this codebase cites the study it came from, in
+        the docstring next to the constant it justifies. A proposal that changes
+        a number needs the source that replaces it, or a statement that the value
+        is a guess and what would settle it. `docs/REFERENCES.md` is the current
+        bibliography.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind
+      options:
+        - Add a measurement to the catalogue
+        - Correct a between-subject spread, pose tolerance or other constant
+        - Dispute a verdict, a withholding reason or an evidence tier
+        - Add or correct a normative distribution
+    validations:
+      required: true
+
+  - type: input
+    id: spec
+    attributes:
+      label: Measurement id
+      description: The `id` from `vitruve catalogue`, if this concerns an existing one.
+      placeholder: gonial_angle_l
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: >-
+        For a new measurement, the landmark endpoints and the formula. For a
+        constant, the current value and the value you propose.
+    validations:
+      required: true
+
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: >-
+        Full citation with a DOI or a PMC id. Say the sample size, how the
+        measurement was taken (calipers, stereophotogrammetry, 2D photograph),
+        and the population, because method and era are confounded across the
+        normative literature and mixing caliper norms with photogrammetric output
+        is a known way to get a wrong answer.
+      placeholder: |
+        Lim, A.Y. et al. (2022). Frontiers in Public Health 9:813058. PMC8826070.
+        n=96, two raters, Bland-Altman against calipers, Malaysian adults.
+    validations:
+      required: true
+
+  - type: input
+    id: license
+    attributes:
+      label: Is the source redistributable
+      description: >-
+        Whether its tables can ship in this repository. CC BY yes, US Government
+        work yes, paywalled or all-rights-reserved no, in which case the numbers
+        get re-derived or only cited.
+      placeholder: "CC BY 4.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: convention
+    attributes:
+      label: Landmark convention
+      description: >-
+        Three conventions silently invert results in this literature. Canthal
+        tilt is reported both as degrees from horizontal and as the supplementary
+        Ex-En-En angle. Gonial angle is measured as Ar-Go-Me, Co-Go-Me or
+        Me-Go-Co, which differ by 5 to 15 degrees in the same jaw. fWHR has no
+        fixed landmark definition and published means run from 1.83 to 2.19. Say
+        which convention your source used.

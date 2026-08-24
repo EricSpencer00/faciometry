@@ -135,13 +135,15 @@ REGION_OF: dict[str, str] = {
     "commissure_height_l": "mouth",
     "commissure_height_r": "mouth",
     "upper_lip_projection": "mouth",
-    "labiomental_sulcus_depth": "mouth",
+    "labiomental_sulcus_depth": "jaw",
     "nasal_dorsal_deviation": "nose",
     "alar_base_intercanthal_ratio": "nose",
     "nasal_tip_rotation": "nose",
     "chin_height": "jaw",
     "ramus_body_ratio_l": "jaw",
     "ramus_body_ratio_r": "jaw",
+    # There is no midface region, and this is an anteroposterior projection
+    # rather than a jaw measurement, so it sits with the cross-face figures.
     "midface_projection": "proportion",
 }
 

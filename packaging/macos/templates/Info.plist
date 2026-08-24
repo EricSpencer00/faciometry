@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>Vitruve</string>
+  <key>CFBundleDisplayName</key>
+  <string>Vitruve</string>
+  <key>CFBundleIdentifier</key>
+  <string>__BUNDLE_ID__</string>
+  <key>CFBundleExecutable</key>
+  <string>Vitruve</string>
+  <key>CFBundleIconFile</key>
+  <string>Vitruve</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>__VERSION__</string>
+  <key>CFBundleVersion</key>
+  <string>__BUILD__</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>NSHumanReadableCopyright</key>
+  <string>Apache-2.0. Model weights carry their own licences; see Vitruve's licences page.</string>
+
+  <!-- The bundled interpreter is arm64-only, and 26.0 is what the launcher is
+       built against. Setting the floor here means the Finder refuses the app
+       on a machine that cannot run it instead of the app dying on launch. -->
+  <key>LSMinimumSystemVersion</key>
+  <string>__MIN_MACOS__</string>
+
+  <!-- The launcher owns a window and a menu-bar item, so it is a normal
+       foreground app. Not LSUIElement: a user who cannot find the window has
+       no way to quit a background agent, and quitting is how the server is
+       stopped. -->
+  <key>LSUIElement</key>
+  <false/>
+  <key>NSSupportsAutomaticTermination</key>
+  <false/>
+  <key>NSSupportsSuddenTermination</key>
+  <false/>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+
+  <!-- The capture UI asks for the camera. On this app the prompt is usually
+       raised by the browser rather than by us, because the UI runs in the
+       default browser, but the string has to exist for any path that reaches
+       AVFoundation from inside the bundle, and a missing usage string is a
+       hard crash rather than a denial. -->
+  <key>NSCameraUsageDescription</key>
+  <string>Vitruve uses the camera to take the photograph it measures. The image is processed on this Mac and is never uploaded; nothing leaves the machine during an analysis.</string>
+
+  <!-- Vitruve talks to 127.0.0.1 only. This does not loosen ATS for any other
+       host: it permits cleartext to local addresses, which is what a loopback
+       server on a random port is. -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
+  </dict>
+</dict>
+</plist>

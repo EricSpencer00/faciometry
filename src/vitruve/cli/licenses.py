@@ -39,6 +39,12 @@ EXTRAS: dict[str, str] = {
         "license of the deployment."
     ),
     "dev": "Test and lint tooling. Not installed at runtime.",
+    "pdf": (
+        "ReportLab (BSD-3-Clause), which draws the PDF report. A pure-Python wheel with no system libraries and no font files to redistribute, because the layout uses the PDF base-14 faces. No effect on the license of the deployment."
+    ),
+    "all": (
+        "The permissive, api and pdf extras together. Not copyleft: an install named `all` that quietly made a deployment AGPL-3.0 would defeat the tier system, so the AGPL stack stays behind `pip install 'vitruve[copyleft]'` and a `--license-tier copyleft` flag."
+    ),
 }
 
 #: Which extras a tier expects to have installed.

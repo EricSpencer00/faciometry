@@ -1,0 +1,80 @@
+name: Bug report
+description: Something behaved differently from what it documents.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before you attach an image: a photograph of an identifiable person
+        should not go in a public issue. Describe the input instead, or use a
+        synthetic face. If the bug only reproduces on a specific photograph,
+        say so and send it through a
+        [private advisory](https://github.com/EricSpencer00/vitruve/security/advisories/new).
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, and what came back.
+      placeholder: |
+        $ vitruve analyze portrait.jpg --out report/
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: vitruve doctor
+      description: Paste the whole output. It carries the device, the weights and the versions.
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: License tier
+      options:
+        - permissive (default)
+        - copyleft
+        - noncommercial
+    validations:
+      required: true
+
+  - type: textarea
+    id: image
+    attributes:
+      label: The input, described
+      description: >-
+        Resolution, roughly how much of the frame the face fills, approximate
+        camera distance, whether the head was turned, and whether a ruler was in
+        the frame. Do not attach a photograph of an identifiable person.
+      placeholder: 4032x3024 phone photo, face about a third of the frame, arm's length, head slightly turned, no ruler.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "0.1.0, or a commit sha"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have not attached a photograph of an identifiable person.
+          required: true
+        - label: I read the withheld measurement's printed reason, and it does not match this image.
+          required: false

@@ -1,0 +1,510 @@
+/* Vitruve, styled as an instrument rather than an app.
+ *
+ * The constraints came first: no build step, no CDN, no network at all. So the
+ * type is a stack of faces that ship with the operating system, the layout is
+ * rules and columns rather than components, and every effect is CSS.
+ *
+ * The one decision everything else follows from: numbers are the subject of
+ * this page, so they get a monospaced column with tabular figures and their
+ * intervals are drawn to scale beside them. Nothing is boxed, because a card
+ * around a measurement implies the measurement is a self-contained fact, and
+ * the whole argument of this project is that it is not.
+ */
+
+:root {
+  --paper: #f2efe7;
+  --paper-sunk: #eae6db;
+  --ink: #17160f;
+  --ink-soft: #55503f;
+  --ink-faint: #8b8471;
+  --rule: #cbc4b1;
+  --rule-strong: #17160f;
+  --signal: #a2361b;      /* withheld, out of tolerance */
+  --gauge: #3d5a68;       /* interval bars */
+  --panel: #100f0c;       /* camera ground */
+  --reticle: #e0a53c;     /* instrument amber */
+
+  --serif: "Hoefler Text", "Iowan Old Style", "Palatino Linotype", Palatino,
+    "Book Antiqua", Georgia, serif;
+  --mono: ui-monospace, "SF Mono", "IBM Plex Mono", "Menlo", "DejaVu Sans Mono",
+    monospace;
+
+  --rail: 15rem;
+  --gap: 2.5rem;
+  --lh: 1.55;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: var(--lh);
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Faint horizontal ruling, like graph paper seen through the sheet. Sits
+   under everything and is what stops the page reading as a blank canvas. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(23, 22, 15, 0.035) 0,
+    rgba(23, 22, 15, 0.035) 1px,
+    transparent 1px,
+    transparent 2.4rem
+  );
+  z-index: 0;
+}
+
+.sheet {
+  position: relative;
+  z-index: 1;
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+}
+
+/* ---------------------------------------------------------------- masthead */
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 2.4rem 0 0.6rem;
+  border-bottom: 2px solid var(--rule-strong);
+}
+
+.wordmark {
+  font-size: 2.1rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin: 0;
+  padding-right: 0.42em; /* the tracking would otherwise hang past the rule */
+}
+
+.masthead .strap {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  max-width: 34rem;
+  margin: 0;
+}
+
+.readout {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0 0.8rem;
+  text-align: right;
+}
+.readout b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Rule directly under the masthead, doubled the way a broadsheet doubles it. */
+.masthead + .hairline {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------------ plates */
+
+.plate {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--gap);
+  padding: 2.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  animation: rise 620ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.plate:nth-of-type(1) { animation-delay: 40ms; }
+.plate:nth-of-type(2) { animation-delay: 120ms; }
+.plate:nth-of-type(3) { animation-delay: 200ms; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(0.6rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+.rail { position: relative; }
+
+.plate-no {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.rail h2 {
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 0.8rem;
+}
+
+.rail p {
+  font-size: 0.83rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.9rem;
+}
+
+.rail .cite {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  border-left: 1px solid var(--rule);
+  padding-left: 0.8rem;
+  margin-top: 1.4rem;
+}
+
+/* ------------------------------------------------------------------ camera */
+
+.viewport {
+  position: relative;
+  background: var(--panel);
+  aspect-ratio: 4 / 3;
+  max-height: 62vh;
+  overflow: hidden;
+  width: 100%;
+}
+
+.viewport video,
+.viewport canvas,
+.viewport img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* `display: block` above would otherwise beat the `hidden` attribute, and a
+   hidden <img> with no src renders as a broken-image glyph. */
+.viewport [hidden] { display: none; }
+
+.viewport video { transform: scaleX(-1); }  /* a mirror is what people expect */
+.viewport canvas { pointer-events: none; }
+
+.viewport[data-state="idle"] video { visibility: hidden; }
+
+.viewport .placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.6rem;
+  text-align: center;
+  color: var(--reticle);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.viewport .placeholder small {
+  color: #8d8672;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-size: 0.72rem;
+  max-width: 22rem;
+  line-height: 1.6;
+}
+
+.guidance {
+  display: flex;
+  gap: 1.6rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  padding: 0.7rem 0 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1rem;
+}
+.guidance b { color: var(--ink); font-weight: 500; }
+.guidance .warn { color: var(--signal); }
+
+/* ----------------------------------------------------------------- control */
+
+.controls {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+button, .filebutton {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+button:hover, .filebutton:hover { background: var(--ink); color: var(--paper); }
+button:active { transform: translateY(1px); }
+button:disabled {
+  color: var(--ink-faint);
+  border-color: var(--rule);
+  cursor: not-allowed;
+  background: transparent;
+}
+button.primary { background: var(--ink); color: var(--paper); }
+button.primary:hover { background: var(--signal); border-color: var(--signal); }
+
+.filebutton input { display: none; }
+
+/* ------------------------------------------------------------------ fields */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.2rem 1.6rem;
+  margin: 0;
+}
+
+.fields label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.35rem;
+}
+
+.fields select,
+.fields input[type="text"],
+.fields input[type="number"] {
+  width: 100%;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.3rem 0;
+  border-radius: 0;
+  appearance: none;
+}
+.fields select:focus,
+.fields input:focus {
+  outline: none;
+  border-bottom-color: var(--signal);
+}
+
+.fields .note {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------- table */
+
+.results { margin-top: 0.4rem; }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--rule-strong);
+  padding-bottom: 0.3rem;
+  margin: 2.2rem 0 0;
+}
+.section-head:first-child { margin-top: 0; }
+.section-head h3 {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.section-head .count {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+table.data th {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: left;
+  padding: 0.5rem 0.7rem 0.4rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+table.data th.num { text-align: right; padding-right: 0; }
+
+table.data td {
+  padding: 0.42rem 0.7rem 0.42rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: baseline;
+  font-size: 0.9rem;
+}
+table.data td.num {
+  font-family: var(--mono);
+  text-align: right;
+  padding-right: 0;
+  white-space: nowrap;
+}
+table.data tr:hover td { background: var(--paper-sunk); }
+
+.name { display: block; }
+.subid {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.value { font-size: 0.95rem; }
+.interval {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  display: block;
+}
+
+/* The interval, drawn. A bar whose width is the 95% span as a fraction of the
+   value, so a measurement whose interval is a third of its own size looks like
+   it. This is the point of the whole page. */
+.bar {
+  position: relative;
+  height: 3px;
+  background: var(--rule);
+  width: 7rem;
+  margin-left: auto;
+}
+.bar span {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--gauge);
+}
+.bar i {
+  position: absolute;
+  top: -2px;
+  width: 1px;
+  height: 7px;
+  background: var(--ink);
+}
+
+.tier {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+tr.caveat td.num .value { color: var(--ink-soft); }
+tr.caveat .tier::after { content: " · caveat"; color: var(--signal); }
+
+/* The discriminability ratio is a number with a unit suffix, so it keeps its
+   lower-case x rather than inheriting the label tracking. */
+.tier.ratio { text-transform: none; letter-spacing: 0.04em; }
+
+/* A caveat qualifies a number that is still shown; a withholding refuses one.
+   Same typography, different weight of attention. */
+tr.caveat .reason { color: var(--ink-soft); }
+
+.reason {
+  font-size: 0.8rem;
+  color: var(--signal);
+  margin: 0.1rem 0 0;
+  max-width: 46rem;
+}
+.reason + .reason { margin-top: 0.2rem; }
+
+.withheld td { color: var(--ink-soft); }
+.withheld .name { color: var(--ink); }
+
+.empty {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  padding: 0.8rem 0;
+  margin: 0;
+}
+
+.status {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--signal);
+  border-left: 2px solid var(--signal);
+  padding: 0.5rem 0 0.5rem 0.9rem;
+  margin: 1.2rem 0 0;
+  white-space: pre-wrap;
+}
+.status.working { color: var(--ink-soft); border-color: var(--rule-strong); }
+
+/* ---------------------------------------------------------------- colophon */
+
+.colophon {
+  padding: 2.4rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--gap);
+}
+.colophon p { margin: 0 0 0.7rem; max-width: 46rem; }
+.colophon a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 62rem) {
+  .plate, .colophon { grid-template-columns: 1fr; gap: 1.4rem; }
+  .rail .cite { margin-top: 0.6rem; }
+  .wordmark { font-size: 1.6rem; }
+  .readout { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate { animation: none; }
+  * { transition-duration: 1ms !important; }
+}
+
+@media print {
+  body::before, .controls, .viewport, .guidance, form.fields { display: none; }
+  .plate { border: 0; page-break-inside: avoid; }
+  .sheet { max-width: none; }
+}

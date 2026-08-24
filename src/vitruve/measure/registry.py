@@ -19,6 +19,7 @@ from ..core.formula import (
     AngleAt,
     AngleBetween,
     Axis,
+    Const,
     Diff,
     Dist,
     LineOffset,
@@ -40,6 +41,9 @@ POWELL = "Powell & Humphreys 1984, Proportions of the Aesthetic Face"
 NAINI = "Naini 2011, Facial Aesthetics: Concepts and Clinical Diagnosis"
 WEN2015 = "Wen et al. 2015, photogrammetric meta-analysis of facial norms by ancestry"
 DODGSON = "Dodgson 2004, SPIE 5291 (ANSUR interpupillary distance, n=3976)"
+BURSTONE = "Burstone 1967, Am J Orthod 53:262 (lip position against the subnasale-pogonion line)"
+PUTTERMAN = "Putterman 2012, Ophthal Plast Reconstr Surg 28:308 (margin-reflex distances 1, 2 and 3)"
+WESTMORE = "Westmore 1974, Facial cosmetics in conjunction with surgery (brow apex over the lateral limbus)"
 
 
 def _spec(**kw) -> MeasurementSpec:
@@ -654,8 +658,432 @@ _PROFILE = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Frontal: orbital and periocular, second set
+#
+# Everything here that has a vertical component is measured from the
+# interpupillary *line* rather than from the image horizon, for the reason
+# recorded above the symmetry block: a reference that rotates with the head
+# takes image roll out of the geometry instead of declaring it away in a
+# constant. Both pupils lie on that line by construction, so the perpendicular
+# distance from it to a lid margin is the same quantity a clinician measures
+# from the corneal light reflex.
+#
+# Three measurements a commercial report prints in this section are absent, and
+# absent on purpose:
+#
+# * **Tarsal platform show** (lid margin to the supratarsal crease, quoted at 3
+#   to 6 mm) needs the crease, which is not in the landmark vocabulary.
+# * **Inferior scleral show** needs the inferior corneal limbus. The pupil
+#   centre is not it, and the difference between them is the whole measurement.
+# * **Eyebrow tail taper** needs the lateral end of the brow and both of its
+#   margins; the vocabulary carries only superciliare, the single highest point.
+#
+# Each would be a plausible number derived from a guessed point, which is worse
+# than not printing it. Palpebral fissure inclination is not missing: it is
+# canthal_tilt_l and canthal_tilt_r above, under the name the literature that
+# supplies its reference range uses.
+# ---------------------------------------------------------------------------
+
+#: The interpupillary line as a *line*, for the perpendicular offsets below.
+#: Distinct from `_IPD_AXIS`, which is the same pair read as a direction.
+_IPD_LINE: tuple[Pt, Pt] = (Pt(L.PUPIL_R), Pt(L.PUPIL_L))
+
+
+def _orbital(
+    side: str, en: L, ex: L, sup: L, inf: L, sci: L, near_pupil: L, far_pupil: L
+) -> list[MeasurementSpec]:
+    """The four extra orbital measurements for one side."""
+    up = side.upper()
+    return [
+        _spec(
+            id=f"brow_apex_lateral_offset_{side}",
+            label=f"Brow apex offset from the lateral canthus ({up})",
+            view=View.FRONTAL,
+            unit=Unit.RATIO,
+            evidence=Evidence.CONVENTIONAL,
+            formula=Ratio(
+                ProjLength(Pt(ex), Pt(sci), Vec(Pt(far_pupil), Pt(near_pupil))),
+                Dist(Pt(en), Pt(ex)),
+            ),
+            description=(
+                "Where the highest point of the brow sits along the eye's own "
+                "axis, as a fraction of the palpebral fissure width. Negative "
+                "means the apex lies medial to the outer canthus, which is "
+                "where the convention places it, over the lateral limbus. "
+                "Measured along the axis from the far pupil to the near one, "
+                "so the axis rotates with the head and roll drops out."
+            ),
+            references=(WESTMORE, NAINI),
+            pose_tolerance_deg=8.0,
+        ),
+        _spec(
+            id=f"margin_reflex_distance_1_{side}",
+            label=f"Margin-reflex distance 1, upper lid ({up})",
+            view=View.FRONTAL,
+            unit=Unit.MILLIMETRES,
+            evidence=Evidence.CONVENTIONAL,
+            formula=LineOffset(Pt(sup), *_IPD_LINE, Axis("y")),
+            description=(
+                "Upper lid margin above the interpupillary line, the standard "
+                "measure of how much of the eye the upper lid leaves exposed. "
+                "It is not tarsal platform show, which measures to the "
+                "supratarsal crease and is not in this catalogue because the "
+                "crease is not in the landmark vocabulary."
+            ),
+            references=(PUTTERMAN,),
+            pose_tolerance_deg=6.0,
+        ),
+        _spec(
+            id=f"margin_reflex_distance_2_{side}",
+            label=f"Margin-reflex distance 2, lower lid ({up})",
+            view=View.FRONTAL,
+            unit=Unit.MILLIMETRES,
+            evidence=Evidence.CONVENTIONAL,
+            formula=LineOffset(Pt(inf), *_IPD_LINE, Axis("-y")),
+            description=(
+                "Lower lid margin below the interpupillary line; positive "
+                "means the margin sits below it, which is the direction the "
+                "clinical definition counts. Inferior scleral show is this "
+                "distance minus the corneal radius, and the catalogue stops "
+                "here because the vocabulary has no inferior limbus point."
+            ),
+            references=(PUTTERMAN,),
+            pose_tolerance_deg=6.0,
+        ),
+        _spec(
+            id=f"medial_canthal_angle_{side}",
+            label=f"Medial canthal angle ({up})",
+            view=View.FRONTAL,
+            unit=Unit.DEGREES,
+            evidence=Evidence.CONVENTIONAL,
+            formula=AngleAt(Pt(sup), Pt(en), Pt(inf)),
+            description=(
+                "Angle the two lid margins subtend at the inner corner. An "
+                "angle between three landmarks carries no frame reference at "
+                "all, so image roll cannot enter it; yaw enters only at second "
+                "order, through the cosine on the horizontal leg."
+            ),
+            references=(FARKAS, NAINI),
+            pose_tolerance_deg=6.0,
+        ),
+    ]
+
+
+_ORBITAL: list[MeasurementSpec] = [
+    spec
+    for args in (
+        ("l", L.ENDOCANTHION_L, L.EXOCANTHION_L, L.PALPEBRALE_SUP_L,
+         L.PALPEBRALE_INF_L, L.SUPERCILIARE_L, L.PUPIL_L, L.PUPIL_R),
+        ("r", L.ENDOCANTHION_R, L.EXOCANTHION_R, L.PALPEBRALE_SUP_R,
+         L.PALPEBRALE_INF_R, L.SUPERCILIARE_R, L.PUPIL_R, L.PUPIL_L),
+    )
+    for spec in _orbital(*args)
+]
+
+# ---------------------------------------------------------------------------
+# Frontal and profile: lips
+#
+# The catalogue already carried the *ratio* of the two vermilion heights, which
+# is the pose-robust form, but not the heights themselves. A ratio of 0.5 is
+# the same number on a thin mouth and a full one, so the two millimetre values
+# belong here even though each of them needs the scale prior and the ratio does
+# not.
+#
+# Philtral column definition is absent. A philtral column is a ridge, and its
+# definition is the depth of the groove between the two columns; the vocabulary
+# has crista philtri, which sit on the vermilion border at the foot of each
+# column, and no point in the groove. What is measurable from those two points
+# is the height of the Cupid's bow peaks above the midline, which is a
+# different statement and is named as one.
+# ---------------------------------------------------------------------------
+
+
+def _cupids_bow(side: str, cp: L) -> MeasurementSpec:
+    up = side.upper()
+    return _spec(
+        id=f"cupids_bow_peak_height_{side}",
+        label=f"Cupid's bow peak height ({up})",
+        view=View.FRONTAL,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=Diff(
+            LineOffset(Pt(cp), *_IPD_LINE, Axis("y")),
+            LineOffset(Pt(L.LABIALE_SUPERIUS), *_IPD_LINE, Axis("y")),
+        ),
+        description=(
+            "How far the peak of the Cupid's bow rises above the midline low "
+            "point of the vermilion border. Both terms are perpendicular "
+            "offsets from the same interpupillary line, so the offset of the "
+            "mouth as a whole cancels in the difference and only the peak "
+            "survives."
+        ),
+        references=(FARKAS, NAINI),
+        pose_tolerance_deg=6.0,
+    )
+
+
+def _commissure(side: str, ch: L) -> MeasurementSpec:
+    up = side.upper()
+    return _spec(
+        id=f"commissure_height_{side}",
+        label=f"Commissure height ({up})",
+        view=View.FRONTAL,
+        unit=Unit.RATIO,
+        evidence=Evidence.CONVENTIONAL,
+        formula=Ratio(
+            Diff(
+                LineOffset(Pt(ch), *_IPD_LINE, Axis("y")),
+                LineOffset(Pt(L.STOMION), *_IPD_LINE, Axis("y")),
+            ),
+            Dist(Pt(L.CHEILION_L), Pt(L.CHEILION_R)),
+        ),
+        description=(
+            "Height of the mouth corner above the stomion, as a fraction of "
+            "mouth width. Negative is a downturned corner. Reported per side "
+            "rather than pooled, because a difference between the two corners "
+            "is the finding and an average of them hides it."
+        ),
+        references=(NAINI,),
+        pose_tolerance_deg=8.0,
+    )
+
+
+_LIP = [
+    _spec(
+        id="upper_vermilion_height",
+        label="Upper vermilion height (ls-sto)",
+        view=View.FRONTAL,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=Dist(Pt(L.LABIALE_SUPERIUS), Pt(L.STOMION)),
+        description="Exposed red of the upper lip at the midline.",
+        references=(FARKAS, NAINI),
+        pose_tolerance_deg=6.0,
+    ),
+    _spec(
+        id="lower_vermilion_height",
+        label="Lower vermilion height (sto-li)",
+        view=View.FRONTAL,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=Dist(Pt(L.STOMION), Pt(L.LABIALE_INFERIUS)),
+        description=(
+            "Exposed red of the lower lip at the midline. The quotient of this "
+            "and the upper height is lip_vermilion_ratio, which carries no "
+            "scale prior and so reaches a photograph that neither height does."
+        ),
+        references=(FARKAS, NAINI),
+        pose_tolerance_deg=6.0,
+    ),
+    _cupids_bow("l", L.CRISTA_PHILTRI_L),
+    _cupids_bow("r", L.CRISTA_PHILTRI_R),
+    _commissure("l", L.CHEILION_L),
+    _commissure("r", L.CHEILION_R),
+    _spec(
+        id="upper_lip_projection",
+        label="Upper lip projection past the subnasale-pogonion line",
+        view=View.PROFILE,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=LineOffset(
+            Pt(L.LABIALE_SUPERIUS), Pt(L.SUBNASALE), Pt(L.POGONION), Axis("z")
+        ),
+        description=(
+            "Burstone's line, which unlike the E-line does not run through the "
+            "nasal tip and so does not move when the nose does. Burstone "
+            "reports the upper lip a mean 3.5 mm ahead of it; no reference "
+            "range is shown here because the spread around that mean is not in "
+            "an openly licensed source, and a mean is not a range."
+        ),
+        references=(BURSTONE, NAINI),
+        pose_tolerance_deg=5.0,
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Nose
+#
+# Supratip break is absent: it is defined at the supratip point, a few
+# millimetres above the tip-defining points, and that point is not in the
+# vocabulary. Pronasale is the tip, not the break, and the distance between
+# them is exactly the quantity being asked for.
+# ---------------------------------------------------------------------------
+
+_NASAL = [
+    _spec(
+        id="nasal_dorsal_deviation",
+        # Not "deviation from the midline". The renderer refuses prescriptive
+        # language, and "deviation from" is on its list for a good reason: it
+        # states a departure from a goal state, and there is no goal state
+        # here, only an angle between a line and an axis.
+        label="Nasal dorsal axis against the facial midline",
+        view=View.FRONTAL,
+        unit=Unit.DEGREES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=Diff(
+            Const(90.0), AngleBetween(Vec(Pt(L.SELLION), Pt(L.PRONASALE)), _IPD_AXIS)
+        ),
+        description=(
+            "How far the dorsal line from sellion to pronasale departs from "
+            "the perpendicular to the interpupillary line. Zero is a straight "
+            "dorsum. The reference is the eyes rather than the image, so a "
+            "tilted camera reports nothing here; a turned head reports a great "
+            "deal, because the dorsum stands out of the frontal plane and yaw "
+            "rotates its depth into apparent sideways deviation."
+        ),
+        references=(NAINI, POWELL),
+        pose_tolerance_deg=4.0,
+    ),
+    _spec(
+        id="alar_base_intercanthal_ratio",
+        label="Alar base width : intercanthal width",
+        view=View.FRONTAL,
+        unit=Unit.RATIO,
+        evidence=Evidence.POSE_INVARIANT_RATIO,
+        formula=Ratio(
+            Dist(Pt(L.SUBALARE_L), Pt(L.SUBALARE_R)),
+            Dist(Pt(L.ENDOCANTHION_L), Pt(L.ENDOCANTHION_R)),
+        ),
+        description=(
+            "Alar base at subalare, where the ala meets the lip, over the "
+            "intercanthal width. Both terms join a bilateral pair, and the "
+            "apparent width of a mirrored pair scales as cos(yaw) whatever "
+            "depth the pair sits at, so the cosine cancels exactly rather than "
+            "approximately. The neoclassical rule that the alar base equals "
+            "the intercanthal width is stated for alare rather than subalare, "
+            "and is available inverted as eye_spacing_ratio; this measures the "
+            "base proper, which is the narrower quantity."
+        ),
+        references=(FARKAS, POWELL),
+        pose_tolerance_deg=12.0,
+    ),
+    _spec(
+        id="nasal_tip_rotation",
+        label="Nasal tip rotation (columellar inclination)",
+        view=View.PROFILE,
+        unit=Unit.DEGREES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=SignedTilt(Pt(L.SUBNASALE), Pt(L.COLUMELLA), Axis("z")),
+        description=(
+            "Inclination of the columellar axis above the horizontal, positive "
+            "when the tip is rotated upward. Distinct from the nasolabial "
+            "angle, which reads the columella against the upper lip: a "
+            "retruded lip opens that angle without rotating the tip, and the "
+            "two measurements separate those cases. This one is read against "
+            "the image frame, so it inherits pitch one for one."
+        ),
+        references=(POWELL, NAINI),
+        pose_tolerance_deg=4.0,
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# Profile: mandible, chin and midface
+#
+# Three dentofacial measurements a commercial report prints are absent:
+#
+# * **Malar prominence**, which Powell puts at 15 to 20 mm, is measured to the
+#   malar eminence. The vocabulary's nearest point is zygion, the most lateral
+#   point of the zygomatic arch, which is a different place on the bone and a
+#   silhouette artifact in a photograph besides.
+# * **Paranasal hollowing** is measured at the paranasal point beside the
+#   pyriform aperture, which the vocabulary does not carry. Subalare is on the
+#   alar base, not on the maxilla.
+# * **Maxillary dental midline deviation** needs the dental midline, a point on
+#   the teeth. Every landmark here is on soft tissue.
+# ---------------------------------------------------------------------------
+
+
+def _ramus_body(side: str, tragion: L, gonion: L) -> MeasurementSpec:
+    up = side.upper()
+    return _spec(
+        id=f"ramus_body_ratio_{side}",
+        label=f"Ramus : mandibular body ({up})",
+        view=View.PROFILE,
+        unit=Unit.RATIO,
+        evidence=Evidence.REQUIRES_3D,
+        formula=Ratio(Dist(Pt(tragion), Pt(gonion)), Dist(Pt(gonion), Pt(L.GNATHION))),
+        description=(
+            "Vertical arm of the mandible over its horizontal one, taken over "
+            "soft tissue. Being a ratio buys nothing here: gonion and tragion "
+            "both sit where the silhouette turns away from the camera, so the "
+            "problem is that the endpoints are not the anatomical points "
+            "rather than that the projection foreshortens them."
+        ),
+        references=(NAINI, FARKAS),
+        pose_tolerance_deg=8.0,
+    )
+
+
+_PROFILE_EXTRA = [
+    _spec(
+        id="midface_projection",
+        label="Midface projection past the nasion",
+        view=View.PROFILE,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=ProjLength(Pt(L.NASION), Pt(L.SUBNASALE), Axis("z")),
+        description=(
+            "How far forward the base of the maxilla sits relative to the "
+            "nasion, the midface counterpart of chin_projection. Read against "
+            "the frame, and the segment it projects is mostly vertical, so a "
+            "degree of pitch moves several percent of the answer: see the "
+            "sensitivity table."
+        ),
+        references=(NAINI, POWELL),
+        pose_tolerance_deg=4.0,
+    ),
+    _spec(
+        id="chin_height",
+        label="Chin height (sl-gn)",
+        view=View.PROFILE,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=Dist(Pt(L.SUBLABIALE), Pt(L.GNATHION)),
+        description=(
+            "Vertical extent of the chin below the labiomental sulcus. A "
+            "midline sagittal dimension, which is the class 2D photogrammetry "
+            "reproduces best."
+        ),
+        references=(FARKAS, NAINI),
+        pose_tolerance_deg=6.0,
+    ),
+    _spec(
+        id="labiomental_sulcus_depth",
+        label="Labiomental sulcus depth",
+        view=View.PROFILE,
+        unit=Unit.MILLIMETRES,
+        evidence=Evidence.CONVENTIONAL,
+        formula=LineOffset(
+            Pt(L.SUBLABIALE), Pt(L.LABIALE_INFERIUS), Pt(L.POGONION), Axis("z")
+        ),
+        description=(
+            "Depth of the fold between the lower lip and the chin, as the "
+            "signed offset of sublabiale from the line joining them. Negative "
+            "means behind that line, which is the direction a deeper sulcus "
+            "moves. The perpendicular distance to a line is unchanged by "
+            "rotating the head, so only the sign axis is frame-referenced."
+        ),
+        references=(NAINI,),
+        pose_tolerance_deg=5.0,
+    ),
+    _ramus_body("l", L.TRAGION_L, L.GONION_L),
+    _ramus_body("r", L.TRAGION_R, L.GONION_R),
+]
+
+
 CATALOGUE: tuple[MeasurementSpec, ...] = tuple(
-    _FRONTAL_LENGTHS + _FRONTAL_VERTICALS + _PERIOCULAR + _FRONTAL_RATIOS + _SYMMETRY + _PROFILE
+    _FRONTAL_LENGTHS
+    + _FRONTAL_VERTICALS
+    + _PERIOCULAR
+    + _FRONTAL_RATIOS
+    + _SYMMETRY
+    + _PROFILE
+    + _ORBITAL
+    + _LIP
+    + _NASAL
+    + _PROFILE_EXTRA
 )
 
 BY_ID: dict[str, MeasurementSpec] = {s.id: s for s in CATALOGUE}
@@ -682,6 +1110,51 @@ def satisfiable(available: frozenset[L]) -> tuple[MeasurementSpec, ...]:
 
 from ..core import sensitivity as sens  # noqa: E402
 from ..norms.published import DEFAULT_LINEAR_RSD, representative_spread  # noqa: E402
+
+#: A midline deviation angle read against the interpupillary axis.
+#:
+#: Roll cancels, because the reference rotates with the head. Yaw does not, and
+#: it dominates everything else: the nasal dorsum stands well out of the
+#: frontal plane, so yaw rotates its depth into apparent sideways deviation at
+#: roughly the ratio of depth span to length. On the synthetic reference face
+#: that is 23 mm of depth against 41 mm of dorsum, about half a degree of
+#: apparent deviation per degree of yaw, which is why the tolerance on the
+#: measurement using it is tight.
+_MIDLINE_DEVIATION = sens.PoseSensitivity(
+    yaw=0.5,
+    pitch=0.05,
+    roll=0.01,
+    source="dorsal depth projected into apparent lateral deviation; roll cancels "
+    "against the interpupillary axis",
+)
+
+#: An angle read against the image frame inside the sagittal plane.
+#:
+#: Pitch rotates that plane in the image and therefore enters one for one: a
+#: subject who lifts the chin five degrees adds five degrees to the reading.
+#: Roll turns the sagittal plane away from the image plane instead of rotating
+#: it within, so it only foreshortens, at second order.
+_SAGITTAL_FRAME_ANGLE = sens.PoseSensitivity(
+    yaw=0.15,
+    pitch=1.0,
+    roll=0.05,
+    source="frame-referenced angle in the sagittal plane; pitch enters one for one",
+)
+
+#: An anteroposterior projection of a segment that is mostly vertical.
+#:
+#: The projection axis is the frame's, and pitch swings the segment's vertical
+#: span into it: on the synthetic reference face, 46 mm of span against 10 mm
+#: of projection, so a degree of pitch is about 8% of the answer. The same
+#: argument applies to chin_projection, which predates this table and is left
+#: on the fallback; the pose sweep in evals/ is the authority that should
+#: settle both with a measured slope rather than a derived one.
+_AP_PROJECTION = sens.PoseSensitivity(
+    yaw=0.02,
+    pitch=0.08,
+    roll=0.01,
+    source="pitch swings the vertical span of the segment into the projected axis",
+)
 
 _SENSITIVITY: dict[str, "sens.PoseSensitivity"] = {
     # Transverse widths carry the full cos(yaw).
@@ -720,6 +1193,40 @@ _SENSITIVITY: dict[str, "sens.PoseSensitivity"] = {
     "canthal_tilt_r": sens.CANTHAL_TILT,
     "gonial_angle_l": sens.GONIAL_ANGLE,
     "gonial_angle_r": sens.GONIAL_ANGLE,
+    # Perpendicular offsets from the interpupillary line. Vertical distances
+    # under pitch, with roll already removed by the choice of reference.
+    "margin_reflex_distance_1_l": sens.VERTICAL_DISTANCE,
+    "margin_reflex_distance_1_r": sens.VERTICAL_DISTANCE,
+    "margin_reflex_distance_2_l": sens.VERTICAL_DISTANCE,
+    "margin_reflex_distance_2_r": sens.VERTICAL_DISTANCE,
+    "cupids_bow_peak_height_l": sens.VERTICAL_DISTANCE,
+    "cupids_bow_peak_height_r": sens.VERTICAL_DISTANCE,
+    # Midline sagittal verticals, like the facial thirds above them.
+    "upper_vermilion_height": sens.VERTICAL_DISTANCE,
+    "lower_vermilion_height": sens.VERTICAL_DISTANCE,
+    "chin_height": sens.VERTICAL_DISTANCE,
+    # A ratio of two bilateral-pair widths. The apparent width of a mirrored
+    # pair is 2*x*cos(yaw) whatever depth the pair sits at, so the cosine
+    # cancels exactly rather than approximately.
+    "alar_base_intercanthal_ratio": sens.TRANSVERSE_RATIO,
+    # Dimensionless, but not same-plane, so the cosine does not cancel: the
+    # brow apex sits several millimetres in front of the outer canthus and yaw
+    # swings that depth into the offset. Kleinberg's worst measured index is
+    # the empirical bound for exactly this case.
+    "brow_apex_lateral_offset_l": sens.KLEINBERG_WORST,
+    "brow_apex_lateral_offset_r": sens.KLEINBERG_WORST,
+    "ramus_body_ratio_l": sens.KLEINBERG_WORST,
+    "ramus_body_ratio_r": sens.KLEINBERG_WORST,
+    # Frame-referenced, each for a different reason. See the constants above.
+    "nasal_dorsal_deviation": _MIDLINE_DEVIATION,
+    "nasal_tip_rotation": _SAGITTAL_FRAME_ANGLE,
+    "midface_projection": _AP_PROJECTION,
+    # Deliberately absent, and taking the documented fallbacks in
+    # `_sensitivity_for`: medial_canthal_angle_l and _r, which reference no
+    # frame at all and get the conservative unmeasured-angle default;
+    # commissure_height_l and _r, upper_lip_projection and
+    # labiomental_sulcus_depth, which get Kleinberg's worst measured index
+    # because their endpoints span depth planes and nobody has swept them.
 }
 
 #: Differences between paired features. Roll and pitch add the same offset to

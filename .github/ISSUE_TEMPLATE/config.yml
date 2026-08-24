@@ -1,0 +1,18 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security or privacy report
+    url: https://github.com/EricSpencer00/vitruve/security/advisories/new
+    about: >-
+      Anything that leaks pixels or EXIF, reaches the network during an
+      analysis, or loads a backend above the permitted license tier. Report it
+      privately, because a reproduction case here is usually a photograph of a
+      real person.
+  - name: A measurement was withheld and you expected a number
+    url: https://github.com/EricSpencer00/vitruve/blob/main/docs/FINDINGS.md
+    about: >-
+      Usually the gate working. docs/FINDINGS.md has the arithmetic and what
+      changes it, and the report prints the specific reason for that
+      measurement. Open a bug report if the reason does not match the image.
+  - name: Questions and ideas
+    url: https://github.com/EricSpencer00/vitruve/discussions
+    about: How to use it, what a number means, what to build next.

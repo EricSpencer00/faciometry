@@ -1,0 +1,166 @@
+name: macOS app
+
+# Builds the same Vitruve.app and .dmg that packaging/macos/build_app.sh
+# produces on a laptop, on a macOS runner, and attaches the disk image to a
+# release when the run was triggered by a tag.
+#
+# The whole file is written so that a fork with no secrets still gets a green
+# run. A fork cannot have the Developer ID private key and must not be able to
+# get one, so the signing and notarisation steps are gated on the secrets being
+# present and the build falls back to --no-sign. The artifact from such a run is
+# genuinely unsigned and the summary says so, because an unsigned .dmg that is
+# described as "the macOS build" is how a user ends up right-clicking past
+# Gatekeeper on a tool that reads faces.
+#
+# Secrets, all optional:
+#   MACOS_CERT_P12          base64 of a .p12 holding the Developer ID Application
+#                           certificate and its private key
+#   MACOS_CERT_PASSWORD     the password that .p12 was exported with
+#   MACOS_SIGN_IDENTITY     e.g. "Developer ID Application: Eric Spencer (QAWD9U9CF6)"
+#   MACOS_NOTARY_KEY        base64 of an App Store Connect .p8 private key
+#   MACOS_NOTARY_KEY_ID     that key's ID
+#   MACOS_NOTARY_ISSUER_ID  the issuer UUID
+#
+# Producing MACOS_CERT_P12: export the identity from Keychain Access as a .p12,
+# then `base64 -i cert.p12 | pbcopy`.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      sign:
+        description: "Sign the build (requires the MACOS_CERT_* secrets)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    # macos-14 and later are Apple silicon. The bundle is single-architecture
+    # by construction, because it carries a python-build-standalone interpreter
+    # and arm64 wheels for torch and mediapipe, so the runner architecture is
+    # the architecture of the artifact.
+    runs-on: macos-14
+    timeout-minutes: 150
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Decide whether this run can sign
+        id: caps
+        env:
+          CERT: ${{ secrets.MACOS_CERT_P12 }}
+          NOTARY: ${{ secrets.MACOS_NOTARY_KEY }}
+        run: |
+          set -euo pipefail
+          # Secrets cannot be referenced from a job-level `if`, so the decision
+          # is made once here and every later step reads these outputs.
+          if [ -n "${CERT:-}" ] && [ "${{ github.event.inputs.sign != 'false' }}" = "true" ]; then
+            echo "sign=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "sign=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -n "${NOTARY:-}" ]; then
+            echo "notarize=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "notarize=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import the Developer ID certificate
+        if: steps.caps.outputs.sign == 'true'
+        env:
+          CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # A dedicated keychain, unlocked for this job only. Importing into
+          # the login keychain on a shared runner image works but leaves the
+          # key sitting in the default keychain for anything else in the job.
+          KEYCHAIN="$RUNNER_TEMP/vitruve-signing.keychain-db"
+          PASSWORD="$(uuidgen)"
+          security create-keychain -p "$PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$PASSWORD" "$KEYCHAIN"
+
+          printf '%s' "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" \
+            -k "$KEYCHAIN" -P "$CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+          # Without this, codesign blocks on a GUI prompt that nothing on a
+          # runner can answer, and the job hangs until the timeout.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$PASSWORD" "$KEYCHAIN" >/dev/null
+
+          # Put it first in the search list so codesign finds the identity.
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: Build
+        env:
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          MACOS_NOTARY_KEY: ${{ secrets.MACOS_NOTARY_KEY }}
+          MACOS_NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          MACOS_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          ARGS=""
+          if [ "${{ steps.caps.outputs.sign }}" != "true" ]; then
+            ARGS="--no-sign"
+          elif [ "${{ steps.caps.outputs.notarize }}" != "true" ]; then
+            ARGS="--no-notarize"
+          fi
+          if [ -z "${SIGN_IDENTITY:-}" ]; then unset SIGN_IDENTITY; fi
+          bash packaging/macos/build_app.sh $ARGS
+
+      - name: Summarise what was built
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "### macOS build"
+            echo
+            if ls packaging/macos/dist/*.build.txt >/dev/null 2>&1; then
+              echo '```'
+              cat packaging/macos/dist/*.build.txt
+              echo '```'
+            fi
+            if [ "${{ steps.caps.outputs.sign }}" != "true" ]; then
+              echo
+              echo "> This run had no signing certificate, so the disk image is **unsigned**."
+              echo "> Gatekeeper will refuse it on every Mac. It is usable for testing only."
+            elif [ "${{ steps.caps.outputs.notarize }}" != "true" ]; then
+              echo
+              echo "> Signed but **not notarised**: no notary credentials in this repository."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Vitruve-macos-arm64
+          path: |
+            packaging/macos/dist/*.dmg
+            packaging/macos/dist/*.build.txt
+          if-no-files-found: error
+          # The image is several hundred megabytes and is already compressed,
+          # so a second pass costs minutes and saves nothing.
+          compression-level: 0
+
+      - name: Attach the disk image to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            packaging/macos/dist/*.dmg
+            packaging/macos/dist/*.build.txt
+          fail_on_unmatched_files: true

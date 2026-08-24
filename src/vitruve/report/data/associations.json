@@ -1,0 +1,196 @@
+{
+  "schema": 1,
+  "about": "What the clinical literature associates with a measurement. Informational only: each entry is a statement about what a body of published work contains, never a statement about the person photographed. Every string in this file is checked at import against the shared wording gates in derm.findings and report.prose, and against a second-person pronoun scan.",
+  "sourcing_rule": "No entry without a verified identifier. Where a paper could not be retrieved and read, the entry was left out and recorded as unsourced in docs/LITERATURE.md rather than written from memory.",
+  "associations": [
+    {
+      "key": "nasofrontal_angle",
+      "target": "measurement",
+      "topic": "radix and dorsal profile in rhinoplasty planning",
+      "summary": "The rhinoplasty literature measures the nasofrontal angle at the radix when planning the dorsal profile, and Metgudmath et al. record a mean of 116.7 degrees over three-dimensional CT reconstructions of 30 patients, 110.4 degrees in the men and 126.1 degrees in the women.",
+      "caveat": "That sample is 30 patients presenting with nasal complaints at a single Indian centre, and the two sexes in it differ by about 16 degrees. The same paper records the Powell and Humphreys range as 115 to 130 degrees, where the Vitruve catalogue carries 115 to 135 from the same source, so two transcriptions of one book disagree by five degrees.",
+      "published_range": {"low": 115.0, "high": 130.0, "unit": "deg", "source": "Powell and Humphreys 1984, as recorded by Metgudmath et al. 2023"},
+      "citations": [
+        {"authors": "Metgudmath, Belaldavar, Singh, Ramanan and Das", "year": 2023, "journal": "Indian Journal of Otolaryngology and Head and Neck Surgery 75(Suppl 1)", "doi": "10.1007/s12070-022-03363-z", "pmcid": "PMC9758669", "access": "open access"},
+        {"authors": "Powell and Humphreys", "year": 1984, "journal": "Proportions of the Aesthetic Face, Thieme-Stratton", "isbn": "978-0865771178", "access": "book, in copyright"}
+      ]
+    },
+    {
+      "key": "nasolabial_angle",
+      "target": "measurement",
+      "topic": "nasal tip rotation in septorhinoplasty",
+      "summary": "Rhinoplasty outcome studies report the nasolabial angle as their measure of nasal tip rotation. Khabir et al. took 90 to 110 degrees as the normal band when selecting 20 patients for open septorhinoplasty, and measured the angle on standardised profile photographs before and after surgery.",
+      "caveat": "Twenty patients, 18 of them women, at one centre. The angle is read from a profile photograph, so it carries the pose sensitivity of one.",
+      "published_range": {"low": 90.0, "high": 110.0, "unit": "deg", "source": "Khabir et al. 2020"},
+      "citations": [
+        {"authors": "Khabir, Sezavar, Bohluli, Mesgarzadeh and Tavakoli", "year": 2020, "journal": "Maxillofacial Plastic and Reconstructive Surgery 42(1)", "doi": "10.1186/s40902-020-00261-8", "pmcid": "PMC7280400", "access": "CC BY"}
+      ]
+    },
+    {
+      "key": "nasal_tip_projection_ratio",
+      "target": "measurement",
+      "topic": "nasal tip projection in rhinoplasty",
+      "summary": "Goode's tip-projection ratio was published as a chapter in Powell and Humphreys' 1984 volume, and is one of five projection methods Wiegmann et al. compared across Caucasian, Middle Eastern and African American profiles. No group in that comparison fell inside the 0.55 to 0.60 band Goode reports; every group measured higher.",
+      "caveat": "The profiles Wiegmann et al. measured were produced by an image generator rather than photographed from people, and the ratio itself was derived on Caucasian noses, which the authors give as their reason for running the comparison.",
+      "published_range": {"low": 0.55, "high": 0.6, "unit": "ratio", "source": "Goode, in Powell and Humphreys 1984"},
+      "citations": [
+        {"authors": "Wiegmann, O'Neill, Taiberg, Sinno and Rohrich", "year": 2024, "journal": "Plastic and Reconstructive Surgery Global Open 12(11)", "doi": "10.1097/GOX.0000000000006330", "pmcid": "PMC11581758", "access": "CC BY-NC-ND"},
+        {"authors": "Goode, in Powell and Humphreys (eds)", "year": 1984, "journal": "Proportions of the Aesthetic Face, Thieme-Stratton, pages 15 to 39", "isbn": "978-0865771178", "access": "book, in copyright"}
+      ]
+    },
+    {
+      "key": "e_line_upper_lip",
+      "target": "measurement",
+      "topic": "lip position in orthodontic profile assessment",
+      "summary": "Ricketts drew the aesthetic plane from the nasal tip to the chin and placed the upper lip about 4 mm behind it in his Caucasian sample. Ahuja et al. measured 407 children in the Bankura district of West Bengal against the same plane and found the commonest category to be lips ahead of the plane rather than behind it.",
+      "caveat": "Ahuja et al. measured children in primary and mixed dentition with a metal ruler held to the face, not adults from a photograph, and state their result does not follow Ricketts' inference on a Caucasian population.",
+      "published_range": {"low": -6.0, "high": -2.0, "unit": "mm", "source": "Ricketts 1960"},
+      "citations": [
+        {"authors": "Ahuja, Ahuja, Verma, Arunima and Thosar", "year": 2024, "journal": "Cureus 16(2)", "doi": "10.7759/cureus.55015", "pmcid": "PMC10973926", "access": "CC BY"}
+      ]
+    },
+    {
+      "key": "e_line_lower_lip",
+      "target": "measurement",
+      "topic": "lip position in orthodontic profile assessment",
+      "summary": "Ricketts placed the lower lip about 2 mm behind the aesthetic plane drawn from the nasal tip to the chin. Ahuja et al. measured 407 children in the Bankura district of West Bengal against that plane and found most lips ahead of it.",
+      "caveat": "Ahuja et al. measured children in primary and mixed dentition with a metal ruler held to the face, not adults from a photograph, and state their result does not follow Ricketts' inference on a Caucasian population.",
+      "published_range": {"low": -4.0, "high": 0.0, "unit": "mm", "source": "Ricketts 1960"},
+      "citations": [
+        {"authors": "Ahuja, Ahuja, Verma, Arunima and Thosar", "year": 2024, "journal": "Cureus 16(2)", "doi": "10.7759/cureus.55015", "pmcid": "PMC10973926", "access": "CC BY"}
+      ]
+    },
+    {
+      "key": "gonial_angle_l",
+      "target": "measurement",
+      "topic": "mandibular divergence pattern in orthodontic and orthognathic assessment",
+      "summary": "Orthodontic assessment reads the gonial angle as an index of mandibular divergence. Tashkandi et al. measured it on 448 adults aged 18 to 30 on both panoramic radiographs and lateral cephalograms, found the two modalities disagree, and record cephalometry as the reference method.",
+      "caveat": "Both modalities in that study are radiographic and read bone. A photograph reads soft tissue over gonion, which is a self-occluding landmark, so the photographic quantity is not the skeletal one the literature is about.",
+      "published_range": {"low": 100.0, "high": 140.0, "unit": "deg", "source": "Naini 2011"},
+      "citations": [
+        {"authors": "Tashkandi, Alnaqa, Al-Saif and Allam", "year": 2024, "journal": "Journal of Multidisciplinary Healthcare 17", "doi": "10.2147/JMDH.S463688", "pmcid": "PMC11070157", "access": "CC BY-NC"}
+      ]
+    },
+    {
+      "key": "gonial_angle_r",
+      "target": "measurement",
+      "topic": "mandibular divergence pattern in orthodontic and orthognathic assessment",
+      "summary": "Orthodontic assessment reads the gonial angle as an index of mandibular divergence. Tashkandi et al. measured it on 448 adults aged 18 to 30 on both panoramic radiographs and lateral cephalograms, found the two modalities disagree, and record cephalometry as the reference method.",
+      "caveat": "Both modalities in that study are radiographic and read bone. A photograph reads soft tissue over gonion, which is a self-occluding landmark, so the photographic quantity is not the skeletal one the literature is about.",
+      "published_range": {"low": 100.0, "high": 140.0, "unit": "deg", "source": "Naini 2011"},
+      "citations": [
+        {"authors": "Tashkandi, Alnaqa, Al-Saif and Allam", "year": 2024, "journal": "Journal of Multidisciplinary Healthcare 17", "doi": "10.2147/JMDH.S463688", "pmcid": "PMC11070157", "access": "CC BY-NC"}
+      ]
+    },
+    {
+      "key": "mentocervical_angle",
+      "target": "measurement",
+      "topic": "lower-third profile analysis in chin augmentation",
+      "summary": "Arroyo et al. review the soft-tissue methods for lower-third profile analysis and record two conflicting definitions of the mentocervical angle: Lehmann's, drawn from the nasal tip to pogonion across the submental line, with normal values of 110 to 120 degrees, and Powell and Humphreys', drawn from glabella to pogonion, which is the definition Vitruve computes.",
+      "caveat": "Because the two definitions cross different lines, a number quoted under one of them cannot be read against the range published for the other. The Vitruve catalogue carries the Powell and Humphreys form and the 80 to 95 degree range that goes with it.",
+      "published_range": {"low": 80.0, "high": 95.0, "unit": "deg", "source": "Powell and Humphreys 1984"},
+      "citations": [
+        {"authors": "Arroyo, Olivetti, Lima and Jurado", "year": 2016, "journal": "Brazilian Journal of Otorhinolaryngology 82(5)", "doi": "10.1016/j.bjorl.2015.09.009", "pmcid": "PMC9444627", "access": "CC BY"}
+      ]
+    },
+    {
+      "key": "submental_cervical_angle",
+      "target": "measurement",
+      "topic": "cervical contour in neck surgery",
+      "summary": "Ellenbogen and Karlin set out visual criteria for the cervical contour after platysma surgery in 1980, and the cervicomental angle has been a stated objective of neck procedures since. Arroyo et al. record it as 121 degrees in men and 126 degrees in women.",
+      "caveat": "The angle is read off soft tissue that moves with head posture and with the position of the hyoid, and Arroyo et al. note that it changes with the subcutaneous tissue of the neck.",
+      "published_range": {"low": 90.0, "high": 120.0, "unit": "deg", "source": "Powell and Humphreys 1984"},
+      "citations": [
+        {"authors": "Arroyo, Olivetti, Lima and Jurado", "year": 2016, "journal": "Brazilian Journal of Otorhinolaryngology 82(5)", "doi": "10.1016/j.bjorl.2015.09.009", "pmcid": "PMC9444627", "access": "CC BY"},
+        {"authors": "Ellenbogen and Karlin", "year": 1980, "journal": "Plastic and Reconstructive Surgery 66(6):826", "doi": "10.1097/00006534-198012000-00003", "access": "paywalled"}
+      ]
+    },
+    {
+      "key": "canthal_tilt_l",
+      "target": "measurement",
+      "topic": "canthal position in periorbital surgical planning",
+      "summary": "Lee et al. measured pupil level, medial and lateral canthal level and canthal tilt in 76 Korean patients in order to quantify vertical orbital dystopia before surgical correction, which is the setting in which canthal tilt is usually recorded.",
+      "caveat": "Vitruve measures canthal tilt against the interpupillary line rather than the image horizon, so camera roll cancels. Pitch still enters at roughly 0.27 degrees per degree (Vaca et al. 2022), against a published band only eight degrees wide.",
+      "published_range": {"low": 0.0, "high": 8.0, "unit": "deg", "source": "Naini 2011"},
+      "citations": [
+        {"authors": "Lee, Choung and Choung", "year": 2020, "journal": "Journal of the Korean Association of Oral and Maxillofacial Surgeons 46(6):379", "doi": "10.5125/jkaoms.2020.46.6.379", "pmcid": "PMC7783177", "access": "CC BY-NC"}
+      ]
+    },
+    {
+      "key": "canthal_tilt_r",
+      "target": "measurement",
+      "topic": "canthal position in periorbital surgical planning",
+      "summary": "Lee et al. measured pupil level, medial and lateral canthal level and canthal tilt in 76 Korean patients in order to quantify vertical orbital dystopia before surgical correction, which is the setting in which canthal tilt is usually recorded.",
+      "caveat": "Vitruve measures canthal tilt against the interpupillary line rather than the image horizon, so camera roll cancels. Pitch still enters at roughly 0.27 degrees per degree (Vaca et al. 2022), against a published band only eight degrees wide.",
+      "published_range": {"low": 0.0, "high": 8.0, "unit": "deg", "source": "Naini 2011"},
+      "citations": [
+        {"authors": "Lee, Choung and Choung", "year": 2020, "journal": "Journal of the Korean Association of Oral and Maxillofacial Surgeons 46(6):379", "doi": "10.5125/jkaoms.2020.46.6.379", "pmcid": "PMC7783177", "access": "CC BY-NC"}
+      ]
+    },
+    {
+      "key": "bizygomatic_width",
+      "target": "measurement",
+      "topic": "zygomatic contour in malar augmentation",
+      "summary": "The malar-implant literature treats the zygomatic region as a determinant of frontal facial contour and places implants over the anterolateral malar eminence on the zygomatic body. Kauke-Navarro et al. pooled 15 studies covering 796 patients and found no standardised planning or placement method across them, with several series relying on visual inspection or surface markings.",
+      "caveat": "Bizygomatic breadth read from a photograph disagreed with calipers by 3.3 mm, with limits of agreement from -7.5 to 14.2 mm (Lim et al. 2022, n=96), because zygion sits on a laterally curved surface. Vitruve emits this measurement only from a three-dimensional fit.",
+      "published_range": {"low": 120.0, "high": 150.0, "unit": "mm", "source": "Farkas 1994"},
+      "citations": [
+        {"authors": "Kauke-Navarro, Knoedler, Klimitz, Diatta, Kong, Bigus, Alperovich, Lellouch and Safi", "year": 2026, "journal": "Plastic and Reconstructive Surgery Global Open 14(4)", "doi": "10.1097/GOX.0000000000007554", "pmcid": "PMC13061527", "access": "CC BY-NC-ND"}
+      ]
+    },
+    {
+      "key": "facial_thirds_ratio",
+      "target": "measurement",
+      "topic": "the vertical facial-thirds canon",
+      "summary": "The facial three-section canon divides the face into equal thirds at the eyes and the mouth, and is still printed in clinical texts as an assessment criterion. Farkas et al. tested nine neoclassical formulas on 153 young adult North American Caucasians and found the vertical profile proportions the poorest performers; Jayaratne et al. tested the three-section canon on three-dimensional scans of 103 southern Chinese adults and it held in none of them.",
+      "caveat": "Both papers are tests of a canon rather than sources of a range, and both report that it fails. The catalogue publishes no reference range for this ratio, so nothing here bounds a value.",
+      "citations": [
+        {"authors": "Jayaratne, Deutsch, McGrath and Zwahlen", "year": 2012, "journal": "PLoS ONE 7(12):e52593", "doi": "10.1371/journal.pone.0052593", "pmcid": "PMC3532441", "access": "CC BY"},
+        {"authors": "Farkas, Hreczko, Kolar and Munro", "year": 1985, "journal": "Plastic and Reconstructive Surgery 75(3):328", "doi": "10.1097/00006534-198503000-00005", "access": "paywalled"}
+      ]
+    },
+    {
+      "key": "lip_vermilion_ratio",
+      "target": "measurement",
+      "topic": "upper-to-lower vermilion proportion in lip augmentation",
+      "summary": "The lip-augmentation literature quotes an upper-to-lower vermilion proportion of about 1 to 1.6 from Caucasian sources. Hong et al. set that figure against measured proportions of about 1 to 1.25 in Chinese women and 1 to 1.11 through 1 to 1.25 in Korean women, and state that the Caucasian figure does not carry across populations.",
+      "caveat": "A photograph of the lips records vermilion show, which moves with expression and with lip posture, and the source is a narrative review rather than a measurement study.",
+      "published_range": {"low": 0.4, "high": 0.7, "unit": "ratio", "source": "Naini 2011"},
+      "citations": [
+        {"authors": "Hong, Choi, Yoon, Wan and Yi", "year": 2025, "journal": "Life 15(2):315", "doi": "10.3390/life15020315", "pmcid": "PMC11856795", "access": "CC BY"}
+      ]
+    },
+    {
+      "key": "acne_severity",
+      "target": "derm_finding",
+      "topic": "the Hayashi inflammatory-lesion grade",
+      "summary": "Hayashi et al. built the grading criteria this count is scored against by having dermatologists classify global severity without a standard and then counting eruptions, and fixed the grade boundaries on the inflammatory lesion count of a single half face. A companion paper tested the same criteria among Japanese and Korean dermatologists.",
+      "caveat": "The criteria were established on Japanese patients and tested among Japanese and Korean dermatologists, so the grade boundaries carry the population they were fitted on. The count Vitruve feeds them comes from a detector whose recall on any given skin tone is unmeasured.",
+      "citations": [
+        {"authors": "Hayashi, Akamatsu, Kawashima and the Acne Study Group", "year": 2008, "journal": "The Journal of Dermatology 35(5)", "doi": "10.1111/j.1346-8138.2008.00462.x", "access": "paywalled"},
+        {"authors": "Hayashi, Suh, Akamatsu, Kawashima and the Acne Study Group", "year": 2008, "journal": "The Journal of Dermatology 35(5)", "doi": "10.1111/j.1346-8138.2008.00463.x", "access": "paywalled"}
+      ]
+    },
+    {
+      "key": "erythema",
+      "target": "derm_finding",
+      "topic": "colorimetric quantification of cutaneous erythema",
+      "summary": "Aoki et al. measured CIELAB values at an unaffected site and at a rash site in each of 44 patients: a* averaged 7.5 at the unaffected site against 13.1 at the rash site. Baseline a* itself differed across phototype groups and across Individual Typology Angle categories, which is the published reason for reading erythema as a within-person paired contrast rather than as an absolute colour.",
+      "caveat": "Those measurements were taken with contact colorimeters under controlled probe pressure, not from an uncalibrated photograph, and the paired sites were the inner bicep and a rash, not two regions of one face.",
+      "citations": [
+        {"authors": "Aoki, Wong, Bartos and Mayrovitz", "year": 2026, "journal": "Cureus 18(4)", "doi": "10.7759/cureus.107251", "pmcid": "PMC13180473", "access": "CC BY"}
+      ]
+    },
+    {
+      "key": "periorbital_pigmentation",
+      "target": "derm_finding",
+      "topic": "the described types of periorbital hyperpigmentation",
+      "summary": "Sarkar and Das describe periorbital hyperpigmentation as multifactorial and cite Huang's four types: pigmented, vascular, structural, and mixed. The structural type is shadow cast by tear-trough depression and skin laxity rather than pigment, which is the published reason for reporting the lightness and yellowness components of the contrast separately instead of pooling them.",
+      "caveat": "The types in that classification are separated by dermoscopy, Wood's lamp and histology. A colour contrast measured from a photograph does not separate them, and Vitruve reports the contrast rather than a type.",
+      "citations": [
+        {"authors": "Sarkar and Das", "year": 2018, "journal": "Indian Dermatology Online Journal 9(4)", "doi": "10.4103/idoj.idoj_303_17", "pmcid": "PMC6042190", "access": "CC BY-NC-SA"},
+        {"authors": "Sarkar, Ranjan, Garg, Garg, Sonthalia and Bansal", "year": 2016, "journal": "The Journal of Clinical and Aesthetic Dermatology 9(1)", "pmcid": "PMC4756872", "access": "free full text"}
+      ]
+    }
+  ]
+}

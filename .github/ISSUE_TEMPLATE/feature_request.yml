@@ -1,0 +1,64 @@
+name: Feature request
+description: Something Vitruve should do.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Six invariants are enforced by tests and a proposal that breaks one
+        needs to argue against the reason rather than around it:
+        no aggregate score, no inferred demographics, a withheld measurement
+        prints its reason, every number carries its interval, no network egress
+        during an analysis, and `core`/`measure`/`norms` import numpy and
+        nothing heavier. The reasons are in
+        [CONTRIBUTING.md](https://github.com/EricSpencer00/vitruve/blob/main/CONTRIBUTING.md).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you are trying to do
+      description: The task, not the feature. What would you do with the result.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like it to do
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Which layer this lands in
+      options:
+        - "core: geometry, landmark schema, formula algebra, the gate"
+        - "measure: the catalogue and Monte-Carlo evaluation"
+        - "norms: normative distributions"
+        - "models: a backend, weights, license enforcement"
+        - "pipeline: stages, quality, the run manifest"
+        - "report: overlays, prose, HTML"
+        - "cli or api"
+        - "packaging, docs or CI"
+        - "not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: licensing
+    attributes:
+      label: If this needs a model or a dataset
+      description: >-
+        Name it, its license, and what its training data or morphable-model basis
+        carries, which is a separate question from the tag on the checkpoint.
+        Anything above the permissive tier goes behind an opt-in tier.
+
+  - type: checkboxes
+    id: invariants
+    attributes:
+      label: Invariants
+      options:
+        - label: This does not add an aggregate score, an average over measurements, or a rank.
+        - label: This does not infer sex, ancestry, age or identity from a photograph.
+        - label: This does not make an analysis reach the network.

@@ -64,3 +64,6 @@ clean:  ## remove caches and build output
 	rm -rf build dist .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage
 	rm -rf src/*.egg-info out runs
 	find . -path ./.venv -prune -o -name "__pycache__" -type d -print0 | xargs -0 rm -rf
+
+app: .venv/.installed  ## build the signed macOS application bundle and dmg
+	packaging/macos/build_app.sh

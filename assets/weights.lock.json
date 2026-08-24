@@ -1,0 +1,47 @@
+{
+  "_comment": [
+    "Pinned model artefacts. Every hash here was produced by fetching the URL",
+    "and running sha256 over the bytes, on 2026-08-23. A mismatch at load time",
+    "is a hard failure: see src/vitruve/models/weights.py for why it is never",
+    "downgraded to a warning and never resolved by editing this file.",
+    "Fetch with: python -m vitruve.models.weights fetch"
+  ],
+  "weights": {
+    "yunet": {
+      "filename": "face_detection_yunet_2023mar.onnx",
+      "url": "https://github.com/opencv/opencv_zoo/raw/f12e12798e8314f7c074a6656816c048dcc95b7a/models/face_detection_yunet/face_detection_yunet_2023mar.onnx",
+      "sha256": "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4",
+      "size_bytes": 232589,
+      "provenance": "YuNet face detector",
+      "license_id": "MIT",
+      "note": "Pinned to the opencv_zoo commit that last touched this file rather than to main, which moves. WIDER Face val AP 0.834 / 0.824 / 0.708."
+    },
+    "spiga_wflw": {
+      "filename": "spiga_wflw.pt",
+      "url": "https://huggingface.co/aprados/spiga/resolve/main/spiga_wflw.pt",
+      "sha256": "e9eee56e132c269c350225059a3ccc31b278b0bf7e3d475bbd38aebba2cac5b1",
+      "size_bytes": 254871697,
+      "provenance": "SPIGA landmark model",
+      "license_id": "BSD-3-Clause",
+      "note": "The author's own Hugging Face mirror. Upstream serves this through Google Drive, whose uc?export=download endpoint returns an HTML virus-scan interstitial for a file this size instead of the file. The Drive copy was fetched through the confirm form and hashes identically, so this mirror is the same bytes with a stable URL."
+    },
+    "mediapipe_face_landmarker": {
+      "filename": "face_landmarker.task",
+      "url": "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+      "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+      "size_bytes": 3758596,
+      "provenance": "MediaPipe Face Landmarker",
+      "license_id": "Apache-2.0",
+      "note": "Bundle of detector, mesh and blendshape models. float16/1 is the versioned path Google publishes; the bundle carries the same Apache-2.0 terms as the code."
+    },
+    "sixdrepnet_300wlp": {
+      "filename": "6DRepNet_300W_LP_AFLW2000.pth",
+      "url": "https://cloud.ovgu.de/s/Q67RnLDy6JKLRWm/download/6DRepNet_300W_LP_AFLW2000.pth",
+      "sha256": "9bdcd0e072df0d21e92288b40ea1d1b3cf7173c44728ab9c45c4d673f361e018",
+      "size_bytes": 157315191,
+      "provenance": "6DRepNet head pose",
+      "license_id": "MIT",
+      "note": "Author's institutional share; the URL carries no version, so this hash is the only guard against a silent republish. Trained on 300W-LP, which is rendered from the Basel Face Model, so the inherited obligation is recorded on the Provenance rather than here."
+    }
+  }
+}

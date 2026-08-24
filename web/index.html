@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitruve</title>
+<meta name="description" content="Facial measurements with their intervals, computed locally.">
+<link rel="stylesheet" href="/static/vitruve.css">
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <div>
+      <h1 class="wordmark">Vitruve</h1>
+      <p class="strap">
+        Craniofacial measurements taken from a photograph, each reported with the
+        interval it is known to within. Everything happens on this machine.
+      </p>
+    </div>
+    <div class="readout" id="readout">
+      <span>device</span><b data-field="device">&mdash;</b>
+      <span>pipeline</span><b data-field="pipeline">&mdash;</b>
+      <span>tier</span><b data-field="tier">&mdash;</b>
+      <span>uploads</span><b data-field="store">&mdash;</b>
+      <span>catalogue</span><b data-field="n">&mdash;</b>
+    </div>
+  </header>
+
+  <section class="plate">
+    <div class="rail">
+      <span class="plate-no">Plate 01</span>
+      <h2>Capture</h2>
+      <p>
+        Stand about 1.5 m back and zoom in rather than stepping closer. At 0.3 m the
+        nose plane is magnified about 17% relative to the eye plane; at 1.5 m it is
+        about 3%.
+      </p>
+      <p>
+        Fill the ring, keep both pupils on the horizon line, and hold the camera at
+        eye height. Look at the lens, not at the screen.
+      </p>
+      <p class="cite">
+        Head rotation is the dominant error source here. Kleinberg and Vanezis (2007)
+        photographed subjects in ten-degree steps and watched facial indices move 8 to
+        19 percent, against a between-subject spread of 1.2 percent for the tightest
+        index. The overlay is the only place in the system where that can be fixed.
+      </p>
+    </div>
+
+    <div>
+      <div class="guidance" id="guidance">
+        <span>distance <b>1.5 m</b></span>
+        <span>frame <b data-field="frame">match the ring</b></span>
+        <span>exposure <b data-field="exposure">&mdash;</b></span>
+        <span>focus <b data-field="focus">&mdash;</b></span>
+        <span>tilt <b data-field="tilt">&mdash;</b></span>
+      </div>
+
+      <div class="viewport" id="viewport" data-state="idle">
+        <video id="video" playsinline muted autoplay></video>
+        <img id="still" alt="captured frame" hidden>
+        <canvas id="overlay"></canvas>
+        <div class="placeholder" id="placeholder">
+          Camera off
+          <small>
+            The camera stream stays in this tab. A frame is sent to the local server
+            only when you press Analyse, and the server holds it in memory.
+          </small>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="start">Start camera</button>
+        <button id="shutter" disabled>Capture frame</button>
+        <button id="retake" disabled>Retake</button>
+        <label class="filebutton">Use a file
+          <input type="file" id="file" accept="image/*">
+        </label>
+        <label class="filebutton">Add profile view
+          <input type="file" id="profile" accept="image/*">
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="plate">
+    <div class="rail">
+      <span class="plate-no">Plate 02</span>
+      <h2>Subject</h2>
+      <p>
+        Declared by you, and used only to choose a normative stratum and an
+        interpupillary prior. Nothing here is predicted from the photograph.
+      </p>
+      <p class="cite">
+        Leaving a field empty selects the pooled distribution and widens the
+        intervals. Declaring sex narrows the millimetre intervals by roughly a tenth,
+        because the interpupillary prior tightens from 63.36 &plusmn; 3.83 mm to a
+        sex-conditioned one.
+      </p>
+    </div>
+
+    <div>
+      <form class="fields" id="fields" autocomplete="off">
+        <div>
+          <label for="declared_sex">declared sex</label>
+          <select id="declared_sex" name="declared_sex">
+            <option value="">not declared</option>
+            <option value="female">female</option>
+            <option value="male">male</option>
+          </select>
+        </div>
+        <div>
+          <label for="declared_ancestry">declared ancestry</label>
+          <input type="text" id="declared_ancestry" name="declared_ancestry" placeholder="not declared">
+        </div>
+        <div>
+          <label for="ruler_mm">reference length, mm</label>
+          <input type="number" id="ruler_mm" name="ruler_mm" min="1" step="1" placeholder="none in frame">
+        </div>
+        <div>
+          <label for="seed">seed</label>
+          <input type="number" id="seed" name="seed" value="0" step="1">
+        </div>
+        <p class="note">
+          A graduated ruler held in the plane of the face replaces the population
+          scale prior with a direct observation. It is the difference between a
+          millimetre value that carries 5.5% prior error and one that carries your
+          reading error.
+        </p>
+      </form>
+
+      <div class="controls">
+        <button id="analyse" class="primary" disabled>Analyse</button>
+        <button id="showcat">Show the catalogue</button>
+      </div>
+      <p class="status" id="status" hidden></p>
+    </div>
+  </section>
+
+  <section class="plate">
+    <div class="rail">
+      <span class="plate-no">Plate 03</span>
+      <h2>Report</h2>
+      <p>
+        Every value carries its 95% interval, drawn to scale. A measurement that
+        moves further between two photographs of you than it moves between different
+        people is listed with the reason instead of the number.
+      </p>
+      <p class="cite">
+        FISWG 2026 (V2.1, section 6.4.1) prohibits photo-anthropometry for
+        identification. Vitruve keeps the measurements and gates them.
+      </p>
+    </div>
+    <div class="results" id="results">
+      <p class="empty">Nothing measured yet. The catalogue below is what can be.</p>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <div>
+      <span class="plate-no">Colophon</span>
+    </div>
+    <div>
+      <p>
+        Vitruve is Apache-2.0. Model weights carry their own licenses, listed at
+        <a href="/licenses?tier=permissive">/licenses</a>. The default stack is
+        YuNet (MIT), SPIGA (BSD-3), MediaPipe (Apache-2.0) and 6DRepNet (MIT).
+      </p>
+      <p>
+        Photographs are held in memory and are not written to disk. EXIF, including
+        GPS, is dropped at ingest. The API is
+        <a href="/docs">documented here</a> and the measurement catalogue is served
+        at <a href="/catalogue">/catalogue</a>.
+      </p>
+    </div>
+  </footer>
+
+</div>
+<script type="module" src="/static/app.js"></script>
+</body>
+</html>

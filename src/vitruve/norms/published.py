@@ -79,6 +79,18 @@ SPREADS: tuple[Spread, ...] = (
            "Jayaratne et al. 2013 (PMC3730197)", CC_BY),
     Spread("palpebral_fissure_height_r", "Hong Kong Chinese, 3dMD", "male", 51, 11.55, 1.05, "mm",
            "Jayaratne et al. 2013 (PMC3730197)", CC_BY),
+    # The same table's left-side rows, transcribed for the same reason the
+    # canthal tilt rows below were: taking one side of a bilateral measurement
+    # and leaving the other on a default makes one eye reportable and the other
+    # not on a face where the two eyes are the same, which is a fact about this
+    # file rather than about the subject.
+    Spread("palpebral_fissure_width_l", "Hong Kong Chinese, 3dMD", "male", 51, 27.07, 1.74, "mm",
+           "Jayaratne et al. 2013 (PMC3730197)", CC_BY),
+    Spread("palpebral_fissure_height_l", "Hong Kong Chinese, 3dMD", "male", 51, 11.64, 1.71, "mm",
+           "Jayaratne et al. 2013 (PMC3730197)", CC_BY,
+           "the left fissure height carries a visibly wider spread than the right in "
+           "this table, 1.71 mm against 1.05 on the same 51 men; recorded as measured "
+           "rather than averaged with its partner"),
     Spread("intercanthal_biocular_ratio", "Hong Kong Chinese, 3dMD", "female", 52, 43.29, 2.35,
            "percent", "Jayaratne et al. 2013 (PMC3730197)", CC_BY,
            "the male cell of the same table has SD 8.23 at a nearly identical "
@@ -144,6 +156,19 @@ SPREADS: tuple[Spread, ...] = (
            "ratio", "Kramer et al. 2012 (PMC3413652)", CC_BY),
 )
 
+
+# Nothing was transcribed for the orbital, lip, nasal and mandibular
+# measurements added to the catalogue for report parity. It is not for want of
+# published numbers: the margin-reflex distances, the vermilion heights and the
+# medial canthal angle all have normative tables. They sit behind paywalls or
+# under NonCommercial-NoDerivatives terms, which permit citing them and not
+# shipping them, and none of the open-access sets checked here (Jayaratne 2013,
+# Al-Sebaei 2015, Celebi 2013, Saadeh 2025) reaches past the periocular and
+# midline dimensions already listed above. So those measurements keep the 6%
+# linear default where they are lengths, and ``None`` where they are angles and
+# ratios, which makes the report say the between-person spread is unknown. That
+# is the true statement, and it is the one the discriminability gate needs, so
+# no substitute was invented for it.
 
 #: Default relative spread for a craniofacial linear measurement with no
 #: published table. Across every open source transcribed above, linear

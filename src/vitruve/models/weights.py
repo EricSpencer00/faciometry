@@ -9,7 +9,7 @@ module has two entry points and they do not call each other:
   `WeightsUnavailable` naming the exact fetch command, because a lazy download
   hidden inside the first inference call is precisely the egress the rule
   exists to forbid.
-* :func:`download` fetches. It is called by `vitruve weights fetch` and by
+* :func:`download` fetches. It is called by `vitruve fetch-weights` and by
   tests marked `network`, and by nothing else.
 
 Every artefact is pinned by sha256 in ``assets/weights.lock.json``. A mismatch
@@ -132,13 +132,44 @@ class VerifyResult:
         )
 
 
+#: Where the lock file can live, in the order they are tried.
+#:
+#: A wheel and a checkout put it in different places, and resolving only the
+#: checkout layout is a bug that never shows up in development. From a
+#: checkout, `parents[3]` is the repository root and the lock sits beside it.
+#: Installed, `src/vitruve/models/weights.py` becomes
+#: `site-packages/vitruve/models/weights.py`, so the same expression points at
+#: the parent of site-packages and finds nothing. Every non-editable install
+#: then has no pins, which means no hash verification on downloaded weights,
+#: which is the one thing the lock file exists to provide.
+def _candidate_locks() -> tuple[Path, ...]:
+    here = Path(__file__).resolve()
+    return (
+        # Packaged: hatch force-includes the repository's copy to this path, so
+        # it exists in a wheel and not in a checkout.
+        here.parents[1] / "assets" / "weights.lock.json",
+        # A source checkout, where the repository root holds the only copy.
+        # The file is deliberately not duplicated into the package tree, since
+        # two copies of a hash manifest are two copies that can disagree.
+        here.parents[3] / "assets" / "weights.lock.json",
+    )
+
+
 def lock_path() -> Path:
-    """Location of ``assets/weights.lock.json``."""
+    """Location of ``assets/weights.lock.json``.
+
+    Returns the first candidate that exists. When none does, the packaged
+    location is returned so the resulting error names where it was expected
+    rather than where it happened to look last.
+    """
     override = os.environ.get(LOCK_ENV_VAR)
     if override:
         return Path(override).expanduser()
-    # src/vitruve/models/weights.py -> models -> vitruve -> src -> repo root
-    return Path(__file__).resolve().parents[3] / "assets" / "weights.lock.json"
+    candidates = _candidate_locks()
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return candidates[0]
 
 
 def cache_dir() -> Path:
@@ -231,7 +262,7 @@ def resolve(key: str, *, lock: Mapping[str, WeightSpec] | None = None) -> Path:
         raise WeightsUnavailable(
             f"{spec.provenance} needs {spec.filename}, which is not in {cache_dir()}. "
             f"Analysis does not download. Fetch it first:\n"
-            f"    vitruve weights fetch {key}\n"
+            f"    vitruve fetch-weights\n"
             f"    (or python -m vitruve.models.weights fetch {key})\n"
             f"Source: {spec.url}"
         )

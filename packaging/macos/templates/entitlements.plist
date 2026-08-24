@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- The whole list, and the reason each line is here.
+
+       This app is Developer ID signed and NOT sandboxed, which is the normal
+       shape for a direct-download Mac app. That matters for what belongs in
+       this file: the com.apple.security.network.* and com.apple.security.files.*
+       keys are App Sandbox keys and are inert outside the sandbox, so adding
+       them would be decoration. They are deliberately absent. The loopback
+       socket the server binds needs no entitlement at all.
+
+       What is left is the hardened runtime, which IS in force, plus the one
+       device the product actually uses. -->
+
+  <!-- The capture UI photographs a face. Under the hardened runtime this is
+       the key that lets a process in this bundle open an AVCaptureDevice at
+       all; TCC still prompts the user on top of it. -->
+  <key>com.apple.security.device.camera</key>
+  <true/>
+
+  <!-- CPython's ctypes allocates closure trampolines through libffi, which on
+       Apple Silicon means MAP_JIT pages. Without this the first ctypes
+       callback in any dependency kills the process with EXC_BAD_ACCESS, and
+       the dependency that does it is not necessarily one we chose. This is
+       the narrow JIT key, not allow-unsigned-executable-memory, which would
+       disable W^X for the whole process. -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+</dict>
+</plist>

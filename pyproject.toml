@@ -5,19 +5,38 @@ build-backend = "hatchling.build"
 [project]
 name = "vitruve"
 version = "0.1.0"
-description = "Local facial morphometrics with uncertainty intervals and an honest reportability gate"
+description = "Facial morphometrics from a photograph, with a 95% interval on every measurement and no aggregate score"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 license = { file = "LICENSE" }
 authors = [{ name = "Eric Spencer" }]
-keywords = ["anthropometry", "morphometrics", "photogrammetry", "face", "uncertainty"]
+maintainers = [{ name = "Eric Spencer" }]
+keywords = [
+  "anthropometry",
+  "morphometrics",
+  "photogrammetry",
+  "craniofacial",
+  "face",
+  "landmarks",
+  "uncertainty",
+  "measurement",
+  "computer-vision",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
+  "Environment :: Console",
   "Intended Audience :: Science/Research",
+  "Intended Audience :: Healthcare Industry",
+  "Intended Audience :: Developers",
   "License :: OSI Approved :: Apache Software License",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Image Processing",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 
 # The measurement layer -- core, measure, norms -- runs on numpy alone, and
@@ -31,8 +50,21 @@ dependencies = [
 
 [project.optional-dependencies]
 permissive = [
-  "opencv-python>=4.10",   # Apache-2.0, carries the YuNet ONNX runtime path
-  "mediapipe>=0.10.14",    # Apache-2.0, including the bundled .task models
+  "opencv-python>=4.10",     # Apache-2.0, carries the YuNet ONNX runtime path
+  # The upper bound is load-bearing. MediaPipe 1.0.x aborts the process on
+  # macOS arm64 when the face landmarker graph opens ("Check failed: service_
+  # Service is unavailable", inside a Metal helper initialised for a CPU
+  # graph). It is a hard abort, not an exception, so it cannot be caught at the
+  # call site; vitruve.models.dense_mediapipe refuses to load it.
+  "mediapipe>=0.10.31,<1",   # Apache-2.0, including the bundled .task models
+  "torch>=2.2",              # BSD-3-Clause, the SPIGA and 6DRepNet backbones
+  "torchvision>=0.17",       # BSD-3-Clause, pulled in by sixdrepnet
+  "spiga>=0.0.6",            # BSD-3-Clause, 98-point heatmap landmarker
+  "sixdrepnet>=0.1.6",       # MIT, the independent head-pose cross-check
+  # spiga imports pkg_resources, which setuptools removed in 81. Without this
+  # pin `import spiga.inference.pretreatment` fails with a ModuleNotFoundError
+  # that names the wrong package.
+  "setuptools<81",
 ]
 copyleft = [
   "ultralytics>=8.3",      # AGPL-3.0
@@ -42,12 +74,30 @@ api = [
   "uvicorn[standard]>=0.30",
   "python-multipart>=0.0.9",
 ]
+pdf = [
+  # reportlab is a pure-Python wheel with no system libraries behind it, which
+  # is why it is here instead of WeasyPrint: WeasyPrint links cairo, pango and
+  # harfbuzz through ctypes, so on macOS `pip install` produces a program that
+  # fails at import until the user has also run a Homebrew command. The price
+  # is that vitruve/report/pdf.py lays the document out by hand.
+  "reportlab>=4.2",          # BSD-3-Clause
+]
 dev = [
   "pytest>=8.2",
   "pytest-cov>=5.0",
   "httpx>=0.27",
   "ruff>=0.5",
   "mypy>=1.10",
+  "build>=1.2",
+  "twine>=5.1",
+]
+# Everything that leaves the deployment Apache-2.0. `copyleft` is deliberately
+# not in here: an extra that silently pulls AGPL weights into an install called
+# "all" is the exact accident the tier system exists to prevent.
+all = [
+  "vitruve[permissive]",
+  "vitruve[api]",
+  "vitruve[pdf]",
 ]
 
 [project.scripts]
@@ -56,6 +106,9 @@ vitruve = "vitruve.cli.main:main"
 [project.urls]
 Homepage = "https://github.com/EricSpencer00/vitruve"
 Source = "https://github.com/EricSpencer00/vitruve"
+Issues = "https://github.com/EricSpencer00/vitruve/issues"
+Changelog = "https://github.com/EricSpencer00/vitruve/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/EricSpencer00/vitruve/tree/main/docs"
 
 # Extras carry license consequences that PEP 621 has nowhere to record, so
 # they are recorded here and `vitruve licenses` reads them back out. An
@@ -64,7 +117,9 @@ Source = "https://github.com/EricSpencer00/vitruve"
 permissive = "OpenCV (Apache-2.0) and MediaPipe (Apache-2.0), including MediaPipe's bundled .task models. No copyleft and no field-of-use restriction. This is the default stack."
 copyleft = "Ultralytics (AGPL-3.0). Installing this extra makes the deployment AGPL-3.0: Ultralytics asserts AGPL-3.0 over the models its training code produces as well as over the code, so serving Vitruve over a network with this extra installed obliges you to release your corresponding source under AGPL-3.0, or to buy an Ultralytics Enterprise License."
 api = "FastAPI and Uvicorn (both MIT), for `vitruve serve`. No effect on the license of the deployment."
+pdf = "ReportLab (BSD-3-Clause), which draws the PDF report. A pure-Python wheel with no system libraries and no font files to redistribute, because the layout uses the PDF base-14 faces. No effect on the license of the deployment."
 dev = "Test and lint tooling. Not installed at runtime."
+all = "The permissive, api and pdf extras together. Not copyleft: an install named `all` that quietly made a deployment AGPL-3.0 would defeat the tier system, so the AGPL stack stays behind `pip install 'vitruve[copyleft]'` and a `--license-tier copyleft` flag."
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vitruve"]
@@ -73,9 +128,25 @@ packages = ["src/vitruve"]
 # `vitruve serve` has nothing to serve.
 [tool.hatch.build.targets.wheel.force-include]
 "web" = "vitruve/web"
+# The weight pins are what make a downloaded checkpoint verifiable. Without
+# them in the wheel, every non-editable install fetches unverified bytes.
+"assets/weights.lock.json" = "vitruve/assets/weights.lock.json"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/vitruve", "web", "tests", "docs", "assets", "README.md", "LICENSE", "Makefile"]
+include = [
+  "src/vitruve",
+  "web",
+  "tests",
+  "docs",
+  "assets",
+  "README.md",
+  "CHANGELOG.md",
+  "CONTRIBUTING.md",
+  "CODE_OF_CONDUCT.md",
+  "SECURITY.md",
+  "LICENSE",
+  "Makefile",
+]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -85,6 +156,7 @@ addopts = "-q --strict-markers"
 markers = [
   "slow: takes more than a second",
   "needs_weights: requires model weights fetched by `vitruve fetch-weights`",
+  "network: reaches the internet; opt in with VITRUVE_TEST_NETWORK=1",
 ]
 
 [tool.ruff]
@@ -94,7 +166,12 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-ignore = ["E501"]
+# E501: line length is enforced by the formatter's judgement, not by a hard cut
+#   through a citation.
+# UP042: `str, Enum` rather than `StrEnum` throughout, because these enums are
+#   serialised into JSON and read back by name in the run manifest, and the
+#   codebase is consistent about it.
+ignore = ["E501", "UP042"]
 
 [tool.mypy]
 python_version = "3.11"

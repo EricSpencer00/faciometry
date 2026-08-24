@@ -23,6 +23,32 @@ from dataclasses import dataclass
 from ..models.licensing import BY_NAME, Tier
 
 
+
+def _progress(key: str, received: int, total: int) -> None:
+    """Redraw a single line as bytes arrive.
+
+    Without this the command prints one line and then appears hung: the largest
+    pinned artefact is 254 MB, which is minutes on a domestic connection, and a
+    silent process that long reads as a failure rather than as work.
+
+    Written to stderr and redrawn in place, so piping the command's stdout
+    somewhere still yields clean output.
+    """
+    if total <= 0:
+        sys.stderr.write(f"\r    {_human(received)}")
+    else:
+        pct = 100.0 * received / total
+        done = int(pct // 4)
+        bar = "#" * done + "." * (25 - done)
+        sys.stderr.write(f"\r    [{bar}] {pct:5.1f}%  {_human(received)} of {_human(total)}")
+    sys.stderr.flush()
+
+
+def _end_progress() -> None:
+    """Clear the progress line so the next print starts at the left margin."""
+    sys.stderr.write("\r" + " " * 72 + "\r")
+    sys.stderr.flush()
+
 class WeightsLayerMissing(RuntimeError):
     """This build has no model layer, so there is nothing pinned to fetch."""
 
@@ -136,7 +162,8 @@ def run(tier: Tier = Tier.PERMISSIVE, *, force: bool = False) -> int:
             continue
         print(f"  fetching {p.key:<28} {p.filename} ({_human(p.size_bytes)})", flush=True)
         try:
-            mod.download(p.key, force=True)
+            mod.download(p.key, force=True, progress=_progress)
+            _end_progress()
         except Exception as exc:
             print(f"  FAILED   {p.key}: {exc}", file=sys.stderr)
             failures += 1
