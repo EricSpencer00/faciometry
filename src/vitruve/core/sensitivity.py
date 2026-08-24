@@ -108,18 +108,30 @@ WIDTH_OVER_HEIGHT = PoseSensitivity(
     source="cos(yaw) on the width, 1/cos(pitch) on the height",
 )
 
-#: Canthal tilt. Roll enters one-for-one because the measurement is defined
-#: against the horizon. Pitch enters at about 0.27 degrees per degree: Vaca et
-#: al. (2022) swept the Frankfort plane over 30 degrees and watched
-#: intercanthal height collapse from 4.39 mm to 0.128 mm, which is 8.3 degrees
-#: of apparent tilt to 0.2.
+#: Canthal tilt, measured against the interpupillary line.
+#:
+#: Roll used to enter one-for-one, because the measurement was defined against
+#: the image horizon and a tilted camera is indistinguishable from a tilted
+#: face. It is now measured against an axis that rotates with the head, so roll
+#: cancels exactly and only the residual from landmark noise in the pupils
+#: remains. Pitch is unaffected by that change and still enters at about 0.27
+#: degrees per degree: Vaca et al. (2022) swept the Frankfort plane over 30
+#: degrees and watched intercanthal height collapse from 4.39 mm to 0.128 mm,
+#: which is 8.3 degrees of apparent tilt down to 0.2.
 CANTHAL_TILT = PoseSensitivity(
-    yaw=0.05, pitch=0.27, roll=1.0, source="Vaca et al. 2022 pitch sweep; roll by definition"
+    yaw=0.05,
+    pitch=0.27,
+    roll=0.01,
+    source="Vaca et al. 2022 pitch sweep; roll cancels against the interpupillary axis",
 )
 
 #: Measured on the mandible: about 3 degrees of apparent change over 20 degrees
-#: of yaw.
-GONIAL_ANGLE = PoseSensitivity(yaw=0.15, pitch=0.10, roll=0.05, source="mandibular yaw study")
+#: of yaw. The roll term is the one the sweep in evals/ corrected, from a
+#: declared 0.05 to a measured 1.15 -- the gonial angle is read against the
+#: image frame and a rolled camera moves it directly.
+GONIAL_ANGLE = PoseSensitivity(
+    yaw=0.15, pitch=0.10, roll=1.15, source="mandibular yaw study; roll slope measured in evals/"
+)
 
 #: Kleinberg's worst measured indices, as an empirical upper bound for any
 #: index whose endpoints span different depth planes.

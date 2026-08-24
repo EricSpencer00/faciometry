@@ -218,6 +218,30 @@ def evaluate(
             detail=f"only {n_valid} of {n_samples} Monte-Carlo samples were finite",
         )
 
+    # Take the landmark contribution from the ensemble that was just drawn,
+    # rather than from the raw positional spread.
+    #
+    # Dividing a positional standard deviation in pixels by the measurement's
+    # own value is only dimensionally sound when the measurement is a length in
+    # those same pixels. For a dimensionless ratio it divides pixels by nothing,
+    # and for a millimetre value it divides pixels by millimetres. The tell is
+    # that the result does not change when the face is photographed at twice the
+    # resolution, which is the opposite of how a landmark error should behave.
+    # It was withholding every ratio in the catalogue for a units artefact.
+    #
+    # The ensemble already carries the answer: the spread of the evaluated
+    # formula is the propagated landmark uncertainty, in the measurement's own
+    # units, with the formula's own sensitivity folded in for free. It is taken
+    # before the scale factor is applied so that it stays a landmark term and
+    # does not double-count the scale prior, which enters separately.
+    landmark_sd_in_units = float(np.std(finite))
+    relative_landmark_error = (
+        landmark_sd_in_units
+        if spec.unit is Unit.DEGREES
+        else landmark_sd_in_units / abs(np.median(finite))
+        if abs(np.median(finite)) > 1e-12
+        else float("inf")
+    )
     scale_notes: tuple[str, ...] = ()
     scale_source: str | None = None
     if spec.unit is Unit.MILLIMETRES:
@@ -236,14 +260,6 @@ def evaluate(
     lo, hi = (float(x) for x in np.percentile(finite, [2.5, 97.5]))
     sd = float(np.std(finite))
 
-    landmark_sd = uncertainty.positional_sd_for(spec.landmarks)
-    relative_landmark_error = (
-        landmark_sd / abs(value) if spec.unit is not Unit.DEGREES else
-        # For an angle, express landmark scatter as the angle it subtends at a
-        # typical facial baseline, so the units of the discriminability ratio
-        # match the units of the published between-subject spread.
-        float(np.degrees(np.arctan2(landmark_sd, 60.0)))
-    )
     disc = assess_discriminability(
         spec,
         yaw_deg=yaw_deg,

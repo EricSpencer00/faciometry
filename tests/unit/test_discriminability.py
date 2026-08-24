@@ -66,12 +66,75 @@ def test_pose_gate_accounts_for_the_estimator_uncertainty():
     assert gated_pose(0.0) == pytest.approx(POSE_ESTIMATOR_SD_DEG)
 
 
-def test_canthal_tilt_absorbs_roll_one_for_one():
-    """Vaca et al. (2022) swept the Frankfort plane and watched apparent canthal
-    tilt collapse from 8.3 to 0.2 degrees over thirty degrees of pitch."""
-    assert CANTHAL_TILT.roll == pytest.approx(1.0)
+def test_canthal_tilt_no_longer_absorbs_roll():
+    """Roll used to enter one-for-one, because the tilt was measured against the
+    image horizon and a tilted camera is indistinguishable from a tilted face.
+
+    It is now measured against the interpupillary line, which rotates with the
+    head, so roll cancels exactly. Pitch is untouched by that change and still
+    enters at about 0.27 degrees per degree: Vaca et al. (2022) swept the
+    Frankfort plane and watched apparent tilt fall from 8.3 to 0.2 degrees over
+    thirty degrees.
+    """
     assert CANTHAL_TILT.pitch == pytest.approx(0.27)
-    assert CANTHAL_TILT.error_at(0.0, 0.0, 5.0) == pytest.approx(5.0)
+    assert CANTHAL_TILT.roll < 0.05
+    assert CANTHAL_TILT.error_at(0.0, 0.0, 5.0) < 0.1
+    assert CANTHAL_TILT.error_at(0.0, 5.0, 0.0) == pytest.approx(1.35)
+
+
+def test_roll_cancels_exactly_in_the_geometry_not_merely_in_the_table():
+    """The constant was corrected because the measurement was redefined. If the
+    formula regresses to an image-horizon axis this fails, even though the
+    declared sensitivity would still read low.
+
+    Two degrees of roll used to manufacture four degrees of canthal tilt
+    asymmetry on a perfectly symmetric face.
+    """
+    import numpy as np
+
+    from vitruve.core import geometry as geo
+    from vitruve.core.landmarks import PointSet
+    from tests.conftest import SYNTHETIC
+
+    face = {k: np.array(v, float) for k, v in SYNTHETIC.items()}
+    ids = (
+        "canthal_tilt_l",
+        "canthal_tilt_r",
+        "canthal_tilt_asymmetry",
+        "ocular_height_asymmetry",
+        "mouth_corner_asymmetry",
+    )
+    upright = PointSet.from_mapping(face)
+    baseline = {i: float(BY_ID[i].formula.eval(upright)) for i in ids}
+    for roll in (1.0, 2.0, 5.0, 10.0):
+        rot = geo.rotation_matrix(0.0, 0.0, roll)
+        rolled = PointSet.from_mapping(
+            {k: geo.apply_rotation(v, rot) for k, v in face.items()}
+        )
+        for i in ids:
+            assert float(BY_ID[i].formula.eval(rolled)) == pytest.approx(
+                baseline[i], abs=1e-9
+            ), f"{i} moved under {roll} deg of roll"
+
+
+def test_a_real_asymmetry_still_registers_under_roll():
+    """Roll invariance is worthless if it were achieved by measuring nothing."""
+    import numpy as np
+
+    from vitruve.core import geometry as geo
+    from vitruve.core.landmarks import Landmark, PointSet
+    from tests.conftest import SYNTHETIC
+
+    skewed = {k: np.array(v, float) for k, v in SYNTHETIC.items()}
+    skewed[Landmark.EXOCANTHION_L] = np.array([-46.0, 7.0, -4.0])
+    flat = float(BY_ID["canthal_tilt_asymmetry"].formula.eval(PointSet.from_mapping(skewed)))
+    assert flat > 3.0
+
+    rot = geo.rotation_matrix(0.0, 0.0, 5.0)
+    rolled = PointSet.from_mapping({k: geo.apply_rotation(v, rot) for k, v in skewed.items()})
+    assert float(
+        BY_ID["canthal_tilt_asymmetry"].formula.eval(rolled)
+    ) == pytest.approx(flat, abs=1e-9)
 
 
 def test_errors_combine_in_quadrature_not_linearly():

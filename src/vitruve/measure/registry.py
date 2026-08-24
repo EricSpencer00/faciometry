@@ -224,12 +224,16 @@ _FRONTAL_VERTICALS = [
 # ---------------------------------------------------------------------------
 
 
-def _periocular(side: str, en: L, ex: L, sup: L, inf: L, lateral_axis: str) -> list[MeasurementSpec]:
+def _periocular(
+    side: str, en: L, ex: L, sup: L, inf: L, near_pupil: L, far_pupil: L
+) -> list[MeasurementSpec]:
     """The four periocular measurements for one side.
 
-    ``lateral_axis`` names the direction pointing away from the midline on this
-    side, which is what lets one canthal-tilt formula serve both eyes with a
-    consistent sign: positive means the outer corner sits above the inner one.
+    The tilt axis runs from the contralateral pupil to the ipsilateral one, so
+    it points away from the midline on this side. That gives both eyes a
+    consistent sign, positive when the outer corner sits above the inner, and
+    it makes the measurement roll-invariant: the axis rotates with the head, so
+    a tilted camera cancels out of the signed angle rather than adding to it.
     """
     up = side.upper()
     return [
@@ -259,12 +263,16 @@ def _periocular(side: str, en: L, ex: L, sup: L, inf: L, lateral_axis: str) -> l
             view=View.FRONTAL,
             unit=Unit.DEGREES,
             evidence=Evidence.POSE_CRITICAL,
-            formula=SignedTilt(Pt(en), Pt(ex), Axis(lateral_axis)),
+            formula=SignedTilt(Pt(en), Pt(ex), Vec(Pt(far_pupil), Pt(near_pupil))),
             description=(
                 "Inclination of the intercanthal axis, positive when the outer "
-                "corner sits above the inner. Defined against the horizon, so "
-                "image roll enters this number almost one-for-one against a "
-                "normal range of only a few degrees."
+                "corner sits above the inner, measured against the "
+                "interpupillary line rather than against the image horizon. "
+                "The interpupillary line rotates with the head, so image roll "
+                "cancels exactly instead of entering one-for-one. Measuring "
+                "against the horizon reports the photographer's camera angle as "
+                "if it were the subject's anatomy; pitch still enters at about "
+                "0.27 degrees per degree (Vaca et al. 2022)."
             ),
             references=(NAINI,),
             reference_range=(0.0, 8.0, NAINI),
@@ -287,8 +295,10 @@ def _periocular(side: str, en: L, ex: L, sup: L, inf: L, lateral_axis: str) -> l
 _PERIOCULAR: list[MeasurementSpec] = [
     spec
     for args in (
-        ("l", L.ENDOCANTHION_L, L.EXOCANTHION_L, L.PALPEBRALE_SUP_L, L.PALPEBRALE_INF_L, "-x"),
-        ("r", L.ENDOCANTHION_R, L.EXOCANTHION_R, L.PALPEBRALE_SUP_R, L.PALPEBRALE_INF_R, "x"),
+        ("l", L.ENDOCANTHION_L, L.EXOCANTHION_L, L.PALPEBRALE_SUP_L,
+         L.PALPEBRALE_INF_L, L.PUPIL_L, L.PUPIL_R),
+        ("r", L.ENDOCANTHION_R, L.EXOCANTHION_R, L.PALPEBRALE_SUP_R,
+         L.PALPEBRALE_INF_R, L.PUPIL_R, L.PUPIL_L),
     )
     for spec in _periocular(*args)
 ]
@@ -412,45 +422,48 @@ _FRONTAL_RATIOS = [
 # never pooled into a single "symmetry score".
 # ---------------------------------------------------------------------------
 
-_MIDLINE = Mid(Pt(L.ENDOCANTHION_L), Pt(L.ENDOCANTHION_R))
+#: The interpupillary line, which rotates with the head. Every asymmetry below
+#: is measured against it rather than against the image horizon.
+#:
+#: The earlier version measured against world vertical and claimed that a
+#: common rotation "adds the same offset to both sides and cancels in the
+#: difference". That was the opposite of true. Because each side was measured
+#: against its own lateral axis, roll entered the two sides with opposite sign
+#: and therefore *added* in the difference: on a perfectly symmetric synthetic
+#: face, two degrees of roll manufactured four degrees of canthal tilt
+#: asymmetry. The pose sweep in evals/ measured the roll slope at 2.0 per
+#: degree against a declared 0.002, a thousandfold error in the direction that
+#: makes a photograph look like a finding.
+_IPD_AXIS = Vec(Pt(L.PUPIL_R), Pt(L.PUPIL_L))
 
 _SYMMETRY = [
     _spec(
         id="ocular_height_asymmetry",
         label="Ocular height asymmetry",
         view=View.FRONTAL,
-        unit=Unit.RATIO,
+        unit=Unit.DEGREES,
         evidence=Evidence.POSE_INVARIANT_RATIO,
-        formula=Ratio(
-            Abs(
-                Diff(
-                    ProjLength(_MIDLINE, Pt(L.EXOCANTHION_L), Axis("y")),
-                    ProjLength(_MIDLINE, Pt(L.EXOCANTHION_R), Axis("y")),
-                )
-            ),
-            Dist(Pt(L.EXOCANTHION_L), Pt(L.EXOCANTHION_R)),
+        formula=Abs(SignedTilt(Pt(L.EXOCANTHION_R), Pt(L.EXOCANTHION_L), _IPD_AXIS)),
+        description=(
+            "Inclination of the line joining the outer eye corners, measured "
+            "against the interpupillary line. Both rotate with the head, so "
+            "image roll cancels exactly."
         ),
-        description="Vertical offset between outer canthi, normalised by biocular width.",
         references=(FARKAS,),
-        pose_tolerance_deg=4.0,
+        pose_tolerance_deg=10.0,
     ),
     _spec(
         id="mouth_corner_asymmetry",
         label="Mouth corner asymmetry",
         view=View.FRONTAL,
-        unit=Unit.RATIO,
+        unit=Unit.DEGREES,
         evidence=Evidence.POSE_INVARIANT_RATIO,
-        formula=Ratio(
-            Abs(
-                Diff(
-                    ProjLength(_MIDLINE, Pt(L.CHEILION_L), Axis("y")),
-                    ProjLength(_MIDLINE, Pt(L.CHEILION_R), Axis("y")),
-                )
-            ),
-            Dist(Pt(L.CHEILION_L), Pt(L.CHEILION_R)),
+        formula=Abs(SignedTilt(Pt(L.CHEILION_R), Pt(L.CHEILION_L), _IPD_AXIS)),
+        description=(
+            "Inclination of the mouth axis against the interpupillary line."
         ),
         references=(FARKAS,),
-        pose_tolerance_deg=4.0,
+        pose_tolerance_deg=10.0,
     ),
     _spec(
         id="canthal_tilt_asymmetry",
@@ -460,14 +473,16 @@ _SYMMETRY = [
         evidence=Evidence.POSE_INVARIANT_RATIO,
         formula=Abs(
             Diff(
-                SignedTilt(Pt(L.ENDOCANTHION_L), Pt(L.EXOCANTHION_L), Axis("-x")),
-                SignedTilt(Pt(L.ENDOCANTHION_R), Pt(L.EXOCANTHION_R), Axis("x")),
+                SignedTilt(Pt(L.ENDOCANTHION_L), Pt(L.EXOCANTHION_L),
+                           Vec(Pt(L.PUPIL_R), Pt(L.PUPIL_L))),
+                SignedTilt(Pt(L.ENDOCANTHION_R), Pt(L.EXOCANTHION_R),
+                           Vec(Pt(L.PUPIL_L), Pt(L.PUPIL_R))),
             )
         ),
         description=(
-            "The difference between the two tilts, which is the one canthal "
-            "quantity that image roll cannot corrupt: roll adds the same offset "
-            "to both sides and cancels in the difference."
+            "The difference between the two canthal tilts. Now genuinely "
+            "roll-invariant, because each tilt is measured against an axis that "
+            "rotates with the head."
         ),
         references=(NAINI,),
         pose_tolerance_deg=10.0,
@@ -739,10 +754,11 @@ def _sensitivity_for(spec: MeasurementSpec) -> "sens.PoseSensitivity":
         return _SENSITIVITY[spec.id]
     if spec.id in _CANCELLING:
         return sens.PoseSensitivity(
-            yaw=0.002,
-            pitch=0.002,
-            roll=0.002,
-            source="paired difference; a common-mode rotation cancels between sides",
+            yaw=0.01,
+            pitch=0.01,
+            roll=0.01,
+            source="measured against the interpupillary axis, so roll cancels exactly; "
+            "residual is landmark noise in the pupils (evals/ pose sweep)",
         )
     if spec.unit is Unit.DEGREES:
         return sens.PoseSensitivity(

@@ -122,6 +122,15 @@ SPREADS: tuple[Spread, ...] = (
     Spread("canthal_tilt_l", "Caucasian, landmark-based", "male", 21, 6.51, 2.67, "deg",
            "Liu et al. 2023 (PMC10335162)", CC_BY,
            "attractiveness-selected celebrity sample"),
+    # The same source, applied to the right side. Transcribing only the left
+    # made one eye reportable and the other withheld on a symmetric face, which
+    # is a transcription artifact rather than a finding about the subject.
+    Spread("canthal_tilt_r", "Caucasian, landmark-based", "female", 21, 8.50, 2.10, "deg",
+           "Liu et al. 2023 (PMC10335162)", CC_BY,
+           "attractiveness-selected celebrity sample, explicitly not a population norm"),
+    Spread("canthal_tilt_r", "Caucasian, landmark-based", "male", 21, 6.51, 2.67, "deg",
+           "Liu et al. 2023 (PMC10335162)", CC_BY,
+           "attractiveness-selected celebrity sample"),
 
     # -- Facial width-to-height ratio -------------------------------------
     Spread("facial_width_height_ratio", "White, 2D photographs", "male", 2075, 1.94, 0.17,

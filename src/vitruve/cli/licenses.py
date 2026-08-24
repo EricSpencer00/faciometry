@@ -15,6 +15,7 @@ lives only in a comment is an obligation nobody reads.
 from __future__ import annotations
 
 import textwrap
+
 from ..models.licensing import CATALOGUE as PROVENANCES
 from ..models.licensing import Provenance, Tier, available_at, obligations_at
 

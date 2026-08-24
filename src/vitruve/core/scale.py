@@ -236,3 +236,23 @@ def magnification_distortion(subject_distance_m: float, plane_depth_mm: float = 
     if subject_distance_m <= 0:
         raise ValueError("subject distance must be positive")
     return (plane_depth_mm / 1000.0) / subject_distance_m
+
+
+def exact_magnification(subject_distance_m: float, plane_depth_mm: float = 50.0) -> float:
+    """The pinhole result, which the ICAO figure approximates.
+
+    A plane at distance ``d`` and one at ``d - depth`` are magnified in the
+    ratio ``d / (d - depth)``, so the fractional excess is ``K / (1 - K)`` with
+    ``K`` as in :func:`magnification_distortion`. The sweep in evals/ matched
+    this form to within 1e-16, and it confirms that the ICAO number understates
+    the true bias by exactly a factor of ``K``: 20.0% against 16.7% at 0.3 m,
+    5.3% against 5.0% at 1.0 m.
+
+    :func:`magnification_distortion` still returns ``K``, because that is the
+    quantity the ICAO tolerance is written against and a gate that cites a
+    standard should compute the standard's own number.
+    """
+    k = magnification_distortion(subject_distance_m, plane_depth_mm)
+    if k >= 1.0:
+        raise ValueError("subject is closer than the plane depth; the pinhole model breaks down")
+    return k / (1.0 - k)

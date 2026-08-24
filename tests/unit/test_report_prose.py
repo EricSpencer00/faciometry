@@ -130,7 +130,7 @@ def synthetic_measurements(
     """
     ps = point_set()
     unc = uncertainty(ps)
-    scale = from_interpupillary(180.0, declared_sex="female", subject_distance_m=1.6)
+    scale = from_interpupillary(420.0, declared_sex="female", subject_distance_m=1.6)
     measured: list[Measured] = []
     unavailable: list[Unavailable] = []
     for spec in CATALOGUE:
