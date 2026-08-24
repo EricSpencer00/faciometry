@@ -385,9 +385,25 @@ def _pick_face(detections: Sequence[Detection]) -> Detection:
 
 
 def _iris_diameter(backends: Backends, pixels, detection: Detection) -> float | None:
-    """Mean visible iris diameter across the eyes that could be measured."""
+    """Mean visible iris diameter across the eyes that could be measured.
+
+    A dense frontal mesh model cannot find a face in a true profile, and it
+    signals that by raising rather than returning nothing. That is a normal
+    outcome for the profile view, not a failure of the run: the profile
+    contributes angles, which need no scale at all, and any millimetre value it
+    does produce can take the scale recovered from the frontal photograph.
+
+    Letting the exception escape aborted the entire two-photograph analysis,
+    including the frontal view that had already succeeded, which is the one
+    capture protocol a full report asks for.
+    """
     assert backends.iris is not None
-    measurement = backends.iris.measure_iris(pixels, detection)
+    try:
+        measurement = backends.iris.measure_iris(pixels, detection)
+    except Exception:
+        # Deliberately broad: every dense-mesh backend signals "no face here"
+        # differently, and none of those ways should end the run.
+        return None
     if measurement is None:
         return None
     values = [

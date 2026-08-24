@@ -104,7 +104,47 @@ geometric primitives against independently computed ground truth: worst absolute
 error 2.8e-14, worst relative error 3.6e-15, no failures. Whatever is wrong with
 a Vitruve number, the arithmetic is not it.
 
-## 5. What is still unverified
+## 5. The permissive stack cannot measure a true profile
+
+A full facial-analysis report is taken from a frontal and a profile photograph.
+Vitruve's catalogue carries 13 profile measurements, the formulas are correct
+against synthetic geometry, and the pipeline accepts a `--profile` argument.
+The models are what stop it.
+
+Measured on FRLL's 90-degree profile captures:
+
+```
+frontal          6DRepNet yaw    3.0 deg     (correct)
+90 deg profile   6DRepNet yaw  -26.0 deg     (should be near -90)
+```
+
+6DRepNet is trained on 300W-LP, whose extreme-yaw coverage is thin, and it
+saturates well before a true profile. SPIGA, trained on WFLW, fails there too:
+on the same image the two estimators disagreed by 136 degrees. Published
+estimators sit near 4 degrees of mean absolute error, so a gap that size means
+one of them has failed outright rather than been imprecise, and nothing in the
+image says which.
+
+The quality gate refuses the photograph, and that is the correct outcome. A
+profile angle derived from a pose estimate that is 64 degrees wrong would be a
+confident number about nothing. What it costs is real: the 13 profile
+measurements are unreachable with the shipped permissive stack.
+
+**What would fix it**, in order of directness:
+
+- a head-pose estimator with genuine full-range coverage. WHENet and DirectMHP
+  both train against 360 degrees rather than the 300W-LP frontal cone.
+- a landmark model that localises on a profile silhouette. This is a different
+  problem from frontal landmarking, because half the anatomical points are
+  occluded by definition rather than by accident.
+- a three-quarter oblique instead of a true profile, which is within the range
+  the current models handle and still carries the nasal and mandibular contour.
+
+Recorded here rather than quietly dropped, because "supports profile
+photographs" is exactly the kind of claim a repository makes on the strength of
+an argument parser.
+
+## 6. What is still unverified
 
 - `POSE_ESTIMATOR_MAE_DEG = 3.97` is taken from the 6DRepNet paper and is
   load-bearing for every verdict, because it sets how much the pose estimate is
