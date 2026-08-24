@@ -33,6 +33,16 @@ second moment. Taking the position from the heatmap argmax instead would throw
 away the refinement, and taking the covariance from the regressor is not
 possible because a regressor has none.
 
+**The pose head is reported but not trusted.** SPIGA's `Pose` output is six
+numbers, of which the first three are Euler angles in degrees. Which channel is
+which was settled by a mirror test; the absolute sign was not, and the two pose
+estimates do not share a convention: on a frontal portrait SPIGA reported
+pitch +9.2 degrees where 6DRepNet reported -3.8, a thirteen-degree per-axis
+disagreement on a face that is close to level. Averaging them would be
+meaningless. The pipeline should read `pose_sixdrepnet`, which at least has a
+published error figure on a labelled benchmark, and use this one only through
+`HeadPose.disagreement` as the cross-check it exists to be.
+
 **This backend runs on the CPU, and that is not a performance choice.** The
 upstream package assumes CUDA in two places that are not reachable from a
 configuration flag: `SPIGAFramework` calls ``.cuda()`` unconditionally, and,

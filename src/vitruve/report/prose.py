@@ -28,6 +28,8 @@ than by good intentions:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from dataclasses import dataclass
 
 from ..core.spec import Evidence, MeasurementSpec, Reportability, Unit
@@ -328,22 +330,65 @@ def stratum_caveat_sentence(stratum: NormativeStratum) -> str | None:
     return stratum.caveat or None
 
 
+def _dedupe(found: Sequence[Cause]) -> list[Cause]:
+    seen: set[str] = set()
+    out: list[Cause] = []
+    for c in found:
+        if c.key not in seen:
+            seen.add(c.key)
+            out.append(c)
+    return out
+
+
+def primary_cause(m: Measured) -> Cause | None:
+    """The cause that actually suppressed the measurement.
+
+    A withheld measurement usually accumulates several findings, only one of
+    which did the suppressing; the rest would have been caveats anyway. Reading
+    them as an undifferentiated list tells someone their jaw width was withheld
+    because of an assumed scale, when the real answer is that the landmark is
+    on a surface the camera cannot see.
+
+    The core verdict carries a severity per finding, so this reads it rather
+    than inferring it from the wording.
+    """
+    blocking = _dedupe([cause_of(r) for r in m.verdict.blocking])
+    if blocking:
+        return blocking[0]
+    found = _dedupe(causes(m))
+    return found[0] if found else None
+
+
+def secondary_causes(m: Measured) -> list[Cause]:
+    """Findings recorded against the measurement that did not suppress it."""
+    primary = primary_cause(m)
+    return [
+        c
+        for c in _dedupe([cause_of(r) for r in m.verdict.caveats])
+        if primary is None or c.key != primary.key
+    ]
+
+
 def withheld_paragraph(m: Measured) -> str:
     """Why a measurement is not printed, naming the cause in plain language."""
-    found = causes(m)
     lead = f"{m.label} is withheld."
-    if not found:
+    primary = primary_cause(m)
+    if primary is None:
         return f"{lead} The gate recorded no reason, which is itself a defect."
-    named = "; ".join(c.name for c in found)
-    body = " ".join(c.plain for c in found)
-    return f"{lead} Cause: {named}. {body}"
+    text = f"{lead} Cause: {primary.name}. {primary.plain}"
+    others = secondary_causes(m)
+    if others:
+        text += " Also recorded against this measurement: " + "; ".join(
+            c.name for c in others
+        ) + "."
+    return text
 
 
 def caveat_paragraph(m: Measured) -> str | None:
     """What to hold against a measurement that is shown with reservations."""
     if m.verdict.reportability is not Reportability.CAVEAT:
         return None
-    found = causes(m)
+    found = _dedupe(causes(m))
     if not found:
         return None
     named = "; ".join(c.name for c in found)
