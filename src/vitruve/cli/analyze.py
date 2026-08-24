@@ -49,6 +49,7 @@ def run(
     out: str | None = None,
     as_json: bool = False,
     seed: int = 0,
+    pdf: bool = False,
 ) -> int:
     try:
         frontal_image = load_image_file(frontal)
@@ -82,12 +83,43 @@ def run(
         print(json.dumps(payload, indent=2) if as_json else text)
         if out:
             _write(Path(out), payload, text, render_html(outcome))
+            if pdf and (code := _write_pdf(Path(out), outcome)) != Exit.OK:
+                return code
+        elif pdf:
+            print(
+                "vitruve analyze: --pdf needs --out, because a PDF is a file "
+                "rather than something to print to a terminal",
+                file=sys.stderr,
+            )
+            return Exit.BAD_INPUT
         return Exit.OK
 
     print(f"vitruve analyze: {outcome.message}", file=sys.stderr)
     for reason in outcome.reasons:
         print(f"  {reason}", file=sys.stderr)
     return _STATUS_EXIT[outcome.status]
+
+
+def _write_pdf(directory: Path, outcome) -> int:
+    """Write the typeset report, or explain why it could not be.
+
+    Kept out of `_write` because the PDF is the one output with a dependency
+    the core install does not carry, and a missing optional extra should name
+    its install command rather than produce a stack trace.
+    """
+    try:
+        from ..report.pdf import PDFUnavailable, render_pdf
+        from .runner import build_report_input
+    except ImportError as exc:  # pragma: no cover - defensive
+        print(f"vitruve analyze: the PDF report is unavailable ({exc})", file=sys.stderr)
+        return Exit.ERROR
+    try:
+        written = render_pdf(build_report_input(outcome), directory / "report.pdf")
+    except PDFUnavailable as exc:
+        print(f"vitruve analyze: {exc}", file=sys.stderr)
+        return Exit.ERROR
+    print(f"wrote {written}", file=sys.stderr)
+    return Exit.OK
 
 
 def _write(directory: Path, payload: dict, text: str, html: str | None) -> None:

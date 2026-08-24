@@ -19,7 +19,7 @@ Endpoints:
 ===============  ==============================================================
 GET  /           the web UI
 GET  /health     version, device, whether weights and the pipeline are present
-GET  /catalogue  the 45 measurement specs, same data the CLI prints
+GET  /catalogue  every measurement spec, the same data the CLI prints
 GET  /licenses   obligations for a tier
 POST /analyze    multipart: frontal, optional profile, declared attributes
 ===============  ==============================================================

@@ -99,10 +99,17 @@ the only measurement a frontal photograph reported.
 
 ## 4. The measurement layer itself contributes nothing
 
-Arm 1 of the evaluation harness evaluates all 45 catalogue measurements and 20
+Arm 1 of the evaluation harness evaluates every catalogue measurement and 20
 geometric primitives against independently computed ground truth: worst absolute
 error 2.8e-14, worst relative error 3.6e-15, no failures. Whatever is wrong with
 a Vitruve number, the arithmetic is not it.
+
+That run covered the catalogue as it stood at 45 measurements. The 23 added
+since carry equivalent closed-form checks in
+`tests/unit/test_extended_catalogue.py`, written against independently derived
+geometry, but they have not been through the evaluation harness itself. Arm 1
+should be re-run before the next release, and this paragraph should say so
+until it has been.
 
 ## 5. The permissive stack cannot measure a true profile
 

@@ -44,7 +44,7 @@ reference_range, pose_tolerance_deg, sensitivity, between_subject_rsd,
 measured_within_person_rsd`. Derived: `.landmarks` (frozenset), `.fingerprint`
 (12-hex formula hash), `.needs_metric_scale`.
 
-`CATALOGUE` holds 45 specs. Do not add measurements anywhere else.
+`CATALOGUE` holds 68 specs. Do not add measurements anywhere else.
 
 ### `evaluate(...) -> Measured | Unavailable`
 ```python

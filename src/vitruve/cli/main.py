@@ -33,7 +33,7 @@ No aggregate score is produced.
 
 EPILOG = """\
 examples:
-  vitruve catalogue                        the 45 measurements and how well each survives a photograph
+  vitruve catalogue                        every measurement and how well each survives a photograph
   vitruve catalogue --id gonial_angle_l    everything known about one measurement
   vitruve licenses --tier copyleft         what the AGPL tier obliges you to
   vitruve doctor                           device, weights, versions
@@ -92,11 +92,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     analyze.add_argument("--out", help="directory to write report.json, report.txt and report.html into")
     analyze.add_argument("--json", action="store_true", help="print JSON instead of text")
+    analyze.add_argument(
+        "--pdf",
+        action="store_true",
+        help="also write report.pdf, the typeset report (needs pip install 'vitruve[pdf]')",
+    )
     analyze.add_argument("--seed", type=int, default=0, help="Monte-Carlo seed (default: 0)")
 
     catalogue = sub.add_parser(
         "catalogue",
-        help="the 45 measurements, their evidence tier and their pose sensitivity",
+        help="every measurement, its evidence tier and its pose sensitivity",
     )
     catalogue.add_argument("--view", choices=("frontal", "profile"))
     catalogue.add_argument(
@@ -185,6 +190,7 @@ def main(argv: list[str] | None = None) -> int:
             out=args.out,
             as_json=args.json,
             seed=args.seed,
+            pdf=args.pdf,
         )
 
     if args.command == "serve":

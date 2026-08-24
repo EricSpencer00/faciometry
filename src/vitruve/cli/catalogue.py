@@ -1,6 +1,6 @@
 """Printing the measurement catalogue as a table you can decide from.
 
-This is the command to run first. The catalogue is 45 measurements and the
+This is the command to run first. The catalogue is a set of measurements and the
 useful thing about it is not the list of names, it is the last three columns:
 how far each measurement moves when the head turns ten degrees, how far it
 spreads between different people, and the ratio of the two. Kleinberg and
