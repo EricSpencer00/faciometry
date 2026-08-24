@@ -1,0 +1,958 @@
+{
+ "arms": {
+  "1": {
+   "label": "synthetic geometry control",
+   "status": "ran",
+   "summary": {
+    "max_mc_rel_shift": 6.271639000392172e-06,
+    "n_measurement_failures": 0,
+    "n_measurements": 68,
+    "n_outside_reference_range": 0,
+    "n_primitive_cases": 31,
+    "n_primitive_failures": 0,
+    "n_unavailable_under_evaluate": 0,
+    "outside_reference_range": [],
+    "worst_abs_error": 2.842170943040401e-14,
+    "worst_id": "mouth_corner_asymmetry",
+    "worst_rel_error": 3.652861552588746e-15
+   }
+  },
+  "10": {
+   "label": "fairness stratification (needs arm 8's data)",
+   "status": "ran",
+   "summary": {
+    "cells": {
+     "ethnicity": {
+      "black": 13,
+      "east_asian": 9,
+      "west_asian": 10,
+      "white": 69
+     },
+     "gender": {
+      "female": 49,
+      "male": 53
+     }
+    },
+    "group_percentile_spread": {
+     "bigonial_width": {
+      "by_group": {
+       "black": 0.3068813103398439,
+       "east_asian": 0.38559624890490757,
+       "west_asian": 0.42096194066456405,
+       "white": 0.2978674683064566
+      },
+      "max": 0.42096194066456405,
+      "min": 0.2978674683064566,
+      "spread": 0.12309447235810744
+     },
+     "bizygomatic_width": {
+      "by_group": {
+       "black": 0.059688714004391304,
+       "east_asian": 0.12368185560885811,
+       "west_asian": 0.15611681499448388,
+       "white": 0.03440054917690942
+      },
+      "max": 0.15611681499448388,
+      "min": 0.03440054917690942,
+      "spread": 0.12171626581757446
+     },
+     "face_height_sellion_menton": {
+      "by_group": {
+       "black": 0.3361864904817894,
+       "east_asian": 0.3069190701228236,
+       "west_asian": 0.21835505590615362,
+       "white": 0.1706347896257084
+      },
+      "max": 0.3361864904817894,
+      "min": 0.1706347896257084,
+      "spread": 0.16555170085608098
+     },
+     "interpupillary_distance": {
+      "by_group": {
+       "black": 0.6017116362930651,
+       "east_asian": 0.4271689378768053,
+       "west_asian": 0.45437634147256256,
+       "white": 0.2940164180930658
+      },
+      "max": 0.6017116362930651,
+      "min": 0.2940164180930658,
+      "spread": 0.30769521819999934
+     },
+     "jaw_cheekbone_ratio": {
+      "by_group": {
+       "black": 0.732647848402382,
+       "east_asian": 0.7218369935421795,
+       "west_asian": 0.7900460818624123,
+       "white": 0.7739737305471405
+      },
+      "max": 0.7900460818624123,
+      "min": 0.7218369935421795,
+      "spread": 0.06820908832023287
+     },
+     "mouth_width": {
+      "by_group": {
+       "black": 0.7070919668824932,
+       "east_asian": 0.545270391571896,
+       "west_asian": 0.5207926683670516,
+       "white": 0.37267763723636765
+      },
+      "max": 0.7070919668824932,
+      "min": 0.37267763723636765,
+      "spread": 0.33441432964612555
+     },
+     "nose_breadth": {
+      "by_group": {
+       "black": 0.8129941653174637,
+       "east_asian": 0.6634661308847195,
+       "west_asian": 0.5530406755790962,
+       "white": 0.3215810294570036
+      },
+      "max": 0.8129941653174637,
+      "min": 0.3215810294570036,
+      "spread": 0.4914131358604601
+     },
+     "nose_height": {
+      "by_group": {
+       "black": 0.03903555319398222,
+       "east_asian": 0.10591944040852878,
+       "west_asian": 0.045887193360876,
+       "white": 0.03535017820057468
+      },
+      "max": 0.10591944040852878,
+      "min": 0.03535017820057468,
+      "spread": 0.0705692622079541
+     },
+     "nose_mouth_width_ratio": {
+      "by_group": {
+       "black": 0.7237715996345213,
+       "east_asian": 0.6557494140479648,
+       "west_asian": 0.5584835893303363,
+       "white": 0.38286660004464623
+      },
+      "max": 0.7237715996345213,
+      "min": 0.38286660004464623,
+      "spread": 0.3409049995898751
+     }
+    },
+    "landmark_error_by_group": {
+     "ethnicity:black": {
+      "ci": [
+       0.03895344176052934,
+       0.06470582088820795
+      ],
+      "median": 0.05958311761283765,
+      "n": 13
+     },
+     "ethnicity:east_asian": {
+      "ci": [
+       0.04254467312793271,
+       0.06357708659287532
+      ],
+      "median": 0.05681336842474609,
+      "n": 9
+     },
+     "ethnicity:west_asian": {
+      "ci": [
+       0.03591076668956217,
+       0.07174714916461082
+      ],
+      "median": 0.05428007317802233,
+      "n": 10
+     },
+     "ethnicity:white": {
+      "ci": [
+       0.04842210814119001,
+       0.05787105187505674
+      ],
+      "median": 0.05383793293363994,
+      "n": 69
+     },
+     "gender:female": {
+      "ci": [
+       0.04671175619950667,
+       0.058069229665765096
+      ],
+      "median": 0.054983970152098875,
+      "n": 49
+     },
+     "gender:male": {
+      "ci": [
+       0.04842210814119001,
+       0.0597768688134295
+      ],
+      "median": 0.05467388686403541,
+      "n": 53
+     }
+    },
+    "n_pairs_separating_at_5pct": 0,
+    "n_pairwise_comparisons": 7,
+    "n_rows": 288,
+    "pairs_separating": [],
+    "worst_group_percentile_offset": {
+     "between_spread": 0.06535560208362935,
+     "between_spread_ci_high": 0.07622361539096909,
+     "between_spread_ci_low": 0.053309189232159625,
+     "discriminability": 0.7000502617738208,
+     "group": "white",
+     "id": "bizygomatic_width",
+     "landmark_err_ci_high": 0.05787105187505674,
+     "landmark_err_ci_low": 0.04842210814119001,
+     "landmark_median_err_over_ipd": 0.05383793293363994,
+     "mean": 120.3979477173108,
+     "mean_percentile_vs_pooled_niosh": 0.03440054917690942,
+     "n": 69,
+     "n_subjects": 69,
+     "stratum_kind": "ethnicity",
+     "unit": "mm",
+     "within_person_cv": 0.09335844246101445,
+     "within_person_cv_ci_high": 0.10112368775401041,
+     "within_person_cv_ci_low": 0.08585130128476867
+    }
+   }
+  },
+  "11": {
+   "label": "pose estimator error without a labelled benchmark",
+   "status": "ran",
+   "summary": {
+    "bounds_deg": {
+     "declared_mae_deg": 3.97,
+     "declared_sd_deg": 4.975657125142535,
+     "pitch_lower_bound_mae_deg": 0.2728734460187564,
+     "roll_increment_mae_deg": 0.1772664544991317,
+     "roll_lower_bound_mae_deg": 0.22807175289297377,
+     "roll_upper_bound_sd_deg": 0.6993216524999287,
+     "yaw_lower_bound_mae_deg": 0.3279075906995564
+    },
+    "n_subjects": 102,
+    "positive_control_passes": true,
+    "positive_control_roll_slope_median": -0.9940417739241547,
+    "roll_error_is_smaller_than_declared_sd": true
+   }
+  },
+  "2": {
+   "label": "pose sweep",
+   "status": "ran",
+   "summary": {
+    "frame_dependent": [
+     [
+      "canthal_tilt_asymmetry",
+      "pitch"
+     ],
+     [
+      "canthal_tilt_l",
+      "pitch"
+     ],
+     [
+      "canthal_tilt_r",
+      "pitch"
+     ],
+     [
+      "chin_projection",
+      "pitch"
+     ],
+     [
+      "chin_projection",
+      "yaw"
+     ],
+     [
+      "commissure_height_l",
+      "pitch"
+     ],
+     [
+      "commissure_height_l",
+      "roll"
+     ],
+     [
+      "cupids_bow_peak_height_l",
+      "pitch"
+     ],
+     [
+      "cupids_bow_peak_height_l",
+      "roll"
+     ],
+     [
+      "cupids_bow_peak_height_r",
+      "pitch"
+     ],
+     [
+      "cupids_bow_peak_height_r",
+      "roll"
+     ],
+     [
+      "e_line_lower_lip",
+      "pitch"
+     ],
+     [
+      "e_line_lower_lip",
+      "yaw"
+     ],
+     [
+      "e_line_upper_lip",
+      "pitch"
+     ],
+     [
+      "e_line_upper_lip",
+      "yaw"
+     ],
+     [
+      "labiomental_sulcus_depth",
+      "pitch"
+     ],
+     [
+      "labiomental_sulcus_depth",
+      "yaw"
+     ],
+     [
+      "margin_reflex_distance_1_l",
+      "pitch"
+     ],
+     [
+      "margin_reflex_distance_1_l",
+      "roll"
+     ],
+     [
+      "margin_reflex_distance_1_r",
+      "pitch"
+     ],
+     [
+      "margin_reflex_distance_1_r",
+      "roll"
+     ],
+     [
+      "margin_reflex_distance_2_l",
+      "pitch"
+     ],
+     [
+      "margin_reflex_distance_2_l",
+      "roll"
+     ],
+     [
+      "margin_reflex_distance_2_r",
+      "pitch"
+     ],
+     [
+      "margin_reflex_distance_2_r",
+      "roll"
+     ],
+     [
+      "midface_projection",
+      "pitch"
+     ],
+     [
+      "midface_projection",
+      "yaw"
+     ],
+     [
+      "mouth_corner_asymmetry",
+      "pitch"
+     ],
+     [
+      "nasal_tip_projection_ratio",
+      "pitch"
+     ],
+     [
+      "nasal_tip_projection_ratio",
+      "yaw"
+     ],
+     [
+      "nasal_tip_rotation",
+      "pitch"
+     ],
+     [
+      "nasal_tip_rotation",
+      "roll"
+     ],
+     [
+      "nasal_tip_rotation",
+      "yaw"
+     ],
+     [
+      "ocular_height_asymmetry",
+      "pitch"
+     ],
+     [
+      "upper_lip_projection",
+      "pitch"
+     ],
+     [
+      "upper_lip_projection",
+      "yaw"
+     ]
+    ],
+    "n_comparable_pairs": 201,
+    "n_disagreements": 131,
+    "n_frame_dependent_in_3d": 36,
+    "n_not_comparable": 3,
+    "n_rows": 1020,
+    "not_comparable": [
+     [
+      "commissure_height_r",
+      "pitch"
+     ],
+     [
+      "commissure_height_r",
+      "roll"
+     ],
+     [
+      "commissure_height_r",
+      "yaw"
+     ]
+    ],
+    "roll_claims_broken": [],
+    "roll_claims_held": 16,
+    "roll_claims_tested": 16,
+    "roll_controls_that_do_not_discriminate": [
+     "margin_reflex_distance_1_l",
+     "margin_reflex_distance_1_r",
+     "margin_reflex_distance_2_l",
+     "margin_reflex_distance_2_r"
+    ],
+    "roll_controls_with_power": 16,
+    "roll_controls_without_power": [],
+    "roll_worst_under_perspective": {
+     "claim": "exact",
+     "claim_holds": true,
+     "claim_reason": "angle between two landmark-derived directions",
+     "control_discriminates": true,
+     "control_has_power": true,
+     "control_over_measurement": Infinity,
+     "expected_roll_secant_10deg": 0.0,
+     "horizon_control_deviation_at_plus10": 10.0,
+     "horizon_control_ortho": 1.0,
+     "horizon_control_ortho_absolute": 1.0,
+     "id": "nasal_dorsal_deviation",
+     "measured_3d": 0.0,
+     "measured_ortho": 0.0,
+     "measured_ortho_absolute": 0.0,
+     "measured_ortho_asym": 0.0,
+     "measured_persp_0.5m": 0.05708926426855143,
+     "measured_persp_0.5m_absolute": 0.05708926426855143,
+     "measured_persp_1.0m": 0.02824457312933575,
+     "unit": "deg",
+     "zero_valued_at_zero_pose": true
+    },
+    "worst_ortho_secant10": {
+     "apriori_sensitivity": 1.15,
+     "apriori_source": "mandibular yaw study; roll slope measured in evals/",
+     "asymmetric_in_sign": true,
+     "axis": "roll",
+     "condition": "ortho",
+     "deviation_at_minus10": 10.378431787456094,
+     "deviation_at_plus10": -12.553642692600206,
+     "id": "gonial_angle_l",
+     "lsq_slope_through_origin": 1.0873723139016114,
+     "max_abs_deviation_30deg": 37.510635860880114,
+     "measured_over_apriori": 0.9970467165241871,
+     "measured_secant_10deg": 1.146603724002815,
+     "measured_secant_10deg_absolute": 1.146603724002815,
+     "measured_secant_20deg": 1.11247479691616,
+     "measured_secant_30deg": 1.0453366158669246,
+     "measured_secant_5deg": 1.1535875804755846,
+     "unit": "deg",
+     "value_at_zero": 138.25425189663338,
+     "view": "profile"
+    },
+    "worst_persp05_secant10": {
+     "apriori_sensitivity": 1.15,
+     "apriori_source": "mandibular yaw study; roll slope measured in evals/",
+     "asymmetric_in_sign": false,
+     "axis": "roll",
+     "condition": "persp_0.5m",
+     "deviation_at_minus10": -13.439851719192404,
+     "deviation_at_plus10": 13.531917961934383,
+     "id": "gonial_angle_r",
+     "lsq_slope_through_origin": 1.161570699564856,
+     "max_abs_deviation_30deg": 34.05703892184722,
+     "measured_over_apriori": 1.1726856383098605,
+     "measured_secant_10deg": 1.3485884840563394,
+     "measured_secant_10deg_absolute": 1.3485884840563394,
+     "measured_secant_20deg": 1.2208280504231368,
+     "measured_secant_30deg": 1.0561174384030645,
+     "measured_secant_5deg": 1.3855742930152288,
+     "unit": "deg",
+     "value_at_zero": 122.39507058475611,
+     "view": "profile"
+    }
+   }
+  },
+  "3": {
+   "label": "encode/decode control for arm 2",
+   "status": "ran",
+   "summary": {
+    "landmark_rms_mm_lossless": 0.10811716484357235,
+    "landmark_rms_mm_q85": 0.1055338375626502,
+    "median_q85_noise_degrees": 0.020396985780084604,
+    "median_q85_noise_ratios_and_lengths": 0.00045216007414457715,
+    "n_measurements": 68,
+    "worst_q85": "commissure_height_r",
+    "worst_q85_noise": 4.419958216109165
+   }
+  },
+  "4": {
+   "label": "perspective sweep",
+   "status": "ran",
+   "summary": {
+    "at_0.5m_over_1pct": [
+     "alar_base_intercanthal_ratio",
+     "bigonial_width",
+     "biocular_width",
+     "bizygomatic_width",
+     "brow_apex_lateral_offset_l",
+     "brow_apex_lateral_offset_r",
+     "canthal_tilt_asymmetry",
+     "canthal_tilt_l",
+     "canthal_tilt_r",
+     "commissure_height_l",
+     "cupids_bow_peak_height_l",
+     "cupids_bow_peak_height_r",
+     "eye_aspect_ratio_l",
+     "eye_aspect_ratio_r",
+     "eye_spacing_ratio",
+     "face_height_sellion_menton",
+     "facial_thirds_ratio",
+     "facial_width_height_ratio",
+     "gonial_angle_l",
+     "gonial_angle_r",
+     "intercanthal_biocular_ratio",
+     "jaw_cheekbone_ratio",
+     "medial_canthal_angle_l",
+     "medial_canthal_angle_r",
+     "middle_third_height",
+     "mouth_width",
+     "nasal_tip_projection_ratio",
+     "nose_breadth",
+     "nose_height",
+     "palpebral_fissure_width_l",
+     "palpebral_fissure_width_r",
+     "philtrum_length",
+     "philtrum_width",
+     "ramus_body_ratio_l",
+     "ramus_body_ratio_r",
+     "upper_face_height",
+     "upper_vermilion_height"
+    ],
+    "at_1.0m_over_1pct": [
+     "alar_base_intercanthal_ratio",
+     "bigonial_width",
+     "bizygomatic_width",
+     "brow_apex_lateral_offset_l",
+     "brow_apex_lateral_offset_r",
+     "canthal_tilt_l",
+     "canthal_tilt_r",
+     "commissure_height_l",
+     "cupids_bow_peak_height_l",
+     "cupids_bow_peak_height_r",
+     "eye_aspect_ratio_l",
+     "eye_aspect_ratio_r",
+     "eye_spacing_ratio",
+     "facial_thirds_ratio",
+     "facial_width_height_ratio",
+     "gonial_angle_l",
+     "gonial_angle_r",
+     "intercanthal_biocular_ratio",
+     "medial_canthal_angle_l",
+     "medial_canthal_angle_r",
+     "middle_third_height",
+     "mouth_width",
+     "nasal_tip_projection_ratio",
+     "nose_breadth",
+     "nose_height",
+     "palpebral_fissure_width_l",
+     "palpebral_fissure_width_r",
+     "philtrum_length",
+     "philtrum_width",
+     "ramus_body_ratio_l",
+     "ramus_body_ratio_r",
+     "upper_face_height"
+    ],
+    "exact_pinhole_matches_measured_to": 9.367506770274758e-17,
+    "icao_understates_at_0.3m_by": -0.16666666666666638,
+    "icao_understates_at_1.0m_by": -0.04999999999999889,
+    "n_ratio_or_length": 51,
+    "n_with_constant_straddle": 42,
+    "worst_measurement_at_0.3m": "gonial_angle_r",
+    "worst_measurement_at_0.3m_deviation": -28.632762885900007
+   }
+  },
+  "5": {
+   "label": "discriminability (needs arms 2 and 3)",
+   "status": "ran",
+   "summary": {
+    "gate_is_dominated_by_estimator_noise": {
+     "0.5": {
+      "fraction_that_is_estimator_uncertainty": 0.9086867587628609,
+      "gated_pose_deg": 5.475657125142535,
+      "true_pose_deg": 0.5
+     },
+     "3.0": {
+      "fraction_that_is_estimator_uncertainty": 0.6238554450212294,
+      "gated_pose_deg": 7.975657125142535,
+      "true_pose_deg": 3.0
+     },
+     "8.0": {
+      "fraction_that_is_estimator_uncertainty": 0.3834608973676837,
+      "gated_pose_deg": 12.975657125142536,
+      "true_pose_deg": 8.0
+     }
+    },
+    "kleinberg_reproduced": true,
+    "n_measurements": 68,
+    "n_reaching_8pct_at_10deg_yaw": {
+     "ortho": 5,
+     "persp_0.5m": 9,
+     "persp_1.0m": 9
+    },
+    "n_spread_unknown": 25,
+    "n_uninformative_as_shipped": {
+     "0.5": 12,
+     "3.0": 14,
+     "8.0": 14
+    },
+    "n_uninformative_measured": {
+     "0.5": 7,
+     "3.0": 11,
+     "8.0": 17
+    },
+    "reaching_8pct_persp_0.5m": [
+     "brow_apex_lateral_offset_l",
+     "brow_apex_lateral_offset_r",
+     "commissure_height_l",
+     "commissure_height_r",
+     "eye_aspect_ratio_r",
+     "nasal_tip_projection_ratio",
+     "palpebral_fissure_width_r",
+     "ramus_body_ratio_l",
+     "ramus_body_ratio_r"
+    ],
+    "spread_unknown": [
+     "alar_base_intercanthal_ratio",
+     "brow_apex_lateral_offset_l",
+     "brow_apex_lateral_offset_r",
+     "canthal_tilt_asymmetry",
+     "commissure_height_l",
+     "commissure_height_r",
+     "eye_aspect_ratio_l",
+     "eye_aspect_ratio_r",
+     "eye_spacing_ratio",
+     "facial_convexity_angle",
+     "facial_thirds_ratio",
+     "gonial_angle_r",
+     "lip_vermilion_ratio",
+     "medial_canthal_angle_l",
+     "medial_canthal_angle_r",
+     "mentocervical_angle",
+     "mentolabial_angle",
+     "mouth_corner_asymmetry",
+     "nasal_dorsal_deviation",
+     "nasal_tip_projection_ratio",
+     "nasal_tip_rotation",
+     "ocular_height_asymmetry",
+     "ramus_body_ratio_l",
+     "ramus_body_ratio_r",
+     "submental_cervical_angle"
+    ],
+    "tightest_crossover": {
+     "axis": "yaw",
+     "crossover_deg_ortho": 0.009072726148897078,
+     "crossover_deg_persp1m": 0.007356326480266637,
+     "id": "ramus_body_ratio_r",
+     "pipeline_noise": 0.00019178538270863787,
+     "slope_ortho": 0.02113867205525124,
+     "slope_persp1m": 0.026070809013588863
+    },
+    "uninformative_as_shipped": {
+     "0.5": [
+      "bigonial_width",
+      "bizygomatic_width",
+      "chin_projection",
+      "e_line_lower_lip",
+      "e_line_upper_lip",
+      "facial_width_height_ratio",
+      "gonial_angle_l",
+      "jaw_cheekbone_ratio",
+      "labiomental_sulcus_depth",
+      "midface_projection",
+      "submental_length",
+      "upper_lip_projection"
+     ],
+     "3.0": [
+      "bigonial_width",
+      "bizygomatic_width",
+      "canthal_tilt_l",
+      "canthal_tilt_r",
+      "chin_projection",
+      "e_line_lower_lip",
+      "e_line_upper_lip",
+      "facial_width_height_ratio",
+      "gonial_angle_l",
+      "jaw_cheekbone_ratio",
+      "labiomental_sulcus_depth",
+      "midface_projection",
+      "submental_length",
+      "upper_lip_projection"
+     ],
+     "8.0": [
+      "bigonial_width",
+      "bizygomatic_width",
+      "canthal_tilt_l",
+      "canthal_tilt_r",
+      "chin_projection",
+      "e_line_lower_lip",
+      "e_line_upper_lip",
+      "facial_width_height_ratio",
+      "gonial_angle_l",
+      "jaw_cheekbone_ratio",
+      "labiomental_sulcus_depth",
+      "midface_projection",
+      "submental_length",
+      "upper_lip_projection"
+     ]
+    },
+    "uninformative_measured": {
+     "0.5": [
+      "chin_projection",
+      "cupids_bow_peak_height_l",
+      "cupids_bow_peak_height_r",
+      "facial_width_height_ratio",
+      "gonial_angle_l",
+      "jaw_cheekbone_ratio",
+      "midface_projection"
+     ],
+     "3.0": [
+      "canthal_tilt_l",
+      "canthal_tilt_r",
+      "chin_projection",
+      "cupids_bow_peak_height_l",
+      "cupids_bow_peak_height_r",
+      "e_line_lower_lip",
+      "e_line_upper_lip",
+      "facial_width_height_ratio",
+      "gonial_angle_l",
+      "jaw_cheekbone_ratio",
+      "midface_projection"
+     ],
+     "8.0": [
+      "canthal_tilt_l",
+      "canthal_tilt_r",
+      "chin_projection",
+      "cupids_bow_peak_height_l",
+      "cupids_bow_peak_height_r",
+      "e_line_lower_lip",
+      "e_line_upper_lip",
+      "facial_width_height_ratio",
+      "gonial_angle_l",
+      "jaw_cheekbone_ratio",
+      "labiomental_sulcus_depth",
+      "lower_vermilion_height",
+      "midface_projection",
+      "palpebral_fissure_width_l",
+      "palpebral_fissure_width_r",
+      "philtrum_length",
+      "upper_vermilion_height"
+     ]
+    }
+   }
+  },
+  "6": {
+   "label": "NIOSH 2003 external check",
+   "status": "ran",
+   "summary": {
+    "default_linear_rsd_in_published_py": 0.06,
+    "default_rsd_inside_measured_range": true,
+    "ipd_mean_mm": 64.37037037037037,
+    "ipd_vs_scale_py_prior_pct": 0.01594650205761312,
+    "max_abs_skew": 0.6386457443830207,
+    "max_eta_squared_sex": 0.2799318690933965,
+    "max_pooled_over_within_sex": 1.178308083252485,
+    "n_mismatched_cells": 0,
+    "n_rejecting_normal_at_5pct": 73,
+    "n_strata_cells": 99,
+    "n_strata_tested_for_normality": 99,
+    "n_subjects": 3997,
+    "vendored_json_reproduces_exactly": true,
+    "within_sex_linear_rsd_max": 0.1374260050383726,
+    "within_sex_linear_rsd_median": 0.07528969683970567,
+    "within_sex_linear_rsd_min": 0.04536934383104967,
+    "worst_pooling_inflation": "face_height_sellion_menton",
+    "worst_skew_stratum": "nose_breadth male|pooled"
+   }
+  },
+  "7": {
+   "label": "negative control on the normative model",
+   "status": "ran",
+   "summary": {
+    "leak_free": true,
+    "max_across_shuffle_ks": 0.1576653085324059,
+    "max_identity_ks": 0.06357365784451685,
+    "max_loo_minus_identity_ks": 0.00037362569138588153,
+    "max_sex_separation_pooled_ks": 0.48289448987727457,
+    "max_sex_separation_stratified_ks": 0.09045328195477945,
+    "n_leaking_identity": 0,
+    "n_measurements": 9,
+    "n_uniform_under_correct_strata_at_1pct": 1,
+    "n_where_stratification_carries_information": 6
+   }
+  },
+  "8": {
+   "label": "FRLL landmark accuracy and spread",
+   "status": "ran",
+   "summary": {
+    "front_capture_pose_p95": {
+     "pitch": 8.291829586029053,
+     "roll": 3.86582144498825,
+     "yaw": 3.856522357463835
+    },
+    "median_landmark_error_over_ipd": 0.04841448211852838,
+    "n_landmarks_with_suspect_index_map": 12,
+    "n_measurements_evaluable": 48,
+    "n_measurements_not_evaluable": 20,
+    "n_subjects": 102,
+    "profile_detection_rate": {
+     "neutral_left_profile": 0.11764705882352941,
+     "neutral_right_profile": 0.13725490196078433
+    },
+    "roll_attribution": {
+     "agreement_lost_by_removing_roll": [
+      "canthal_tilt_asymmetry",
+      "ocular_height_asymmetry"
+     ],
+     "median_abs_corr_with_camera_roll_horizon": 0.19919040429871376,
+     "median_abs_corr_with_camera_roll_shipped": 0.10506327264902816,
+     "n_not_evaluable": 0,
+     "n_tested": 16
+    },
+    "suspect_index_maps": [
+     "gnathion",
+     "gonion_l",
+     "gonion_r",
+     "menton",
+     "subalare_l",
+     "subalare_r",
+     "superciliare_l",
+     "superciliare_r",
+     "tragion_l",
+     "tragion_r",
+     "trichion",
+     "zygion_r"
+    ],
+    "worst_measurement_agreement": {
+     "id": "ocular_height_asymmetry",
+     "loa_high": 0.344387234494531,
+     "loa_low": -0.9109759108893115,
+     "loa_width_over_between_subject_sd": 4.013020369519188,
+     "mean_difference": -0.28329433819739025,
+     "mean_difference_pct": -0.6795083871424072,
+     "mediapipe_mean": 0.13361639249829893,
+     "n": 102,
+     "pearson_r": 0.07839027485818167,
+     "sd_of_difference": 0.3202457003530211,
+     "template_mean": 0.4169107306956892,
+     "unit": "deg"
+    },
+    "worst_niosh_bias": {
+     "evidence": "validated_2d",
+     "frll_mean": 40.786432734354925,
+     "frll_minus_niosh_pct": -0.18996588514036475,
+     "frll_rsd": 0.07804335551878648,
+     "frll_rsd_ci_high": 0.08761309159018743,
+     "frll_rsd_ci_low": 0.06714964666565101,
+     "frll_sd": 3.183110070230332,
+     "id": "nose_height",
+     "n": 102,
+     "niosh_mean": 50.3515,
+     "niosh_rsd": 0.08913537829061696,
+     "niosh_sd": 4.4881,
+     "spec_between_subject_rsd": 0.08913537829061696,
+     "unit": "mm"
+    }
+   }
+  },
+  "9": {
+   "label": "test-retest repeatability (needs arm 8's data)",
+   "status": "ran",
+   "summary": {
+    "mean_frac_front_captures_within_tolerance": 0.8500816993464051,
+    "mean_frac_front_captures_within_tolerance_pose_gated": 0.2830882352941177,
+    "median_all_usable_cv": 0.19496317058035562,
+    "median_expression_cv": 0.07159819761248365,
+    "n_cv_over_10pct_all_usable": 27,
+    "n_cv_over_10pct_expression": 14,
+    "n_informative_all_usable": 8,
+    "n_informative_expression": 31,
+    "n_measurements": 48,
+    "n_specs_with_measured_within_person_in_src": 2,
+    "uninformative_all_usable": [
+     "bigonial_width",
+     "biocular_width",
+     "bizygomatic_width",
+     "brow_apex_lateral_offset_l",
+     "brow_apex_lateral_offset_r",
+     "canthal_tilt_asymmetry",
+     "canthal_tilt_l",
+     "commissure_height_l",
+     "commissure_height_r",
+     "cupids_bow_peak_height_l",
+     "cupids_bow_peak_height_r",
+     "eye_aspect_ratio_l",
+     "eye_aspect_ratio_r",
+     "face_height_sellion_menton",
+     "facial_width_height_ratio",
+     "intercanthal_width",
+     "interpupillary_distance",
+     "lower_third_height",
+     "margin_reflex_distance_1_l",
+     "margin_reflex_distance_1_r",
+     "margin_reflex_distance_2_l",
+     "margin_reflex_distance_2_r",
+     "medial_canthal_angle_l",
+     "medial_canthal_angle_r",
+     "middle_third_height",
+     "mouth_corner_asymmetry",
+     "mouth_width",
+     "nasal_dorsal_deviation",
+     "nose_breadth",
+     "nose_height",
+     "nose_mouth_width_ratio",
+     "ocular_height_asymmetry",
+     "palpebral_fissure_height_l",
+     "palpebral_fissure_height_r",
+     "palpebral_fissure_width_l",
+     "palpebral_fissure_width_r",
+     "philtrum_length",
+     "philtrum_width",
+     "upper_face_height",
+     "upper_vermilion_height"
+    ],
+    "uninformative_expression": [
+     "brow_apex_lateral_offset_l",
+     "brow_apex_lateral_offset_r",
+     "commissure_height_l",
+     "commissure_height_r",
+     "eye_aspect_ratio_l",
+     "eye_aspect_ratio_r",
+     "margin_reflex_distance_2_l",
+     "margin_reflex_distance_2_r",
+     "medial_canthal_angle_r",
+     "mouth_corner_asymmetry",
+     "mouth_width",
+     "nose_mouth_width_ratio",
+     "ocular_height_asymmetry",
+     "palpebral_fissure_height_l",
+     "palpebral_fissure_height_r",
+     "philtrum_length",
+     "philtrum_width"
+    ]
+   }
+  }
+ },
+ "n_failed": 0,
+ "n_not_run": 0,
+ "n_ran": 11,
+ "provenance": {
+  "git_sha": "42c685d73bd198fa9acf453029e3ba33707c456c",
+  "master_seed": 20260823,
+  "numpy": "2.4.6",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "python": "3.11.14"
+ }
+}

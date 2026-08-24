@@ -1,0 +1,69 @@
+id,unit,evidence,truth,measured,abs_error,rel_error,truth_exact_by_construction,pass,note,reference_range,inside_reference_range
+interpupillary_distance,mm,validated_2d,63.36,63.36,0.0,0.0,True,True,"pupils placed at +/- IPD/2, equal y and z",52.0 to 78.0,True
+intercanthal_width,mm,validated_2d,32.0,32.0,0.0,0.0,True,True,equal y and z,,
+biocular_width,mm,validated_2d,90.00144981797378,90.00144981797378,0.0,0.0,False,True,outer canthi differ in height by the tilt asymmetry,,
+nose_breadth,mm,validated_2d,34.0,34.0,0.0,0.0,True,True,equal y and z,,
+mouth_width,mm,validated_2d,52.00615348206402,52.00615348206402,0.0,0.0,True,True,hypotenuse of the 52 mm span and the 0.8 mm corner drop,,
+philtrum_width,mm,conventional,11.0,11.0,0.0,0.0,True,True,equal y and z,,
+bizygomatic_width,mm,requires_3d,141.0,141.0,0.0,0.0,True,True,equal y and z,120.0 to 150.0,True
+bigonial_width,mm,requires_3d,117.0,117.0,0.0,0.0,True,True,equal y and z,,
+nose_height,mm,validated_2d,53.9351462406472,53.9351462406472,0.0,0.0,False,True,,,
+face_height_sellion_menton,mm,validated_2d,120.01666550941998,120.01666550941998,0.0,0.0,False,True,,,
+philtrum_length,mm,conventional,16.15549442140351,16.15549442140351,0.0,0.0,False,True,,,
+upper_face_height,mm,conventional,86.37129152675674,86.37129152675674,0.0,0.0,False,True,,,
+middle_third_height,mm,conventional,71.02816342831905,71.02816342831905,0.0,0.0,False,True,,,
+lower_third_height,mm,conventional,68.06614430096654,68.06614430096654,0.0,0.0,False,True,,,
+palpebral_fissure_width_l,mm,conventional,30.780468448555318,30.78046844855532,3.552713678800501e-15,1.154210399603989e-16,False,True,,,
+palpebral_fissure_height_l,mm,conventional,10.6,10.600000000000001,1.7763568394002505e-15,1.6758083390568402e-16,True,True,equal x and z,,
+canthal_tilt_l,deg,pose_critical,5.0,4.999999999999999,-8.881784197001252e-16,-1.7763568394002506e-16,True,True,outer canthus placed by dy = dx tan(theta),0.0 to 8.0,True
+eye_aspect_ratio_l,ratio,pose_invariant_ratio,0.3443742260685935,0.3443742260685935,0.0,0.0,False,True,,,
+palpebral_fissure_width_r,mm,conventional,30.82678126447405,30.82678126447405,0.0,0.0,False,True,,,
+palpebral_fissure_height_r,mm,conventional,11.0,11.0,0.0,0.0,True,True,equal x and z,,
+canthal_tilt_r,deg,pose_critical,6.0,6.000000000000001,8.881784197001252e-16,1.4802973661668753e-16,True,True,outer canthus placed by dy = dx tan(theta),0.0 to 8.0,True
+eye_aspect_ratio_r,ratio,pose_invariant_ratio,0.35683258351324587,0.35683258351324587,0.0,0.0,False,True,,,
+intercanthal_biocular_ratio,ratio,pose_invariant_ratio,0.3555498279718759,0.3555498279718759,0.0,0.0,False,True,,,
+nose_mouth_width_ratio,ratio,pose_invariant_ratio,0.6537687893361693,0.6537687893361693,0.0,0.0,False,True,,,
+eye_spacing_ratio,ratio,pose_invariant_ratio,0.9411764705882353,0.9411764705882353,0.0,0.0,True,True,32 / 34,,
+facial_thirds_ratio,ratio,conventional,1.043516775597798,1.043516775597798,0.0,0.0,False,True,,,
+lip_vermilion_ratio,ratio,conventional,0.5,0.5,0.0,0.0,False,True,,0.4 to 0.7,True
+facial_width_height_ratio,ratio,requires_3d,1.6324868773823995,1.6324868773823995,0.0,0.0,False,True,,,
+jaw_cheekbone_ratio,ratio,requires_3d,0.8297872340425532,0.8297872340425532,0.0,0.0,True,True,117 / 141,,
+ocular_height_asymmetry,deg,pose_invariant_ratio,0.3252147242548326,0.3252147242548326,0.0,0.0,False,True,inclination of the outer-canthal line against the interpupillary axis: atan(29*(tan 6 - tan 5) / 90),,
+mouth_corner_asymmetry,deg,pose_invariant_ratio,0.8814039965821379,0.8814039965821346,-3.219646771412954e-15,-3.652861552588746e-15,True,True,"atan(0.8 / 52), the 0.8 mm corner drop over the 52 mm lateral run",,
+canthal_tilt_asymmetry,deg,pose_invariant_ratio,1.0,1.0000000000000018,1.7763568394002505e-15,1.7763568394002505e-15,True,True,6.0 - 5.0,,
+nasofrontal_angle,deg,conventional,121.53479190518829,121.53479190518829,0.0,0.0,False,True,,115.0 to 135.0,True
+nasolabial_angle,deg,conventional,100.66978280449668,100.66978280449668,0.0,0.0,False,True,,90.0 to 120.0,True
+facial_convexity_angle,deg,conventional,173.19203215938398,173.192032159384,2.842170943040401e-14,1.641051789510055e-16,False,True,,165.0 to 175.0,True
+mentolabial_angle,deg,conventional,113.38522105721376,113.38522105721376,0.0,0.0,False,True,,110.0 to 130.0,True
+mentocervical_angle,deg,conventional,87.36707506187837,87.36707506187837,0.0,0.0,False,True,,80.0 to 95.0,True
+submental_cervical_angle,deg,conventional,110.81558506742743,110.81558506742743,0.0,0.0,False,True,,90.0 to 120.0,True
+gonial_angle_l,deg,pose_critical,124.07635622061959,124.07635622061957,-1.4210854715202004e-14,-1.1453314030220027e-16,False,True,,100.0 to 140.0,True
+gonial_angle_r,deg,pose_critical,124.07635622061959,124.07635622061957,-1.4210854715202004e-14,-1.1453314030220027e-16,False,True,,100.0 to 140.0,True
+e_line_upper_lip,mm,conventional,-2.6721019108280224,-2.6721019108280224,0.0,0.0,False,True,registry computes the z component of the perpendicular; the Ricketts reference range is a perpendicular distance,-6.0 to -2.0,True
+e_line_lower_lip,mm,conventional,-0.6244585987261111,-0.6244585987261111,0.0,0.0,False,True,registry computes the z component of the perpendicular; the Ricketts reference range is a perpendicular distance,-4.0 to 0.0,True
+nasal_tip_projection_ratio,ratio,conventional,0.5547001962252291,0.5547001962252291,0.0,0.0,False,True,,0.55 to 0.6,True
+submental_length,mm,conventional,70.02856560004639,70.02856560004639,0.0,0.0,False,True,,50.0 to 75.0,True
+chin_projection,mm,conventional,-4.0,-4.0,0.0,0.0,True,True,26 - 30,,
+brow_apex_lateral_offset_l,ratio,conventional,-0.6497626906954596,-0.6497626906954594,1.1102230246251565e-16,1.7086592390167142e-16,False,True,"superciliare sits 20 mm medial to exocanthion and 16 mm in front of it; only the 20 mm may appear, over the fissure width",,
+margin_reflex_distance_1_l,mm,conventional,5.3,5.3,0.0,0.0,True,True,"the upper lid margin is placed half a fissure height above the pupil, and the pupil is on the interpupillary line",,
+margin_reflex_distance_2_l,mm,conventional,5.3,5.300000000000001,8.881784197001252e-16,1.6758083390568402e-16,True,True,"the lower lid margin, the same distance below; the -y normal makes a lid below the line report positive",,
+medial_canthal_angle_l,deg,conventional,36.580564494963774,36.580564494963774,0.0,0.0,False,True,"angle the two lid margins subtend at the inner corner; three points and no frame, so it carries no axis convention at all",,
+brow_apex_lateral_offset_r,ratio,conventional,-0.6487865154786289,-0.6487865154786289,0.0,0.0,False,True,"as the left side, mirrored; the two differ only through the fissure widths, which differ only through the canthal tilts",,
+margin_reflex_distance_1_r,mm,conventional,5.5,5.5,0.0,0.0,True,True,as the left side,,
+margin_reflex_distance_2_r,mm,conventional,5.5,5.5,0.0,0.0,True,True,as the left side,,
+medial_canthal_angle_r,deg,conventional,37.868061372045254,37.86806137204525,-7.105427357601002e-15,-1.8763641707960075e-16,False,True,as the left side; the two differ through the fissure heights,,
+upper_vermilion_height,mm,conventional,4.123105625617661,4.123105625617661,0.0,0.0,False,True,labiale superius to stomion; sqrt(4^2 + 1^2) in the sagittal plane,,
+lower_vermilion_height,mm,conventional,8.246211251235321,8.246211251235321,0.0,0.0,False,True,stomion to labiale inferius; sqrt(8^2 + 2^2),,
+cupids_bow_peak_height_l,mm,conventional,1.5,1.5,0.0,0.0,True,True,"both terms are offsets from the same interpupillary line, so the line drops out and the answer is the 1.5 mm the crista philtri sits above labiale superius",,
+cupids_bow_peak_height_r,mm,conventional,1.5,1.5,0.0,0.0,True,True,as the left side,,
+commissure_height_l,ratio,conventional,-0.015382795043203928,-0.015382795043203928,0.0,0.0,True,True,"the left corner is the 0.8 mm dropped one, so this is -0.8 / mouth width; negative is a downturned corner",,
+commissure_height_r,ratio,conventional,0.0,0.0,0.0,0.0,True,True,"the right corner is level with the stomion by construction, so this is exactly zero -- and a formula that leaked the interpupillary line into it would not be",,
+upper_lip_projection,mm,conventional,7.30327868852459,7.30327868852459,0.0,0.0,False,True,"registry computes the z component of the perpendicular to Burstone's line; the clinical convention is the perpendicular distance. The line is inclined only 5.2 degrees here, so the two differ by 0.4 percent rather than the E-line's 9 percent",,
+nasal_dorsal_deviation,deg,conventional,0.0,0.0,0.0,0.0,True,True,"sellion and pronasale are both on the midline, so the dorsal line is exactly perpendicular to the interpupillary axis and the departure from perpendicular is exactly zero",,
+alar_base_intercanthal_ratio,ratio,pose_invariant_ratio,0.875,0.875,0.0,0.0,True,True,"28 / 32; both pairs are placed at equal y and z, so both terms are coordinate differences",,
+nasal_tip_rotation,deg,conventional,32.47119229084849,32.47119229084849,0.0,0.0,True,True,"atan(7 / 11): the columella rises 7 mm and runs 11 mm forward from the subnasale, and the axis it is read against is the frame's z",,
+midface_projection,mm,conventional,8.0,8.0,0.0,0.0,True,True,subnasale sits 8 mm in front of nasion; a pure z difference,,
+chin_height,mm,conventional,27.073972741361768,27.073972741361768,0.0,0.0,False,True,sublabiale to gnathion; sqrt(27^2 + 2^2),,
+labiomental_sulcus_depth,mm,conventional,-5.58284023668639,-5.58284023668639,0.0,0.0,False,True,"registry computes the z component of the perpendicular to the labiale inferius - pogonion line; that line is inclined 22.4 degrees here, so the z component reads 7.5 percent shallower than the perpendicular distance the sulcus is normally quoted as",,
+ramus_body_ratio_l,ratio,requires_3d,1.2564726038618268,1.2564726038618268,0.0,0.0,False,True,"tragion-gonion over gonion-gnathion; the jaw is mirror-symmetric by construction, so the two sides must agree exactly",,
+ramus_body_ratio_r,ratio,requires_3d,1.2564726038618268,1.2564726038618268,0.0,0.0,False,True,"as the left side, exactly",,

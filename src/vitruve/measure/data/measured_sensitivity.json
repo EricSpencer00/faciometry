@@ -1,0 +1,343 @@
+{
+ "_comment": "Pose slopes measured by evals/arms/arm02_pose_sweep.py, in fractional change per degree for lengths and ratios and degrees per degree for angles. Generated, not hand-written: regenerate with `make evals` and scripts/build_measured_sensitivity.py rather than editing.",
+ "n_measurements": 67,
+ "slopes": {
+  "alar_base_intercanthal_ratio": {
+   "pitch": 0.001755,
+   "roll": 0.0,
+   "yaw": 0.000976
+  },
+  "bigonial_width": {
+   "pitch": 0.001973,
+   "roll": 0.0,
+   "yaw": 0.001519
+  },
+  "biocular_width": {
+   "pitch": 0.001228,
+   "roll": 0.0,
+   "yaw": 0.001519
+  },
+  "bizygomatic_width": {
+   "pitch": 0.00057,
+   "roll": 0.0,
+   "yaw": 0.001519
+  },
+  "brow_apex_lateral_offset_l": {
+   "pitch": 0.001165,
+   "roll": 0.00061,
+   "yaw": 0.009293
+  },
+  "brow_apex_lateral_offset_r": {
+   "pitch": 0.001254,
+   "roll": 0.000611,
+   "yaw": 0.009314
+  },
+  "canthal_tilt_asymmetry": {
+   "pitch": 0.098773,
+   "roll": 0.004767,
+   "yaw": 0.068891
+  },
+  "canthal_tilt_l": {
+   "pitch": 0.345089,
+   "roll": 0.002172,
+   "yaw": 0.03105
+  },
+  "canthal_tilt_r": {
+   "pitch": 0.343745,
+   "roll": 0.002595,
+   "yaw": 0.03784
+  },
+  "chin_height": {
+   "pitch": 0.0,
+   "roll": 0.005552,
+   "yaw": 0.000227
+  },
+  "chin_projection": {
+   "pitch": 0.191013,
+   "roll": 0.009318,
+   "yaw": 0.001603
+  },
+  "commissure_height_l": {
+   "pitch": 1.188735,
+   "roll": 0.003284,
+   "yaw": 0.237007
+  },
+  "cupids_bow_peak_height_l": {
+   "pitch": 0.068351,
+   "roll": 0.001643,
+   "yaw": 0.007029
+  },
+  "cupids_bow_peak_height_r": {
+   "pitch": 0.027903,
+   "roll": 0.001643,
+   "yaw": 0.007029
+  },
+  "e_line_lower_lip": {
+   "pitch": 0.007921,
+   "roll": 0.003436,
+   "yaw": 0.002423
+  },
+  "e_line_upper_lip": {
+   "pitch": 0.007921,
+   "roll": 0.003021,
+   "yaw": 0.002527
+  },
+  "eye_aspect_ratio_l": {
+   "pitch": 0.002326,
+   "roll": 0.000424,
+   "yaw": 0.007254
+  },
+  "eye_aspect_ratio_r": {
+   "pitch": 0.002453,
+   "roll": 0.000422,
+   "yaw": 0.007228
+  },
+  "eye_spacing_ratio": {
+   "pitch": 0.001649,
+   "roll": 0.0,
+   "yaw": 0.000382
+  },
+  "face_height_sellion_menton": {
+   "pitch": 0.003265,
+   "roll": 2e-06,
+   "yaw": 2.7e-05
+  },
+  "facial_convexity_angle": {
+   "pitch": 0.0,
+   "roll": 0.012332,
+   "yaw": 0.010299
+  },
+  "facial_thirds_ratio": {
+   "pitch": 0.00884,
+   "roll": 2.4e-05,
+   "yaw": 0.000122
+  },
+  "facial_width_height_ratio": {
+   "pitch": 0.001808,
+   "roll": 1e-05,
+   "yaw": 0.001532
+  },
+  "gonial_angle_l": {
+   "pitch": 0.052975,
+   "roll": 1.146604,
+   "yaw": 0.639098
+  },
+  "gonial_angle_r": {
+   "pitch": 0.029948,
+   "roll": 1.348588,
+   "yaw": 0.4472
+  },
+  "intercanthal_biocular_ratio": {
+   "pitch": 7.3e-05,
+   "roll": 0.0,
+   "yaw": 0.000413
+  },
+  "intercanthal_width": {
+   "pitch": 0.001155,
+   "roll": 0.0,
+   "yaw": 0.001541
+  },
+  "interpupillary_distance": {
+   "pitch": 0.001081,
+   "roll": 0.0,
+   "yaw": 0.00152
+  },
+  "jaw_cheekbone_ratio": {
+   "pitch": 0.002542,
+   "roll": 0.0,
+   "yaw": 0.000462
+  },
+  "labiomental_sulcus_depth": {
+   "pitch": 0.00715,
+   "roll": 0.003413,
+   "yaw": 0.002135
+  },
+  "lip_vermilion_ratio": {
+   "pitch": 0.000429,
+   "roll": 0.0,
+   "yaw": 1e-05
+  },
+  "lower_third_height": {
+   "pitch": 0.00819,
+   "roll": 2.1e-05,
+   "yaw": 6e-05
+  },
+  "lower_vermilion_height": {
+   "pitch": 0.009013,
+   "roll": 3e-05,
+   "yaw": 0.0001
+  },
+  "margin_reflex_distance_1_l": {
+   "pitch": 0.001522,
+   "roll": 0.001519,
+   "yaw": 0.0011
+  },
+  "margin_reflex_distance_1_r": {
+   "pitch": 0.001522,
+   "roll": 0.001519,
+   "yaw": 0.0011
+  },
+  "margin_reflex_distance_2_l": {
+   "pitch": 0.003833,
+   "roll": 0.001519,
+   "yaw": 0.0011
+  },
+  "margin_reflex_distance_2_r": {
+   "pitch": 0.003618,
+   "roll": 0.001519,
+   "yaw": 0.0011
+  },
+  "medial_canthal_angle_l": {
+   "pitch": 0.070992,
+   "roll": 0.005266,
+   "yaw": 0.096686
+  },
+  "medial_canthal_angle_r": {
+   "pitch": 0.065958,
+   "roll": 0.005425,
+   "yaw": 0.099589
+  },
+  "mentocervical_angle": {
+   "pitch": 0.0,
+   "roll": 0.049173,
+   "yaw": 0.242216
+  },
+  "mentolabial_angle": {
+   "pitch": 0.0,
+   "roll": 0.077466,
+   "yaw": 0.144396
+  },
+  "middle_third_height": {
+   "pitch": 0.001687,
+   "roll": 3e-06,
+   "yaw": 6.3e-05
+  },
+  "midface_projection": {
+   "pitch": 0.125895,
+   "roll": 0.006161,
+   "yaw": 0.001519
+  },
+  "mouth_corner_asymmetry": {
+   "pitch": 0.010385,
+   "roll": 0.0,
+   "yaw": 0.089532
+  },
+  "mouth_width": {
+   "pitch": 0.001337,
+   "roll": 0.0,
+   "yaw": 0.001632
+  },
+  "nasal_dorsal_deviation": {
+   "pitch": 0.027726,
+   "roll": 0.057089,
+   "yaw": 0.799633
+  },
+  "nasal_tip_projection_ratio": {
+   "pitch": 0.005348,
+   "roll": 0.00106,
+   "yaw": 0.010149
+  },
+  "nasal_tip_rotation": {
+   "pitch": 1.0,
+   "roll": 0.065033,
+   "yaw": 0.102883
+  },
+  "nasofrontal_angle": {
+   "pitch": 0.0,
+   "roll": 0.07414,
+   "yaw": 0.073571
+  },
+  "nasolabial_angle": {
+   "pitch": 0.0,
+   "roll": 0.070013,
+   "yaw": 0.108952
+  },
+  "nose_breadth": {
+   "pitch": 0.000494,
+   "roll": 0.0,
+   "yaw": 0.001618
+  },
+  "nose_height": {
+   "pitch": 0.003276,
+   "roll": 2e-05,
+   "yaw": 5.4e-05
+  },
+  "nose_mouth_width_ratio": {
+   "pitch": 0.000844,
+   "roll": 0.0,
+   "yaw": 0.000136
+  },
+  "ocular_height_asymmetry": {
+   "pitch": 0.032027,
+   "roll": 0.0,
+   "yaw": 0.009658
+  },
+  "palpebral_fissure_height_l": {
+   "pitch": 0.001896,
+   "roll": 0.0,
+   "yaw": 0.0011
+  },
+  "palpebral_fissure_height_r": {
+   "pitch": 0.002031,
+   "roll": 0.0,
+   "yaw": 0.0011
+  },
+  "palpebral_fissure_width_l": {
+   "pitch": 0.001793,
+   "roll": 0.000424,
+   "yaw": 0.008096
+  },
+  "palpebral_fissure_width_r": {
+   "pitch": 0.001924,
+   "roll": 0.000422,
+   "yaw": 0.008071
+  },
+  "philtrum_length": {
+   "pitch": 0.006946,
+   "roll": 4.1e-05,
+   "yaw": 0.000241
+  },
+  "philtrum_width": {
+   "pitch": 0.001143,
+   "roll": 0.0,
+   "yaw": 0.005032
+  },
+  "ramus_body_ratio_l": {
+   "pitch": 0.000857,
+   "roll": 0.007328,
+   "yaw": 0.021139
+  },
+  "ramus_body_ratio_r": {
+   "pitch": 0.001771,
+   "roll": 0.00646,
+   "yaw": 0.030012
+  },
+  "submental_cervical_angle": {
+   "pitch": 0.0,
+   "roll": 0.10087,
+   "yaw": 0.206626
+  },
+  "submental_length": {
+   "pitch": 0.0,
+   "roll": 0.003006,
+   "yaw": 0.001599
+  },
+  "upper_face_height": {
+   "pitch": 0.001706,
+   "roll": 1e-05,
+   "yaw": 6.6e-05
+  },
+  "upper_lip_projection": {
+   "pitch": 0.001579,
+   "roll": 0.001367,
+   "yaw": 0.002092
+  },
+  "upper_vermilion_height": {
+   "pitch": 0.00859,
+   "roll": 3e-05,
+   "yaw": 9.4e-05
+  }
+ },
+ "source": "evals/results/arm02_recommendations.csv",
+ "worst_of": "orthographic, perspective at 1.0 m and 0.5 m, and the left/right asymmetry"
+}

@@ -1108,6 +1108,10 @@ def satisfiable(available: frozenset[L]) -> tuple[MeasurementSpec, ...]:
 # how much it varies between people -- sit side by side.
 # ---------------------------------------------------------------------------
 
+import json  # noqa: E402
+from functools import lru_cache  # noqa: E402
+from pathlib import Path  # noqa: E402
+
 from ..core import sensitivity as sens  # noqa: E402
 from ..norms.published import DEFAULT_LINEAR_RSD, representative_spread  # noqa: E402
 
@@ -1256,6 +1260,51 @@ _MEASURED_WITHIN_PERSON: dict[str, tuple[float, str]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Measured pose slopes override the first-order model.
+#
+# `core/sensitivity.py` predicts how far a measurement moves per degree of head
+# rotation from orthographic projection. That model is useful and it is wrong
+# in specific, findable ways: the sweep in evals/ found 115 of 201
+# measurement-axis pairs where the declared slope understated what was
+# measured. `commissure_height_l` declared 0.010 per degree of pitch against a
+# measured 1.189, a factor of 119, and a measurement that moves that much under
+# pitch was being gated as though pitch barely touched it.
+#
+# So the measurement wins where one exists. The combination is a per-axis
+# maximum rather than a replacement, because the sweep runs on one synthetic
+# face and a slope it happens to find small is not thereby proven small on
+# every face. Taking the larger of the two can only widen an interval or
+# withhold a number, never the reverse.
+# ---------------------------------------------------------------------------
+
+_MEASURED_SLOPES_PATH = Path(__file__).parent / "data" / "measured_sensitivity.json"
+
+
+@lru_cache(maxsize=1)
+def _measured_slopes() -> dict[str, dict[str, float]]:
+    if not _MEASURED_SLOPES_PATH.is_file():  # pragma: no cover - generated file
+        return {}
+    return json.loads(_MEASURED_SLOPES_PATH.read_text()).get("slopes", {})
+
+
+def _with_measured(spec_id: str, modelled: "sens.PoseSensitivity") -> "sens.PoseSensitivity":
+    measured = _measured_slopes().get(spec_id)
+    if not measured:
+        return modelled
+    yaw = max(abs(modelled.yaw), abs(measured.get("yaw", 0.0)))
+    pitch = max(abs(modelled.pitch), abs(measured.get("pitch", 0.0)))
+    roll = max(abs(modelled.roll), abs(measured.get("roll", 0.0)))
+    if (yaw, pitch, roll) == (abs(modelled.yaw), abs(modelled.pitch), abs(modelled.roll)):
+        return modelled
+    return sens.PoseSensitivity(
+        yaw=yaw,
+        pitch=pitch,
+        roll=roll,
+        source=f"{modelled.source}; widened by the pose sweep in evals/",
+    )
+
+
 def _sensitivity_for(spec: MeasurementSpec) -> "sens.PoseSensitivity":
     if spec.id in _SENSITIVITY:
         return _SENSITIVITY[spec.id]
@@ -1299,7 +1348,7 @@ def _enriched(spec: MeasurementSpec) -> MeasurementSpec:
         reference_range=spec.reference_range,
         normalised_by=spec.normalised_by,
         pose_tolerance_deg=spec.pose_tolerance_deg,
-        sensitivity=_sensitivity_for(spec),
+        sensitivity=_with_measured(spec.id, _sensitivity_for(spec)),
         between_subject_rsd=_rsd_for(spec),
         measured_within_person_rsd=_MEASURED_WITHIN_PERSON.get(spec.id, (None, ""))[0],
         within_person_source=_MEASURED_WITHIN_PERSON.get(spec.id, (None, ""))[1],

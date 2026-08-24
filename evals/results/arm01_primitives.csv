@@ -1,0 +1,32 @@
+op,expected,got,abs_error,rel_error,pass,construction
+dist,13.0,13.0,0.0,0.0,True,3-4-12 Pythagorean quadruple
+mid,11.224972160321824,11.224972160321824,0.0,0.0,True,"midpoint of (1,2,3) and (5,10,15) is (3,6,9)"
+angle_at@150.0,150.0,150.0,0.0,0.0,True,second ray placed at the target angle on the unit circle
+angle_at@90.0,90.0,90.0,0.0,0.0,True,second ray placed at the target angle on the unit circle
+angle_at@179.99,179.99,179.99,0.0,0.0,True,second ray placed at the target angle on the unit circle
+angle_at@0.01,0.01,0.01,0.0,0.0,True,second ray placed at the target angle on the unit circle
+angle_between,10.0,10.0,0.0,0.0,True,170 degrees between directed lines folds to 10 between undirected ones
+signed_tilt@7.0/x,7.0,7.0,0.0,0.0,True,dy = dx tan(theta); the out-of-plane -5 must not enter the answer
+signed_tilt@-7.0/x,-7.0,-7.0,0.0,0.0,True,dy = dx tan(theta); the out-of-plane -5 must not enter the answer
+signed_tilt@7.0/-x,7.0,7.0,0.0,0.0,True,dy = dx tan(theta); the out-of-plane -5 must not enter the answer
+proj_length,7.0,7.0,0.0,0.0,True,y separation is 7; x and z separations must not contribute
+line_offset,3.0,3.0,0.0,0.0,True,"line along +y, point 3 mm along +z from it; perpendicular is parallel to z"
+ratio,0.75,0.75,0.0,0.0,True,3 / 4
+sum,10.0,10.0,0.0,0.0,True,2 + 3 + 5
+diff,5.0,5.0,0.0,0.0,True,9 - 4
+product,7.0,7.0,0.0,0.0,True,2 * 3.5
+abs,6.25,6.25,0.0,0.0,True,|-6.25|
+mean,3.0,3.0,0.0,0.0,True,(1 + 2 + 6) / 3
+const,3.141592653589793,3.141592653589793,0.0,0.0,True,identity
+signed_tilt/vec_axis@7.0,7.0,7.0,0.0,0.0,True,"axis is the pupil pair, which is exactly -x here; the 10 mm of canthal depth must not enter"
+signed_tilt/vec_axis@-7.0,-7.0,-7.0,0.0,0.0,True,"axis is the pupil pair, which is exactly -x here; the 10 mm of canthal depth must not enter"
+signed_tilt/roll_invariance@13.0,7.0,7.0,0.0,0.0,True,the face rolled 13.0 deg in the image plane; a reference that rotates with the head must return the same tilt
+signed_tilt/roll_invariance@-21.0,7.0,6.999999999999997,2.6645352591003757e-15,3.806478941571965e-16,True,the face rolled -21.0 deg in the image plane; a reference that rotates with the head must return the same tilt
+signed_tilt/horizon_positive_control_l@13.0,-6.0,-5.999999999999999,8.881784197001252e-16,1.4802973661668753e-16,True,"the discarded frame-referenced form on the left; roll enters one for one and negatively, which is what makes the invariance case above a result rather than a null"
+signed_tilt/horizon_positive_control_r@13.0,20.0,20.0,0.0,0.0,True,"the same on the right, where the reference axis is +x: roll enters with the opposite sign, so a left-minus-right difference doubles it"
+signed_tilt/horizon_positive_control_l@-21.0,28.0,27.999999999999996,3.552713678800501e-15,1.2688263138573217e-16,True,"the discarded frame-referenced form on the left; roll enters one for one and negatively, which is what makes the invariance case above a result rather than a null"
+signed_tilt/horizon_positive_control_r@-21.0,-14.0,-13.999999999999995,5.329070518200751e-15,3.806478941571965e-16,True,"the same on the right, where the reference axis is +x: roll enters with the opposite sign, so a left-minus-right difference doubles it"
+line_offset/y_normal,4.0,4.0,0.0,0.0,True,lid margin 4 mm above a horizontal interpupillary line
+proj_length/vec_axis,-20.0,-20.0,0.0,0.0,True,"the apex is 20 mm medial along an axis that points laterally, so the answer is negative; the 11 mm rise and 16 mm depth must not enter"
+angle_between/vec_axes,90.0,90.0,0.0,0.0,True,"a midline dorsum is exactly perpendicular to the interpupillary axis, whatever its inclination in the sagittal plane"
+axis_z_in_2d,1.0,1.0,0.0,0.0,True,"Axis('z') on a 2D point set must raise, not return 0"

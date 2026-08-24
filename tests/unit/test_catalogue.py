@@ -96,3 +96,41 @@ def test_catalogue_declares_no_aggregate():
         assert "score" not in s.id
         assert "overall" not in s.id
         assert "harmony" not in s.id
+
+
+def test_measured_slopes_override_the_first_order_model():
+    """The projection model is a prediction; the sweep is a measurement.
+
+    `commissure_height_l` declared 0.010 per degree of pitch and measured
+    1.189, a factor of 119. A measurement that moves that much under pitch was
+    being gated as though pitch barely touched it.
+    """
+    from vitruve.measure.registry import _measured_slopes
+
+    slopes = _measured_slopes()
+    assert slopes, "the generated slope table is missing"
+    assert BY_ID["commissure_height_l"].sensitivity.pitch > 1.0
+
+
+def test_the_override_can_only_widen():
+    """The sweep runs on one synthetic face, so a slope it happens to find
+    small is not thereby small on every face. Taking the larger of the two can
+    withhold a number or widen an interval and never the reverse."""
+    from vitruve.measure.registry import _measured_slopes, _sensitivity_for
+
+    slopes = _measured_slopes()
+    for spec in CATALOGUE:
+        modelled = _sensitivity_for(spec)
+        final = spec.sensitivity
+        for axis in ("yaw", "pitch", "roll"):
+            assert getattr(final, axis) >= abs(getattr(modelled, axis)) - 1e-12, (
+                spec.id,
+                axis,
+            )
+            if spec.id in slopes:
+                measured = abs(slopes[spec.id].get(axis, 0.0))
+                assert getattr(final, axis) >= measured - 1e-12, (spec.id, axis)
+
+
+def test_a_widened_sensitivity_says_where_it_came_from():
+    assert "evals/" in BY_ID["commissure_height_l"].sensitivity.source
