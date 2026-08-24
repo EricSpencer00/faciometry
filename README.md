@@ -27,20 +27,34 @@ documented harm.
 
 ## Install
 
-### Mac, no terminal needed
+### Mac
 
-1. Download `Faciometry.dmg` from the [latest release](https://github.com/EricSpencer00/faciometry/releases/latest).
+1. Download the `.dmg` from the [latest release](https://github.com/EricSpencer00/faciometry/releases/latest).
 2. Open it and drag Faciometry to Applications.
-3. **Right-click the app and choose Open** the first time. macOS will warn you
-   because the app is signed but not yet notarised by Apple. After the first
-   time, it opens normally.
-4. It opens in your browser. The first launch downloads about 400 MB of models,
-   once. Everything after that works with the internet off.
+3. **This build is not signed with an Apple developer certificate, so macOS
+   refuses to open it until you say otherwise.** Open Terminal (press
+   Command-Space, type `Terminal`, press Return) and paste this one line:
+
+   ```
+   xattr -dr com.apple.quarantine /Applications/Faciometry.app
+   ```
+
+   That clears the "downloaded from the internet" flag. You do it once.
+4. Open Faciometry normally. It opens in your browser. The first launch
+   downloads about 400 MB of models, once. Everything after that works with
+   the internet turned off.
+
+Asking you to paste a Terminal command is a shortcoming of this build, not of
+your setup. A build signed with a paid Apple Developer ID and notarised by
+Apple opens on a double-click. That has not been done here.
 
 ### Anything with Python
 
+Not on PyPI. Install the wheel from the
+[latest release](https://github.com/EricSpencer00/faciometry/releases/latest):
+
 ```
-pip install 'faciometry[permissive]'
+pip install 'faciometry-0.1.0-py3-none-any.whl[permissive]'
 faciometry fetch-weights
 faciometry analyze photo.jpg --out report/
 ```
@@ -48,7 +62,8 @@ faciometry analyze photo.jpg --out report/
 ### Docker
 
 ```
-docker run -p 8731:8731 -v faciometry-weights:/weights ghcr.io/ericspencer00/faciometry
+git clone https://github.com/EricSpencer00/faciometry && cd faciometry
+docker compose up
 ```
 
 Then open <http://127.0.0.1:8731>.
