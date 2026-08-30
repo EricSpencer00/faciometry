@@ -94,6 +94,9 @@ class Row:
     #: ``None`` means nobody has published one, which is reported as unknown
     #: rather than guessed.
     between_subject_spread: float | None
+    #: True when the spread above is the assumed default for a linear
+    #: measurement rather than a published figure.
+    between_subject_spread_assumed: bool
     #: Spread over movement. Above one, the measurement separates people
     #: better than it separates photographs of the same person.
     discriminability_at_quoted_pose: float | None
@@ -124,6 +127,7 @@ def _row(spec: MeasurementSpec) -> Row:
         pose_tolerance_deg=spec.pose_tolerance_deg,
         move_at_quoted_pose=move,
         between_subject_spread=spread,
+        between_subject_spread_assumed=spec.between_subject_rsd_assumed,
         discriminability_at_quoted_pose=ratio,
         measured_within_person_spread=spec.measured_within_person_rsd,
         landmarks=tuple(sorted(m.value for m in spec.landmarks)),
@@ -268,7 +272,11 @@ def render_detail(spec_id: str) -> str:
             f"roll {spec.sensitivity.roll:.4g} per degree ({r.sensitivity_source})",
         ),
         ("moves at 10 deg", _fmt_amount(r.move_at_quoted_pose, r.unit)),
-        ("between people", _fmt_amount(r.between_subject_spread, r.unit)),
+        (
+            "between people",
+            _fmt_amount(r.between_subject_spread, r.unit)
+            + (" (assumed default, not published)" if r.between_subject_spread_assumed else ""),
+        ),
         ("ratio", _fmt_ratio(r.discriminability_at_quoted_pose)),
     ]
     if spec.measured_within_person_rsd is not None:

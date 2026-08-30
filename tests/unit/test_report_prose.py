@@ -402,6 +402,43 @@ def test_every_stratum_in_the_report_carries_an_n(report: ReportInput):
 
 
 # ---------------------------------------------------------------------------
+# An assumed between-person spread says that it is assumed
+# ---------------------------------------------------------------------------
+
+
+def test_an_assumed_spread_is_labelled_in_the_measurement_sentence(report: ReportInput):
+    """The default 6% spread is an interpolation, and it reads as data unless
+    every sentence built on it says otherwise."""
+    assumed = [m for m in report.measurements
+               if BY_ID[m.spec_id].between_subject_rsd_assumed and m.discriminability]
+    assert assumed, "no measurement in the fixture uses the default spread"
+    for m in assumed:
+        sentence = prose.discriminability_sentence(m)
+        assert "assumed, not published" in sentence, m.spec_id
+
+
+def test_a_published_spread_is_not_labelled_as_assumed(report: ReportInput):
+    published = [m for m in report.measurements
+                 if m.discriminability and not BY_ID[m.spec_id].between_subject_rsd_assumed]
+    assert published
+    for m in published:
+        assert "assumed, not published" not in prose.discriminability_sentence(m), m.spec_id
+
+
+def test_the_budget_says_which_ratios_rest_on_the_assumed_spread(report: ReportInput):
+    """Every ratio in a budget divides by the spread, so a budget built on the
+    default carries the assumption into each counterfactual it prices."""
+    by_id = {b.spec_id: b for b in report.budgets()}
+    lines = {line.spec_id: line for line in prose.budget_lines(report)}
+    assumed = [i for i, b in by_id.items() if b.spread_is_assumed]
+    assert assumed, "no withheld measurement in the fixture uses the default spread"
+    for spec_id in assumed:
+        assert BY_ID[spec_id].between_subject_rsd_assumed
+        if spec_id in lines:
+            assert "assumed" in lines[spec_id].shares, spec_id
+
+
+# ---------------------------------------------------------------------------
 # Rule 4: context, never a target, and no prescriptions
 # ---------------------------------------------------------------------------
 

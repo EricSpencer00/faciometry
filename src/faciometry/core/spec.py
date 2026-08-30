@@ -136,6 +136,12 @@ class MeasurementSpec:
     measured_within_person_rsd: float | None = None
     #: Where ``measured_within_person_rsd`` came from.
     within_person_source: str = ""
+    #: True when ``between_subject_rsd`` is the default assumed for a linear
+    #: measurement with no published table, rather than a spread anybody
+    #: measured. The gate treats the two alike, so the report has to tell them
+    #: apart: a ratio computed against an assumed spread is an assumption about
+    #: how far apart people are, and a reader not told that reads it as data.
+    between_subject_rsd_assumed: bool = False
 
     def __post_init__(self) -> None:
         if not self.id or " " in self.id:

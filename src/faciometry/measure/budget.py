@@ -118,6 +118,9 @@ class Budget:
     spread: float
     terms: tuple[Term, ...]
     counterfactuals: tuple[Counterfactual, ...]
+    #: True when ``spread`` is the assumed default rather than a published
+    #: figure. Every ratio here divides by it, so the flag rides along with it.
+    spread_is_assumed: bool = False
 
     @property
     def total(self) -> float:
@@ -165,6 +168,7 @@ def budget_for(
     sex_declared: bool,
     repeats: int = 1,
     max_repeats: int = 9,
+    spread_is_assumed: bool = False,
 ) -> Budget:
     """Decompose one measurement's error and price each available lever.
 
@@ -178,7 +182,7 @@ def budget_for(
     )
     total = _q(*(t.value for t in terms))
     if total <= 0:
-        return Budget(spec_id, label, spread, terms, ())
+        return Budget(spec_id, label, spread, terms, (), spread_is_assumed)
 
     out: list[Counterfactual] = []
 
@@ -229,7 +233,7 @@ def budget_for(
         )
 
     out.sort(key=lambda c: c.error)
-    return Budget(spec_id, label, spread, terms, tuple(out))
+    return Budget(spec_id, label, spread, terms, tuple(out), spread_is_assumed)
 
 
 def ranked_levers(budgets: list[Budget]) -> list[tuple[Lever, int, str]]:

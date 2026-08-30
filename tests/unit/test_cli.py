@@ -26,6 +26,7 @@ from faciometry.cli.main import main
 from faciometry.cli.runner import BadImage, load_image, load_image_file
 from faciometry.measure.registry import CATALOGUE
 from faciometry.models.licensing import Tier
+from faciometry.norms.published import DEFAULT_LINEAR_RSD
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -109,6 +110,21 @@ def test_between_subject_spread_is_never_invented():
     assert unknown, "the catalogue used to contain measurements with no published spread"
     for row in unknown:
         assert row.discriminability_at_quoted_pose is None
+
+
+def test_the_assumed_linear_spread_is_marked_as_assumed():
+    """Lengths with no published table fall back to a default. The number is
+    printed, so the fallback has to be printed with it."""
+    rows = catalogue_cmd.rows()
+    assumed = [r for r in rows if r.between_subject_spread_assumed]
+    assert assumed, "the catalogue used to contain measurements on the default spread"
+    for row in assumed:
+        assert row.between_subject_spread == pytest.approx(DEFAULT_LINEAR_RSD)
+        assert "assumed default" in catalogue_cmd.render_detail(row.id)
+    published = [r for r in rows if r.between_subject_spread is not None
+                 and not r.between_subject_spread_assumed]
+    assert published
+    assert "assumed default" not in catalogue_cmd.render_detail(published[0].id)
 
 
 # ----------------------------------------------------------------- licenses

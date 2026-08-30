@@ -1323,19 +1323,26 @@ def _sensitivity_for(spec: MeasurementSpec) -> "sens.PoseSensitivity":
     return sens.KLEINBERG_WORST
 
 
-def _rsd_for(spec: MeasurementSpec) -> float | None:
+def _rsd_for(spec: MeasurementSpec) -> tuple[float | None, bool]:
+    """The between-subject spread, and whether it was assumed rather than read.
+
+    The second element travels with the number all the way to the report. A
+    default spread and a transcribed one produce the same ratio, so the only
+    place the difference can be kept is a flag beside the value.
+    """
     published = representative_spread(spec.id, spec.unit.value)
     if published is not None:
-        return published
+        return published, False
     if spec.unit is Unit.MILLIMETRES:
-        return DEFAULT_LINEAR_RSD
+        return DEFAULT_LINEAR_RSD, True
     # Angles and ratios without a published spread stay None on purpose. The
     # report says "unknown whether this distinguishes individuals", which is a
     # different and more honest statement than a guessed number.
-    return None
+    return None, False
 
 
 def _enriched(spec: MeasurementSpec) -> MeasurementSpec:
+    rsd, rsd_assumed = _rsd_for(spec)
     return MeasurementSpec(
         id=spec.id,
         label=spec.label,
@@ -1349,9 +1356,10 @@ def _enriched(spec: MeasurementSpec) -> MeasurementSpec:
         normalised_by=spec.normalised_by,
         pose_tolerance_deg=spec.pose_tolerance_deg,
         sensitivity=_with_measured(spec.id, _sensitivity_for(spec)),
-        between_subject_rsd=_rsd_for(spec),
+        between_subject_rsd=rsd,
         measured_within_person_rsd=_MEASURED_WITHIN_PERSON.get(spec.id, (None, ""))[0],
         within_person_source=_MEASURED_WITHIN_PERSON.get(spec.id, (None, ""))[1],
+        between_subject_rsd_assumed=rsd_assumed,
     )
 
 

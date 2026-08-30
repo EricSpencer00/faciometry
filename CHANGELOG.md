@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- A measurement whose between-person spread is the assumed 6% default now says
+  so wherever the number appears: in the report sentence that quotes the
+  discriminability ratio, in the error budget, and in `faciometry catalogue
+  --id`. The gate cannot tell an assumed spread from a published one, so the
+  reader is told which it is.
+
 ## [0.1.0] - 2026-08-24
 
 First public release.

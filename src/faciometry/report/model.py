@@ -26,6 +26,7 @@ from typing import Mapping
 from ..core.spec import Reportability
 from ..measure.budget import Budget, budget_for
 from ..measure.evaluate import Measured, Unavailable
+from ..measure.registry import BY_ID
 from ..norms import niosh
 
 #: How many captures the repeat counterfactual is allowed to propose. Nine is
@@ -373,17 +374,23 @@ class ReportInput:
         the gate refused on. A measurement with no discriminability has no
         between-person spread to compare against, so there is nothing to
         decompose and it is left out rather than given a budget of zeros.
+
+        Whether that spread was published or assumed travels with it, because
+        every ratio in the budget divides by it and the two kinds of spread
+        produce ratios that look identical.
         """
         out: list[Budget] = []
         for m in self.withheld:
             d = m.discriminability
             if d is None:
                 continue
+            spec = BY_ID.get(m.spec_id)
             out.append(
                 budget_for(
                     spec_id=m.spec_id,
                     label=m.label,
                     spread=d.between_subject_sd,
+                    spread_is_assumed=bool(spec and spec.between_subject_rsd_assumed),
                     pose_error=d.pose_component,
                     landmark_error=d.landmark_component,
                     scale_error=d.scale_component,

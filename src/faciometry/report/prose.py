@@ -47,6 +47,7 @@ from ..measure.budget import LEVER_TEXT, Budget, Lever, ranked_levers, repeat_fa
 from ..measure.evaluate import Measured, Unavailable
 from ..measure.multishot import DEFAULT_SHARED_FRACTION
 from ..measure.registry import BY_ID
+from ..norms.published import DEFAULT_LINEAR_RSD
 from .model import REPEATS_PRICED, NormativeStratum, ReportInput
 
 #: Vocabulary that would turn a measurement into a target or a prescription.
@@ -294,16 +295,38 @@ def statement(m: Measured) -> str:
     return f"{m.label} measures {value_phrase(m)}."
 
 
+#: Said wherever the discriminability ratio was computed against the default
+#: spread. The gate cannot tell an assumed spread from a transcribed one, so
+#: this sentence is the only thing that keeps the reader from reading the
+#: ratio as a finding about how far apart people are.
+ASSUMED_SPREAD_SENTENCE = (
+    f"The between-person spread in that ratio is assumed, not published: no "
+    f"openly licensed normative table covers this measurement, so Faciometry "
+    f"uses the {DEFAULT_LINEAR_RSD:.0%} relative spread that the transcribed "
+    f"linear measurements cluster around. The ratio is therefore an assumption "
+    f"about how far apart people are, not a reading of it."
+)
+
+
+def spread_is_assumed(m: Measured) -> bool:
+    """True when this measurement's between-person spread is the default."""
+    spec = _spec_for(m)
+    return bool(spec and spec.between_subject_rsd_assumed)
+
+
 def discriminability_sentence(m: Measured) -> str:
     d = m.discriminability
     if d is None:
         return CAUSE_UNKNOWN_SPREAD.plain
-    return (
+    said = (
         f"Between-person spread is {d.ratio:.1f} times the measurement error on "
         f"this photograph. Of that error, head pose contributes "
         f"{d.pose_component:.3g} and landmark placement {d.landmark_component:.3g}, "
         f"against a between-person spread of {d.between_subject_sd:.3g}."
     )
+    if spread_is_assumed(m):
+        said = f"{said} {ASSUMED_SPREAD_SENTENCE}"
+    return said
 
 
 def reference_range_sentence(spec: MeasurementSpec) -> str | None:
@@ -632,6 +655,13 @@ def budget_lines(report: ReportInput) -> tuple[BudgetLine, ...]:
                 shares=(
                     f"{b.label}: the largest term is {dominant.name}. Shares of "
                     f"the variance are {_shares(b)}."
+                    + (
+                        f" Its between-person spread is the assumed "
+                        f"{DEFAULT_LINEAR_RSD:.0%} default, so every ratio "
+                        f"below rests on that assumption."
+                        if b.spread_is_assumed
+                        else ""
+                    )
                 ),
                 counterfactual=counterfactual_sentence(b),
             )
