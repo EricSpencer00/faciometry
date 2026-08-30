@@ -50,7 +50,15 @@ from .colorimetry import (
     RegionColour,
     SkinTone,
 )
-from .detect_yolo import AcneDetection, HAYASHI_NOTE, RegionLesions, Severity, hayashi_severity
+from .detect_yolo import (
+    ESTIMATED_HALF_FACE_NOTE,
+    HAYASHI_NOTE,
+    AcneDetection,
+    RegionLesions,
+    Severity,
+    estimated_half_face_count,
+    hayashi_severity,
+)
 from .regions import Region
 
 DISCLAIMER = (
@@ -440,12 +448,8 @@ def from_acne_severity(
         half = detection.hayashi_count(midline_x)
         basis = "the larger of the two half-face counts, split at the facial midline"
     else:
-        half = int(math.ceil(detection.total_count / 2.0))
-        basis = (
-            "half the whole-face count rounded up, because no facial midline was "
-            "supplied; Hayashi grades one half face, so this is an estimate of the "
-            "quantity the grade is defined on rather than the quantity itself"
-        )
+        half = estimated_half_face_count(detection.total_count)
+        basis = ESTIMATED_HALF_FACE_NOTE
     severity = hayashi_severity(half)
     se = math.sqrt(half) if half > 0 else 1.0
     findings: list[tuple[Reportability, str]] = [

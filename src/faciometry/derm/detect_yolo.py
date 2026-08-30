@@ -45,6 +45,7 @@ from typing import Any, Iterable, Sequence
 import numpy as np
 from numpy.typing import NDArray
 
+from ..core.spec import Reportability, Verdict
 from ..models.licensing import YOLO_DERM_SEG, Provenance, Tier, require
 from .regions import Region, RegionSet
 
@@ -98,6 +99,26 @@ HAYASHI_NOTE = (
     "inherited from its training set's labelling convention, so the grade is "
     "calibrated on that convention and not on a clinician's examination"
 )
+
+#: Attached whenever half the whole-face count stands in for the half-face count
+#: Hayashi grades. The substitute is never larger than the count it replaces,
+#: because the larger half of a face holds at least half of its lesions, so an
+#: asymmetric face grades low. It is an estimate of the graded quantity and not
+#: the quantity itself, so it travels as a caveat and not as a silent default.
+ESTIMATED_HALF_FACE_NOTE = (
+    "no facial midline was supplied, so half the whole-face count rounded up "
+    "stands in for the half-face count; Hayashi grades one half face, so this is "
+    "an estimate of the quantity the grade is defined on rather than the quantity "
+    "itself, and it understates an asymmetric face"
+)
+
+
+def estimated_half_face_count(total_count: int) -> int:
+    """Half the whole-face count, rounded up, for use when no midline exists.
+
+    Every caller owes the reader :data:`ESTIMATED_HALF_FACE_NOTE` with it.
+    """
+    return math.ceil(total_count / 2.0)
 
 
 def hayashi_severity(count_per_half_face: int) -> Severity:
@@ -307,14 +328,27 @@ class AcneDetection:
         """The larger of the two half-face counts, which is the graded one."""
         return max(self.count_on("l", midline_x), self.count_on("r", midline_x))
 
-    def severity(self, *, half_face_count: int | None = None) -> tuple[Severity, str]:
-        """Hayashi grade, with the sentence that has to accompany it."""
+    def severity(
+        self, *, half_face_count: int | None = None
+    ) -> tuple[Severity, Verdict]:
+        """Hayashi grade, with the verdict that gates it.
+
+        A grade from a real half-face count carries the grading convention. A
+        grade from the fallback estimator carries that as well, plus the note
+        saying the count it graded is not the count Hayashi defined. Both are
+        caveats, which is the gate a measurement gets, so neither grade leaves
+        here as a bare number.
+        """
+        findings: list[tuple[Reportability, str]] = [
+            (Reportability.CAVEAT, HAYASHI_NOTE)
+        ]
         if half_face_count is None:
-            # Without a midline to split on, half the total is the least
-            # misleading estimator, and rounding up keeps the grade from being
-            # flattered by a face whose lesions all sit on one side.
-            half_face_count = int(math.ceil(self.total_count / 2.0))
-        return hayashi_severity(half_face_count), HAYASHI_NOTE
+            half_face_count = estimated_half_face_count(self.total_count)
+            findings.append((Reportability.CAVEAT, ESTIMATED_HALF_FACE_NOTE))
+        return (
+            hayashi_severity(half_face_count),
+            Verdict(Reportability.CAVEAT, tuple(findings)),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -490,6 +524,7 @@ __all__ = [
     "MERGE_IOU",
     "HAYASHI_BOUNDS",
     "HAYASHI_NOTE",
+    "ESTIMATED_HALF_FACE_NOTE",
     "Severity",
     "Tile",
     "Lesion",
@@ -497,6 +532,7 @@ __all__ = [
     "AcneDetection",
     "AcneDetector",
     "DetectorUnavailable",
+    "estimated_half_face_count",
     "hayashi_severity",
     "tiles_for_region",
     "iou",

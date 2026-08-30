@@ -34,6 +34,7 @@ from faciometry.derm.colorimetry import (
 )
 from faciometry.derm.detect_yolo import (
     DETECTION_REGIONS,
+    ESTIMATED_HALF_FACE_NOTE,
     AcneDetection,
     AcneDetector,
     DetectorUnavailable,
@@ -248,9 +249,23 @@ def test_half_face_counts_split_midline_regions_by_lesion_position():
 
 def test_severity_without_a_midline_halves_the_total_and_rounds_up():
     detection = _detection({Region.FOREHEAD: [float(i) for i in range(13)]})
-    severity, note = detection.severity()
+    severity, verdict = detection.severity()
     assert severity is hayashi_severity(7)
-    assert "Hayashi" in note
+    assert any("Hayashi" in r for r in verdict.reasons)
+
+
+def test_severity_without_a_midline_caveats_the_estimated_count():
+    detection = _detection({Region.FOREHEAD: [float(i) for i in range(13)]})
+    _, verdict = detection.severity()
+    assert verdict.reportability is Reportability.CAVEAT
+    assert ESTIMATED_HALF_FACE_NOTE in verdict.caveats
+
+
+def test_severity_from_a_real_half_face_count_carries_no_estimate_caveat():
+    detection = _detection({Region.FOREHEAD: [float(i) for i in range(13)]})
+    _, verdict = detection.severity(half_face_count=7)
+    assert verdict.reportability is Reportability.CAVEAT
+    assert ESTIMATED_HALF_FACE_NOTE not in verdict.caveats
 
 
 # ---------------------------------------------------------------------------
