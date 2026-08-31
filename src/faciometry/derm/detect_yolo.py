@@ -45,6 +45,7 @@ from typing import Any, Iterable, Sequence
 import numpy as np
 from numpy.typing import NDArray
 
+from ..core.spec import Reportability, Verdict
 from ..models.licensing import YOLO_DERM_SEG, Provenance, Tier, require
 from .regions import Region, RegionSet
 
@@ -97,6 +98,19 @@ HAYASHI_NOTE = (
     "severe. The count comes from a detector whose idea of a countable lesion is "
     "inherited from its training set's labelling convention, so the grade is "
     "calibrated on that convention and not on a clinician's examination"
+)
+
+#: Why the graded count is the quantity Hayashi defined, when a midline exists.
+MEASURED_HALF_NOTE = "the larger of the two half-face counts, split at the facial midline"
+
+#: Why it is not, when no midline exists. Half the whole-face count rounded up
+#: is the least misleading estimator available, but it estimates the quantity
+#: the grade is defined on rather than measuring it, so a grade built on it is
+#: a caveated grade.
+ESTIMATED_HALF_NOTE = (
+    "half the whole-face count rounded up, because no facial midline was "
+    "supplied; Hayashi grades one half face, so this is an estimate of the "
+    "quantity the grade is defined on rather than the quantity itself"
 )
 
 
@@ -267,6 +281,26 @@ class RegionLesions:
 
 
 @dataclass(frozen=True)
+class Grade:
+    """A Hayashi grade with the verdict that gates it.
+
+    The grade and the count it came from travel together with the reasons, so
+    no caller can print a severity without the statement of what it was counted
+    on. ``estimated`` is true when no facial midline was available and the
+    count is half the whole-face total rather than one half face.
+    """
+
+    severity: Severity
+    half_face_count: int
+    estimated: bool
+    verdict: Verdict
+
+    @property
+    def reasons(self) -> tuple[str, ...]:
+        return self.verdict.reasons
+
+
+@dataclass(frozen=True)
 class AcneDetection:
     """Everything one detector pass produced, plus what it cost in obligations."""
 
@@ -307,14 +341,32 @@ class AcneDetection:
         """The larger of the two half-face counts, which is the graded one."""
         return max(self.count_on("l", midline_x), self.count_on("r", midline_x))
 
-    def severity(self, *, half_face_count: int | None = None) -> tuple[Severity, str]:
-        """Hayashi grade, with the sentence that has to accompany it."""
+    def severity(self, *, half_face_count: int | None = None) -> Grade:
+        """Hayashi grade, carrying the verdict that says what it rests on.
+
+        Without a midline to split on, half the total is the least misleading
+        estimator, and rounding up keeps the grade from being flattered by a
+        face whose lesions all sit on one side. That substitution is an
+        estimate and not the graded quantity, so it arrives as a caveat on the
+        verdict. A caller cannot otherwise tell it apart from a count taken on
+        a real half face.
+        """
+        estimated = half_face_count is None
         if half_face_count is None:
-            # Without a midline to split on, half the total is the least
-            # misleading estimator, and rounding up keeps the grade from being
-            # flattered by a face whose lesions all sit on one side.
             half_face_count = int(math.ceil(self.total_count / 2.0))
-        return hayashi_severity(half_face_count), HAYASHI_NOTE
+        basis = ESTIMATED_HALF_NOTE if estimated else MEASURED_HALF_NOTE
+        return Grade(
+            severity=hayashi_severity(half_face_count),
+            half_face_count=half_face_count,
+            estimated=estimated,
+            verdict=Verdict(
+                Reportability.CAVEAT,
+                (
+                    (Reportability.CAVEAT, HAYASHI_NOTE),
+                    (Reportability.CAVEAT, basis),
+                ),
+            ),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -490,6 +542,9 @@ __all__ = [
     "MERGE_IOU",
     "HAYASHI_BOUNDS",
     "HAYASHI_NOTE",
+    "MEASURED_HALF_NOTE",
+    "ESTIMATED_HALF_NOTE",
+    "Grade",
     "Severity",
     "Tile",
     "Lesion",

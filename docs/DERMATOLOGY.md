@@ -202,8 +202,10 @@ Two consequences the code states explicitly every time it prints a grade:
 2. The grade is defined on a half face. `AcneDetection.hayashi_count(midline_x)`
    splits every lesion by its own position against the facial midline, including
    lesions in midline regions, because a forehead spans both halves. Without a
-   midline the code halves the whole-face count, rounds up, and says in the
-   finding's reasons that it did.
+   midline the code halves the whole-face count and rounds up. That estimate is
+   never silent: `AcneDetection.severity` returns a `Grade` whose `Verdict`
+   carries the estimate as a `CAVEAT`, and `from_acne_severity` reads the same
+   grade, so the finding and any other caller state the same basis.
 
 A lesion count is a Poisson draw, so `n` carries a standard error of `sqrt(n)`.
 That is the interval printed. Detector recall is a second, larger, unmeasured
