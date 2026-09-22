@@ -190,9 +190,17 @@ def _bilinear_sample(image: Image, xs: NDArray[np.float64], ys: NDArray[np.float
     x1c = np.clip(x0 + 1, 0, w - 1)
     y0c = np.clip(y0, 0, h - 1)
     y1c = np.clip(y0 + 1, 0, h - 1)
-    img = image.astype(np.float64)
-    top = img[y0c, x0c] * (1.0 - fx) + img[y0c, x1c] * fx
-    bot = img[y1c, x0c] * (1.0 - fx) + img[y1c, x1c] * fx
+    # Keep the source image in its compact dtype until after indexing. The
+    # crop reads only four source pixels per output pixel; promoting the whole
+    # photograph to float64 here copies tens of megabytes that are never read.
+    # Each gathered neighbourhood is promoted before the same float64
+    # arithmetic, so interpolation and rounding remain byte-for-byte stable.
+    top = image[y0c, x0c].astype(np.float64) * (1.0 - fx) + image[
+        y0c, x1c
+    ].astype(np.float64) * fx
+    bot = image[y1c, x0c].astype(np.float64) * (1.0 - fx) + image[
+        y1c, x1c
+    ].astype(np.float64) * fx
     out = top * (1.0 - fy) + bot * fy
     return np.clip(np.rint(out), 0, 255).astype(np.uint8)
 
