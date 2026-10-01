@@ -1,9 +1,9 @@
-# Vitruve, containerised.
+# Faciometry, containerised.
 #
 # Two decisions are worth reading before you edit this file.
 #
-# 1. The weights are not baked in. `vitruve fetch-weights` writes about 416 MB
-#    into $VITRUVE_CACHE_DIR, which is a volume, so the image stays small and
+# 1. The weights are not baked in. `faciometry fetch-weights` writes about 416 MB
+#    into $FACIOMETRY_CACHE_DIR, which is a volume, so the image stays small and
 #    the SPIGA checkpoint is not redistributed inside a layer that ends up on a
 #    registry. It also keeps the image's provenance honest: every artifact is
 #    fetched at runtime and hash-checked against assets/weights.lock.json.
@@ -45,7 +45,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # The PyPI wheel drags in the CUDA runtime, cuDNN and cuSPARSELt, which is
 # about 2.5 GB of NVIDIA libraries that this image can never use: there is no
 # GPU inside it. Installing the +cpu build first satisfies `torch>=2.2` for the
-# resolver, so the vitruve install below does not go back to PyPI for it.
+# resolver, so the faciometry install below does not go back to PyPI for it.
 RUN pip install --upgrade pip build \
  && pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision \
  && python -m build --wheel --outdir /build/dist \
@@ -77,7 +77,7 @@ COPY --from=build /build/assets /opt/vitruve/assets
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    VITRUVE_CACHE_DIR=/weights
+    FACIOMETRY_CACHE_DIR=/weights
 
 # Declared as a volume so a `docker run` with no -v still gets a writable
 # anonymous volume rather than writing 416 MB into the container layer.
@@ -92,7 +92,7 @@ WORKDIR /reports
 # rather than "this laptop's LAN". The network boundary is the published port:
 # `-p 127.0.0.1:8731:8731` keeps it on loopback, and a bare `-p 8731:8731`
 # publishes it to every interface the host has. `--allow-remote` is still
-# required, because vitruve refuses a non-loopback bind without it and that
+# required, because faciometry refuses a non-loopback bind without it and that
 # refusal is the thing that makes the decision visible in the run command.
 EXPOSE 8731
 
@@ -102,5 +102,5 @@ EXPOSE 8731
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -fsS http://127.0.0.1:8731/health || exit 1
 
-ENTRYPOINT ["vitruve"]
+ENTRYPOINT ["faciometry"]
 CMD ["serve", "--host", "0.0.0.0", "--allow-remote"]

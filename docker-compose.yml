@@ -16,12 +16,12 @@ services:
       - "127.0.0.1:8731:8731"
     volumes:
       - weights:/weights
-      # Reports written by `vitruve analyze --out` land in ./reports on the
+      # Reports written by `faciometry analyze --out` land in ./reports on the
       # host. A report embeds the annotated overlays, so this directory holds
       # pictures of the subject.
       - ./reports:/reports
     environment:
-      VITRUVE_CACHE_DIR: /weights
+      FACIOMETRY_CACHE_DIR: /weights
     # Uploads stay in memory. `--store` would write each one to disk as a
     # metadata-free PNG, and it is left off here on purpose.
     command: ["serve", "--host", "0.0.0.0", "--allow-remote"]
@@ -37,7 +37,7 @@ services:
     volumes:
       - weights:/weights
     environment:
-      VITRUVE_CACHE_DIR: /weights
+      FACIOMETRY_CACHE_DIR: /weights
     command: ["fetch-weights"]
     profiles: ["tools"]
 
@@ -51,7 +51,7 @@ services:
       - weights:/weights
       - ./reports:/reports
     environment:
-      VITRUVE_CACHE_DIR: /weights
+      FACIOMETRY_CACHE_DIR: /weights
     command: ["catalogue"]
     profiles: ["tools"]
 
